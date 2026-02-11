@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Consumer Traceability Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6a",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102217",
+                        "border-light": "#e2e8e5",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+        }
+        .ledger-line {
+            background-image: radial-gradient(#13ec6a 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 min-h-screen font-display">
+<!-- Header / Navigation -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-border-light dark:border-primary/10">
+<div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-icons-outlined text-background-dark text-lg">eco</span>
+</div>
+<span class="font-bold text-xl tracking-tight uppercase">Agri<span class="text-primary">Trace</span></span>
+</div>
+<nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+<a class="text-primary border-b-2 border-primary py-5" href="#">Trace Product</a>
+<a class="hover:text-primary transition-colors" href="#">How it Works</a>
+<a class="hover:text-primary transition-colors" href="#">Sustainability Report</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-icons-outlined text-xl text-slate-500">dark_mode</span>
+</button>
+<button class="bg-slate-900 dark:bg-primary text-white dark:text-background-dark px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2">
+<span class="material-icons-outlined text-sm">verified_user</span>
+                    Verify API
+                </button>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-4 py-8">
+<!-- Search Section -->
+<section class="mb-12 text-center">
+<h1 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight">Know the Journey of Your Food</h1>
+<p class="text-slate-500 dark:text-slate-400 mb-8 max-w-2xl mx-auto">Enter the Batch ID from your packaging or use your camera to scan the QR code for instant blockchain-verified origin details.</p>
+<div class="max-w-2xl mx-auto bg-white dark:bg-slate-900 p-2 rounded-xl shadow-xl shadow-primary/5 border border-border-light dark:border-primary/10 flex items-center gap-2">
+<div class="flex-1 relative">
+<span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full pl-10 pr-4 py-3 bg-transparent border-none focus:ring-0 text-lg font-medium" placeholder="Enter Batch ID (e.g., BATCH-2023-AG-041)" type="text" value="BATCH-2023-AG-041"/>
+</div>
+<button class="p-3 text-slate-500 hover:text-primary transition-colors">
+<span class="material-icons-outlined">qr_code_scanner</span>
+</button>
+<button class="bg-primary text-background-dark px-8 py-3 rounded-lg font-bold hover:brightness-110 transition-all uppercase tracking-wide">
+                    Trace
+                </button>
+</div>
+</section>
+<!-- Product Header -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Details & Journey -->
+<div class="lg:col-span-8">
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-border-light dark:border-primary/10 overflow-hidden mb-8">
+<div class="bg-primary/5 p-6 flex flex-wrap items-center justify-between gap-4 border-b border-border-light dark:border-primary/10">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 bg-white dark:bg-slate-800 rounded-lg p-2 flex items-center justify-center">
+<img alt="Product Image" class="w-full h-full object-cover rounded" data-alt="Fresh organic green apples in a crate" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY5LRUgzm9GnrJQkV7gBy2mbAsUeF7YEgoQlNYF8CBkI2v1eHiIjf5a7A9BPgmSJy9MeUjRCM4dYSi-H7kiUXUpkOkAwZqeV3Q-krQj2ANayDEbA9ET2tXRpxaRrtaCHocir4uMk_qBllNo5wW2E8RfYpsFqUQw9Bwkdx9jrWkobn-hzGINSyGNm4kZuYaXG6URErZQeUBzKQXuBWK2SJRpARp2s4XEECGy_FEtbA1PtL6q6svK4eLwBiacX6crrEJGNaN6zu87BDA"/>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h2 class="text-xl font-bold">Organic Granny Smith Apples</h2>
+<span class="bg-primary/20 text-primary text-[10px] uppercase font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-icons-outlined text-[12px]">verified</span> Authenticated
+                                    </span>
+</div>
+<p class="text-xs text-slate-500 font-mono">Blockchain Hash: 0x82f...a3e49</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="text-right">
+<span class="text-[10px] uppercase text-slate-400 font-bold block">Status</span>
+<span class="text-sm font-semibold text-primary">In Retail</span>
+</div>
+<div class="text-right">
+<span class="text-[10px] uppercase text-slate-400 font-bold block">Freshness</span>
+<span class="text-sm font-semibold">98% High</span>
+</div>
+</div>
+</div>
+<!-- Journey Timeline -->
+<div class="p-8">
+<h3 class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-8">Supply Chain Ledger</h3>
+<div class="relative">
+<!-- Vertical Line -->
+<div class="absolute left-6 top-2 bottom-2 w-0.5 bg-border-light dark:bg-primary/20"></div>
+<!-- Milestone 1: Origin -->
+<div class="relative pl-16 pb-12">
+<div class="absolute left-0 top-0 w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-background-dark z-10 shadow-lg shadow-primary/20">
+<span class="material-icons-outlined">agriculture</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<span class="text-xs font-bold text-primary uppercase mb-1 block">Origin &amp; Certificates</span>
+<h4 class="text-lg font-bold">Green Valley Organic Farms</h4>
+<p class="text-sm text-slate-500 mb-4">Mendoza, Argentina • Harvested: Oct 12, 2023</p>
+<div class="flex flex-wrap gap-2">
+<span class="bg-slate-100 dark:bg-slate-800 text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 border border-border-light dark:border-primary/10">
+<span class="material-icons-outlined text-xs">workspace_premium</span> USDA ORGANIC
+                                            </span>
+<span class="bg-slate-100 dark:bg-slate-800 text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 border border-border-light dark:border-primary/10">
+<span class="material-icons-outlined text-xs">eco</span> FAIR TRADE
+                                            </span>
+</div>
+</div>
+<div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-border-light dark:border-primary/10">
+<p class="text-[10px] font-mono text-slate-400 mb-2 truncate">TXID: f78b2...992cc1</p>
+<div class="flex items-center justify-between text-xs mb-2">
+<span>Soil Quality Score</span>
+<span class="font-bold">A+</span>
+</div>
+<div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[94%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Milestone 2: Processing -->
+<div class="relative pl-16 pb-12">
+<div class="absolute left-0 top-0 w-12 h-12 bg-white dark:bg-slate-800 border-2 border-primary rounded-xl flex items-center justify-center text-primary z-10">
+<span class="material-icons-outlined">inventory_2</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<span class="text-xs font-bold text-primary uppercase mb-1 block">Inspection &amp; Storage</span>
+<h4 class="text-lg font-bold">AgriLogix Processing Hub</h4>
+<p class="text-sm text-slate-500 mb-4">Buenos Aires Port • Arrived: Oct 15, 2023</p>
+<div class="flex gap-4">
+<div class="flex items-center gap-1">
+<span class="material-icons-outlined text-sm text-primary">thermostat</span>
+<span class="text-xs font-medium">3.4°C Stable</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-icons-outlined text-sm text-primary">verified</span>
+<span class="text-xs font-medium">QC Passed</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-center">
+<img alt="Warehouse" class="h-24 w-full object-cover rounded-lg" data-alt="Modern logistics warehouse interior with shelves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvvzgvkDKNpaoXh1nFgOrPdZEziS2SYoOYSU0UW0i_pVR71967QPTDIER2aEdjI4gLAUtRZM92VioWSFME4XU2f2nug3aNAXGoU0OHEPcoxdRVMQL6sS1nEjsMKIsN5UG_4M7jALBsNlAYEQVzetYhOM7C_hFfgTt_DR67-jWJjkpf_4OAb2YTFGozo94ELM-R0kaAoVuPSb4eUyS9anxSe9ru-gOB5lMQGUafYKe3Ac0BiHixtRa8_X_wrn04DaC7-hJsBi-XbPA6"/>
+</div>
+</div>
+</div>
+<!-- Milestone 3: Transport -->
+<div class="relative pl-16 pb-12">
+<div class="absolute left-0 top-0 w-12 h-12 bg-white dark:bg-slate-800 border-2 border-primary rounded-xl flex items-center justify-center text-primary z-10">
+<span class="material-icons-outlined">local_shipping</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<span class="text-xs font-bold text-primary uppercase mb-1 block">Logistics History</span>
+<h4 class="text-lg font-bold">Global Cold-Chain Express</h4>
+<p class="text-sm text-slate-500 mb-4">Ocean Freight + Trucking • 4,200km Traveled</p>
+<p class="text-xs text-slate-400 italic">"Continuous cold-chain monitoring active throughout transit."</p>
+</div>
+<div class="space-y-2">
+<div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded flex items-center justify-between border border-border-light dark:border-primary/10">
+<span class="text-[10px] font-bold">CARBON FOOTPRINT</span>
+<span class="text-xs font-bold text-primary">0.42kg CO2/kg</span>
+</div>
+<div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded flex items-center justify-between border border-border-light dark:border-primary/10">
+<span class="text-[10px] font-bold">TRANSIT DUR.</span>
+<span class="text-xs font-bold text-primary">12 Days</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Milestone 4: Retail -->
+<div class="relative pl-16">
+<div class="absolute left-0 top-0 w-12 h-12 bg-slate-900 dark:bg-primary rounded-xl flex items-center justify-center text-white dark:text-background-dark z-10">
+<span class="material-icons-outlined">storefront</span>
+</div>
+<div>
+<span class="text-xs font-bold text-primary uppercase mb-1 block">Purchase Point</span>
+<h4 class="text-lg font-bold">FreshMart Supermarket #402</h4>
+<p class="text-sm text-slate-500 mb-2">San Francisco, CA • Received: Oct 28, 2023</p>
+<div class="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold">
+<span class="material-icons-outlined text-sm">event</span>
+                                        Best Before: Nov 15, 2023
+                                    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Verification & Certificates -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Blockchain Verification Card -->
+<div class="bg-slate-900 text-white p-6 rounded-xl relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary opacity-10 rounded-full -mr-16 -mt-16"></div>
+<div class="flex items-center gap-3 mb-6 relative">
+<span class="material-icons-outlined text-primary">diamond</span>
+<h3 class="font-bold">Blockchain Verification</h3>
+</div>
+<p class="text-xs text-slate-400 mb-6 leading-relaxed">Each step of this journey is immutably recorded on a private Hyperledger blockchain. Any tampering with data invalidates the seal of authenticity.</p>
+<div class="space-y-4">
+<div class="p-3 bg-white/5 rounded border border-white/10">
+<span class="text-[10px] text-slate-400 block uppercase mb-1">Contract Address</span>
+<span class="text-xs font-mono break-all">0x13ec6a...7722cc7b</span>
+</div>
+<div class="p-3 bg-white/5 rounded border border-white/10">
+<span class="text-[10px] text-slate-400 block uppercase mb-1">Last Sync</span>
+<span class="text-xs font-mono">2 mins ago</span>
+</div>
+<button class="w-full py-3 bg-primary text-background-dark font-bold rounded-lg text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2">
+<span class="material-icons-outlined text-sm">open_in_new</span>
+                            View on Explorer
+                        </button>
+</div>
+</div>
+<!-- Certificate Viewer -->
+<div class="bg-white dark:bg-slate-900 border border-border-light dark:border-primary/10 rounded-xl overflow-hidden">
+<div class="p-4 border-b border-border-light dark:border-primary/10 flex items-center justify-between">
+<h3 class="font-bold text-sm">Digital Certificates</h3>
+<span class="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-bold uppercase">3 Docs</span>
+</div>
+<div class="p-4 space-y-3">
+<a class="flex items-center gap-3 p-3 rounded-lg border border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all group" href="#">
+<div class="w-10 h-10 bg-red-50 dark:bg-red-900/20 text-red-500 rounded flex items-center justify-center">
+<span class="material-icons-outlined">picture_as_pdf</span>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold group-hover:text-primary transition-colors">Organic_Cert_2023.pdf</p>
+<p class="text-[10px] text-slate-400 uppercase">Farming Body • 2.4 MB</p>
+</div>
+<span class="material-icons-outlined text-slate-300 text-sm group-hover:text-primary">download</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-lg border border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all group" href="#">
+<div class="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded flex items-center justify-center">
+<span class="material-icons-outlined">picture_as_pdf</span>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold group-hover:text-primary transition-colors">Logistics_Log_B41.pdf</p>
+<p class="text-[10px] text-slate-400 uppercase">Health Dept • 1.1 MB</p>
+</div>
+<span class="material-icons-outlined text-slate-300 text-sm group-hover:text-primary">download</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-lg border border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all group" href="#">
+<div class="w-10 h-10 bg-primary/10 text-primary rounded flex items-center justify-center">
+<span class="material-icons-outlined">picture_as_pdf</span>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold group-hover:text-primary transition-colors">Soil_Analysis_Report.pdf</p>
+<p class="text-[10px] text-slate-400 uppercase">Origin Lab • 4.8 MB</p>
+</div>
+<span class="material-icons-outlined text-slate-300 text-sm group-hover:text-primary">download</span>
+</a>
+</div>
+</div>
+<!-- Location Map Pin -->
+<div class="rounded-xl border border-border-light dark:border-primary/10 overflow-hidden">
+<div class="h-48 relative">
+<img alt="Map View" class="w-full h-full object-cover grayscale opacity-50 dark:opacity-20" data-alt="Stylized map showing origin of product in Argentina" data-location="Mendoza, Argentina" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBy7FRe1DfC4RXcGaxZ6RMVHISWMzNg_jR3hE6idpOTFHcrhsVKOXargxfosTPYob0XwIWoKJFbyzrJE7lYiirzas0QhSQNSr_sLC7VC7r1Ik6umWgm09AAcrmodl4hkmZXn3-cehIvNDcpsVidomzm2bs9CM2mSJ6hyus-etIVGPLIDRfs6JQSlr1Nc9VpZCLeYyy_zNbMLjnGrUAA1DHCTt3GxOmXBdATHnv8OPtpYu3raUssNEk8uByFdHm3TDxuiY7lmVP7ylQY"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="relative">
+<div class="absolute -top-1 -left-1 w-6 h-6 bg-primary animate-ping rounded-full opacity-50"></div>
+<div class="w-4 h-4 bg-primary rounded-full ring-4 ring-primary/20"></div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 border-t border-border-light dark:border-primary/10">
+<p class="text-[10px] font-bold text-slate-400 uppercase">Farm Location</p>
+<p class="text-sm font-bold">Mendoza Region, Argentina</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="mt-20 border-t border-border-light dark:border-primary/10 bg-white dark:bg-background-dark py-12">
+<div class="max-w-7xl mx-auto px-4">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 bg-primary rounded flex items-center justify-center">
+<span class="material-icons-outlined text-background-dark text-xs">eco</span>
+</div>
+<span class="font-bold text-lg tracking-tight uppercase">Agri<span class="text-primary">Trace</span></span>
+</div>
+<div class="flex gap-8 text-xs font-bold uppercase tracking-widest text-slate-500">
+<a class="hover:text-primary transition-colors" href="#">Transparency Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Partner Farms</a>
+<a class="hover:text-primary transition-colors" href="#">Privacy</a>
+</div>
+<p class="text-xs text-slate-400">© 2023 AgriTrace Systems. Secured by Blockchain.</p>
+</div>
+</div>
+</footer>
+</body></html>

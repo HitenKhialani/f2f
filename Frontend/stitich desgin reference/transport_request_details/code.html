@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Transport Request Details - AgriChain</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#30e87a",
+                "background-light": "#f6f8f7",
+                "background-dark": "#112117",
+                "neutral-primary": "#2d3a33",
+                "neutral-secondary": "#5a6e63",
+                "neutral-border": "#e1e8e4",
+              },
+              fontFamily: {
+                "display": ["Public Sans"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+      </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-neutral-primary dark:text-gray-100 min-h-screen">
+<!-- Navigation Header -->
+<nav class="bg-white dark:bg-background-dark border-b border-neutral-border dark:border-primary/10 px-6 py-4 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-4">
+<a class="p-2 hover:bg-primary/10 rounded-lg transition-colors" href="#">
+<span class="material-icons text-neutral-secondary dark:text-gray-400">arrow_back</span>
+</a>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-neutral-secondary dark:text-gray-400 uppercase tracking-wider">Transport Request</span>
+<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20">LIVE</span>
+</div>
+<h1 class="text-xl font-bold dark:text-white">TRK-8829-AGRI</h1>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 border border-neutral-border dark:border-primary/20 rounded-lg flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-primary/5 transition-colors">
+<span class="material-icons text-sm">download</span>
+<span class="text-sm font-semibold">Download BOL</span>
+</button>
+<button class="px-4 py-2 bg-primary text-background-dark rounded-lg flex items-center gap-2 font-bold hover:opacity-90 transition-opacity">
+<span class="material-icons text-sm">chat_bubble</span>
+<span class="text-sm">Contact Transporter</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto p-6 lg:p-8">
+<!-- Top Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<div class="bg-white dark:bg-white/5 p-4 rounded-xl border border-neutral-border dark:border-primary/10 shadow-sm">
+<p class="text-xs font-semibold text-neutral-secondary dark:text-gray-400 uppercase">Status</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="w-3 h-3 bg-primary rounded-full animate-pulse"></span>
+<p class="text-lg font-bold text-primary">IN_TRANSIT</p>
+</div>
+</div>
+<div class="bg-white dark:bg-white/5 p-4 rounded-xl border border-neutral-border dark:border-primary/10 shadow-sm">
+<p class="text-xs font-semibold text-neutral-secondary dark:text-gray-400 uppercase">Estimated Arrival</p>
+<p class="text-lg font-bold mt-1 dark:text-white">Today, 16:45 PM</p>
+<p class="text-xs text-primary font-medium">On Schedule</p>
+</div>
+<div class="bg-white dark:bg-white/5 p-4 rounded-xl border border-neutral-border dark:border-primary/10 shadow-sm">
+<p class="text-xs font-semibold text-neutral-secondary dark:text-gray-400 uppercase">Temperature</p>
+<p class="text-lg font-bold mt-1 dark:text-white">4.2°C</p>
+<p class="text-xs text-neutral-secondary dark:text-gray-400">Target Range: 2-6°C</p>
+</div>
+<div class="bg-white dark:bg-white/5 p-4 rounded-xl border border-neutral-border dark:border-primary/10 shadow-sm">
+<p class="text-xs font-semibold text-neutral-secondary dark:text-gray-400 uppercase">Total Payload</p>
+<p class="text-lg font-bold mt-1 dark:text-white">12,400 kg</p>
+<p class="text-xs text-neutral-secondary dark:text-gray-400 font-medium">Organic Corn (Grade A)</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Map & Route -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Map Container -->
+<div class="relative bg-white dark:bg-white/5 border border-neutral-border dark:border-primary/10 rounded-xl overflow-hidden shadow-sm h-[450px]">
+<div class="absolute inset-0 bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+<img alt="Map view showing transport route" class="w-full h-full object-cover opacity-50 mix-blend-multiply dark:mix-blend-overlay" data-alt="Modern satellite map view of agriculture route" data-location="Kansas City" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_xGLmjFaU0ulmvFlh1EEbkzDLa--HhxLAJLe7Uf-8S3SYth850l8t7Bsef5E40Sqao_93WcTsPMfYcsARXXKe8v-DLZPCjSbJXn4YhMkX4pmqmj8yzs2DrNpf_unwm3S3SsOtOYxhfLMTEFOi81LYW0rHKw78YkqIfkDuup-Kx84dMsV2idup0pWphBTBiw7mC9KFLjIgAHzOYwQLROifO6vU62ajG7j6U_qfZheaEVF2dXZ3iJuOIVQzxJJIsb8Km7H7xauHK1hj"/>
+<!-- Map UI Overlay Elements -->
+<div class="absolute top-4 left-4 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md p-3 rounded-lg border border-neutral-border dark:border-primary/20 shadow-lg text-sm">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-icons text-primary text-lg">local_shipping</span>
+<span class="font-bold">Truck ID: AG-9002</span>
+</div>
+<p class="text-xs text-neutral-secondary dark:text-gray-400">Current: I-70 Westbound, KS</p>
+</div>
+<div class="absolute bottom-4 right-4 flex flex-col gap-2">
+<button class="w-10 h-10 bg-white dark:bg-background-dark rounded-lg flex items-center justify-center border border-neutral-border dark:border-primary/20 shadow-lg hover:bg-gray-50 dark:hover:bg-primary/10">
+<span class="material-icons">my_location</span>
+</button>
+<button class="w-10 h-10 bg-white dark:bg-background-dark rounded-lg flex items-center justify-center border border-neutral-border dark:border-primary/20 shadow-lg hover:bg-gray-50 dark:hover:bg-primary/10">
+<span class="material-icons">add</span>
+</button>
+<button class="w-10 h-10 bg-white dark:bg-background-dark rounded-lg flex items-center justify-center border border-neutral-border dark:border-primary/20 shadow-lg hover:bg-gray-50 dark:hover:bg-primary/10">
+<span class="material-icons">remove</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Timeline / Stepper -->
+<div class="bg-white dark:bg-white/5 p-6 rounded-xl border border-neutral-border dark:border-primary/10 shadow-sm">
+<h3 class="text-lg font-bold mb-6 flex items-center gap-2 dark:text-white">
+<span class="material-icons text-primary">route</span>
+                        Journey Progress
+                    </h3>
+<div class="relative flex justify-between">
+<!-- Connecting Line -->
+<div class="absolute top-5 left-0 w-full h-1 bg-neutral-border dark:bg-primary/10 -z-0"></div>
+<div class="absolute top-5 left-0 w-2/3 h-1 bg-primary -z-0"></div>
+<!-- Step 1 -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-background-dark">
+<span class="material-icons text-xl">agriculture</span>
+</div>
+<div class="mt-3 text-center">
+<p class="text-sm font-bold dark:text-white">Origin</p>
+<p class="text-xs text-neutral-secondary dark:text-gray-400">Green Valley Farm</p>
+<p class="text-[10px] text-neutral-secondary mt-1">Oct 24, 08:30 AM</p>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-background-dark">
+<span class="material-icons text-xl">local_shipping</span>
+</div>
+<div class="mt-3 text-center">
+<p class="text-sm font-bold dark:text-white">In Transit</p>
+<p class="text-xs text-neutral-secondary dark:text-gray-400">Kansas City Hub</p>
+<p class="text-[10px] text-neutral-secondary mt-1">Oct 24, 11:15 AM</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-10 h-10 rounded-full bg-white dark:bg-background-dark border-2 border-primary flex items-center justify-center text-primary">
+<span class="material-icons text-xl">place</span>
+</div>
+<div class="mt-3 text-center">
+<p class="text-sm font-bold dark:text-white">Current</p>
+<p class="text-xs text-neutral-secondary dark:text-gray-400">En route to Denver</p>
+<p class="text-[10px] text-primary font-bold mt-1">Real-time update</p>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-10 h-10 rounded-full bg-white dark:bg-background-dark border-2 border-neutral-border dark:border-primary/20 flex items-center justify-center text-neutral-secondary">
+<span class="material-icons text-xl">store</span>
+</div>
+<div class="mt-3 text-center">
+<p class="text-sm font-bold text-neutral-secondary dark:text-gray-400">Destination</p>
+<p class="text-xs text-neutral-secondary dark:text-gray-500">Retailer Warehouse B</p>
+<p class="text-[10px] text-neutral-secondary mt-1">Est: 04:45 PM</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Sidebar Details -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Location Info -->
+<div class="bg-white dark:bg-white/5 rounded-xl border border-neutral-border dark:border-primary/10 shadow-sm overflow-hidden">
+<div class="p-4 bg-gray-50 dark:bg-primary/5 border-b border-neutral-border dark:border-primary/10">
+<h3 class="font-bold flex items-center gap-2 dark:text-white">
+<span class="material-icons text-primary text-xl">location_on</span>
+                            Route Details
+                        </h3>
+</div>
+<div class="p-5 space-y-6">
+<div class="relative">
+<div class="absolute left-2.5 top-8 bottom-0 w-0.5 border-l-2 border-dashed border-neutral-border dark:border-primary/20"></div>
+<div class="flex gap-4 mb-8">
+<div class="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-1">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+<div>
+<p class="text-xs font-bold text-neutral-secondary dark:text-gray-400 uppercase tracking-tighter">Origin (Pickup)</p>
+<p class="font-bold mt-0.5 dark:text-white">Green Valley Organic Farm</p>
+<p class="text-sm text-neutral-secondary dark:text-gray-400">1292 Farm Road, Olathe, KS 66061</p>
+<p class="text-xs mt-1 text-neutral-secondary">Contact: Marcus Henderson • +1 913-442-0192</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-5 h-5 rounded-full bg-neutral-border dark:bg-primary/20 flex items-center justify-center shrink-0 mt-1">
+<span class="material-icons text-xs text-neutral-secondary dark:text-primary">place</span>
+</div>
+<div>
+<p class="text-xs font-bold text-neutral-secondary dark:text-gray-400 uppercase tracking-tighter">Destination (Drop-off)</p>
+<p class="font-bold mt-0.5 dark:text-white">Central Plains Distributor</p>
+<p class="text-sm text-neutral-secondary dark:text-gray-400">Dock #44, 500 Distribution Cir, Denver, CO 80239</p>
+<p class="text-xs mt-1 text-neutral-secondary">Contact: Sarah Jenkins • +1 303-912-8832</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Transporter Info -->
+<div class="bg-white dark:bg-white/5 rounded-xl border border-neutral-border dark:border-primary/10 shadow-sm overflow-hidden">
+<div class="p-4 bg-gray-50 dark:bg-primary/5 border-b border-neutral-border dark:border-primary/10">
+<h3 class="font-bold flex items-center gap-2 dark:text-white">
+<span class="material-icons text-primary text-xl">local_shipping</span>
+                            Transporter Information
+                        </h3>
+</div>
+<div class="p-5">
+<div class="flex items-center gap-4 mb-4">
+<img alt="Driver portrait" class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" data-alt="Professional driver profile photo headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoiuLSeH15pO_Ub1ygrVQ34_Xah0-I5YxsDG7SjwpQbK2XEIMvE3ifDPrev32YIhe4tj_r6rLFn30vx77x2-4yyCisMZb5M4OrjbSKrQsQ2ChBwLjWbYxTQ6wVxUAtlVpWDUCE-cyj6bbVD7Z1hQj1jkKBzKK_yt1jfHXCJvjduYKegBrc9JsLwrMgORtl-DPXlhB7WKfTtNguEkM0-Q235EDGMOs94xxzu50k3lpJ7yYOjg4mpPtEiGP8HvXf3XU3EU0I2-_O29AW"/>
+<div>
+<p class="font-bold dark:text-white">Robert "Bob" Miller</p>
+<p class="text-xs text-neutral-secondary dark:text-gray-400">Atlas Logistics Solutions • ID: AL-4491</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-4 border-t border-neutral-border dark:border-primary/10">
+<div>
+<p class="text-[10px] font-bold text-neutral-secondary dark:text-gray-400 uppercase">Vehicle Type</p>
+<p class="text-sm font-semibold dark:text-white">Refrigerated Heavy Duty</p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-neutral-secondary dark:text-gray-400 uppercase">Plate Number</p>
+<p class="text-sm font-semibold dark:text-white">KS-992-AGX</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Itemized Payload -->
+<div class="bg-white dark:bg-white/5 rounded-xl border border-neutral-border dark:border-primary/10 shadow-sm overflow-hidden">
+<div class="p-4 bg-gray-50 dark:bg-primary/5 border-b border-neutral-border dark:border-primary/10">
+<h3 class="font-bold flex items-center gap-2 dark:text-white">
+<span class="material-icons text-primary text-xl">inventory_2</span>
+                            Payload Summary
+                        </h3>
+</div>
+<div class="p-0">
+<table class="w-full text-left text-sm">
+<thead class="bg-gray-50/50 dark:bg-white/5">
+<tr>
+<th class="px-5 py-2 font-bold text-[10px] text-neutral-secondary dark:text-gray-400 uppercase">Item</th>
+<th class="px-5 py-2 font-bold text-[10px] text-neutral-secondary dark:text-gray-400 uppercase text-right">Qty</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-neutral-border dark:divide-primary/10">
+<tr>
+<td class="px-5 py-3">
+<p class="font-bold dark:text-white">Organic Yellow Corn</p>
+<p class="text-xs text-neutral-secondary">Bulk Grains, Grade A</p>
+</td>
+<td class="px-5 py-3 text-right font-bold dark:text-white">8,000 kg</td>
+</tr>
+<tr>
+<td class="px-5 py-3">
+<p class="font-bold dark:text-white">Heirloom Soybeans</p>
+<p class="text-xs text-neutral-secondary">Seed Stock, Certified</p>
+</td>
+<td class="px-5 py-3 text-right font-bold dark:text-white">4,400 kg</td>
+</tr>
+</tbody>
+<tfoot>
+<tr class="bg-primary/5">
+<td class="px-5 py-3 font-bold dark:text-white">Total Weight</td>
+<td class="px-5 py-3 text-right font-bold text-primary">12,400 kg</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Meta -->
+<footer class="max-w-7xl mx-auto px-6 pb-12 mt-4 text-center">
+<p class="text-xs text-neutral-secondary dark:text-gray-500">
+            System: AgriFlow Logistics Engine • Last database sync: Today at 12:44:12 PM • Request Signature: 0x882A...F92B
+        </p>
+</footer>
+</body></html>

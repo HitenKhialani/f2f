@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inspection Report Details | Agri Supply Chain</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#30e87a",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#112117",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen font-display">
+<!-- Top Navigation / Breadcrumb Area -->
+<header class="bg-white dark:bg-slate-900 border-b border-primary/10 sticky top-0 z-10">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-primary/10 rounded-lg transition-colors group">
+<span class="material-icons text-slate-500 group-hover:text-primary">arrow_back</span>
+</button>
+<div>
+<h1 class="text-xl font-bold tracking-tight">Inspection Report Details</h1>
+<p class="text-xs text-slate-500 uppercase tracking-widest font-semibold">Quality Management System</p>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-icons text-sm">share</span>
+                        Share
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-slate-900 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-sm">
+<span class="material-icons text-sm">file_download</span>
+                        Export PDF
+                    </button>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Top Status Bar -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-primary/10 p-6 mb-8 shadow-sm flex flex-wrap items-center justify-between gap-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+<span class="material-icons text-primary text-3xl">verified</span>
+</div>
+<div>
+<h2 class="text-2xl font-bold">Report #INSP-2023-0892</h2>
+<p class="text-slate-500">Completed on October 24, 2023 at 14:32 PM</p>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<div class="text-right">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Overall Result</p>
+<span class="px-4 py-1.5 bg-primary/10 text-primary border border-primary/30 rounded-full font-bold text-sm flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                        PASSED
+                    </span>
+</div>
+<div class="w-px h-12 bg-slate-200 dark:bg-slate-700"></div>
+<div class="text-right">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Risk Level</p>
+<span class="font-bold text-slate-700 dark:text-slate-300">LOW</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column: Core Data -->
+<div class="lg:col-span-2 space-y-8">
+<!-- Summary Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-primary/5 shadow-sm">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Batch Information</p>
+<div class="flex items-center justify-between">
+<span class="text-slate-600 dark:text-slate-400">Batch ID</span>
+<span class="font-mono font-bold text-primary">BCH-9921-X9</span>
+</div>
+<div class="mt-2 flex items-center justify-between">
+<span class="text-slate-600 dark:text-slate-400">Product</span>
+<span class="font-semibold">Organic Arabica Coffee Beans</span>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-primary/5 shadow-sm">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Distributor Details</p>
+<div class="flex items-center justify-between">
+<span class="text-slate-600 dark:text-slate-400">Entity Name</span>
+<span class="font-semibold">Global Harvest Logistics</span>
+</div>
+<div class="mt-2 flex items-center justify-between">
+<span class="text-slate-600 dark:text-slate-400">Location</span>
+<span class="font-semibold">São Paulo, BR</span>
+</div>
+</div>
+</section>
+<!-- Detailed Quality Checks Table -->
+<section class="bg-white dark:bg-slate-900 rounded-xl border border-primary/5 shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+<h3 class="font-bold text-lg">Quality Parameters</h3>
+<span class="text-xs font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">5 Tests Performed</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50 dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase">
+<tr>
+<th class="px-6 py-4">Parameter</th>
+<th class="px-6 py-4">Target Range</th>
+<th class="px-6 py-4">Measured Value</th>
+<th class="px-6 py-4">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr>
+<td class="px-6 py-4 font-medium">Moisture Content</td>
+<td class="px-6 py-4 text-slate-500">10.0% - 12.5%</td>
+<td class="px-6 py-4 font-semibold">11.4%</td>
+<td class="px-6 py-4">
+<span class="text-primary flex items-center gap-1 font-bold text-sm">
+<span class="material-icons text-sm">check_circle</span> Pass
+                                        </span>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 font-medium">Bean Density</td>
+<td class="px-6 py-4 text-slate-500">650 - 750 g/L</td>
+<td class="px-6 py-4 font-semibold">702 g/L</td>
+<td class="px-6 py-4">
+<span class="text-primary flex items-center gap-1 font-bold text-sm">
+<span class="material-icons text-sm">check_circle</span> Pass
+                                        </span>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 font-medium">Defect Count</td>
+<td class="px-6 py-4 text-slate-500">&lt; 5 per 300g</td>
+<td class="px-6 py-4 font-semibold">2</td>
+<td class="px-6 py-4">
+<span class="text-primary flex items-center gap-1 font-bold text-sm">
+<span class="material-icons text-sm">check_circle</span> Pass
+                                        </span>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 font-medium">Aflatoxin Levels</td>
+<td class="px-6 py-4 text-slate-500">&lt; 4.0 µg/kg</td>
+<td class="px-6 py-4 font-semibold text-orange-600">3.8 µg/kg</td>
+<td class="px-6 py-4">
+<span class="text-orange-500 flex items-center gap-1 font-bold text-sm">
+<span class="material-icons text-sm">warning</span> Caution
+                                        </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Right Column: Context & Attachments -->
+<div class="space-y-8">
+<!-- Storage Conditions Card -->
+<section class="bg-white dark:bg-slate-900 rounded-xl border border-primary/5 shadow-sm p-6">
+<h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+<span class="material-icons text-primary">thermostat</span>
+                        Storage Environment
+                    </h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+<span class="text-sm text-slate-500">Temperature</span>
+<span class="font-bold">18.5°C</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+<span class="text-sm text-slate-500">Humidity</span>
+<span class="font-bold">55% RH</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+<span class="text-sm text-slate-500">CO2 Levels</span>
+<span class="font-bold">410 ppm</span>
+</div>
+</div>
+</section>
+<!-- Document Preview -->
+<section class="bg-white dark:bg-slate-900 rounded-xl border border-primary/5 shadow-sm p-6">
+<h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+<span class="material-icons text-primary">attachment</span>
+                        Supporting Documents
+                    </h3>
+<div class="group relative aspect-[4/3] rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mb-4 cursor-pointer">
+<img alt="Inspection Report PDF Preview" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" data-alt="A scanned official laboratory inspection report with charts and stamps" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLhHsF2n4VIKrTKJRYw80zVnbKiQr1PBLKG7daqeSqBgioWTEVXV2FDOlKK4hdho-CyErpP1_Z49RxkfnSh7pG4H3FsG7dQycwR9YxXIpEC9SoUY-ENYzMqqrljxmrIaa4V9lgQ328Ft-AVimEMTXEaj7vRtmVb6nar59ouy9n2WrCjRBx5qGsjoAVOzTKfZOP4ecJDcAz2CD6_vvLj4yOiwxejnquho0wBHqFRzZGvXAQLlwaGQ0XVQwAB-2YAaaX9_niHLhTIphL"/>
+<div class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/40 group-hover:bg-slate-900/20 transition-all">
+<span class="material-icons text-white text-4xl mb-2">picture_as_pdf</span>
+<span class="text-white font-bold text-sm">View Full Report</span>
+</div>
+</div>
+<div class="flex items-center justify-between px-2">
+<div>
+<p class="text-sm font-semibold truncate">Lab_Results_BCH9921.pdf</p>
+<p class="text-xs text-slate-500">2.4 MB • PDF Document</p>
+</div>
+<button class="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-icons">download</span>
+</button>
+</div>
+</section>
+</div>
+</div>
+<!-- Blockchain Verification Section -->
+<footer class="mt-12">
+<div class="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-black dark:to-slate-900 text-white rounded-2xl p-8 shadow-xl relative overflow-hidden">
+<div class="absolute top-0 right-0 p-8 opacity-10">
+<span class="material-icons text-9xl">hub</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-icons text-slate-900">shield</span>
+</div>
+<div>
+<h3 class="text-xl font-bold">Immutable Ledger Verification</h3>
+<p class="text-slate-400 text-sm">This record is secured by Ethereum Blockchain technology.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="md:col-span-3">
+<div class="bg-white/5 border border-white/10 rounded-xl p-4">
+<p class="text-xs font-bold text-primary uppercase tracking-widest mb-2">Blockchain Transaction Hash</p>
+<div class="flex items-center justify-between gap-4">
+<code class="text-sm md:text-base font-mono break-all text-slate-300">0x7a2d931f31c8e87a2249e87a224930e87a31c8e87a2249e87a2249e87a2249f31</code>
+<button class="p-2 hover:bg-white/10 rounded-lg transition-colors" title="Copy Hash">
+<span class="material-icons text-sm">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-center md:justify-end">
+<button class="w-full md:w-auto px-6 py-4 bg-primary text-slate-900 font-bold rounded-xl hover:scale-105 transition-transform flex items-center justify-center gap-2">
+<span class="material-icons">account_balance_wallet</span>
+                                Verify on Explorer
+                            </button>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-6 text-xs text-slate-400 font-medium">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                            Network: Mainnet
+                        </div>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                            Block: #18,421,092
+                        </div>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                            Timestamp: 2023-10-24 14:32:01 UTC
+                        </div>
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                            Gas Limit: 21,000
+                        </div>
+</div>
+</div>
+</div>
+<div class="mt-8 text-center text-slate-400 text-sm">
+<p>© 2023 Agri Supply Chain Management System. All records are digitally signed and encrypted.</p>
+</div>
+</footer>
+</main>
+</body></html>

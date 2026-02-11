@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgriChain Admin Control Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6a",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102217",
+                        "neutral-light": "#eef2f0",
+                        "neutral-dark": "#1a2e22",
+                        "border-light": "#e2e8e5",
+                        "border-dark": "#2d4236",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen flex font-display">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-border-light dark:border-border-dark flex flex-col bg-white dark:bg-neutral-dark">
+<div class="p-6 flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-icons text-white text-sm">agriculture</span>
+</div>
+<span class="font-bold text-lg tracking-tight">AgriChain <span class="text-primary">Admin</span></span>
+</div>
+<nav class="flex-1 px-4 space-y-1 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-semibold" href="#">
+<span class="material-icons">verified_user</span>
+<span>KYC Requests</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-light dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-icons text-slate-400">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-light dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-icons text-slate-400">inventory_2</span>
+<span>Batches</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-light dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-icons text-slate-400">local_shipping</span>
+<span>Transport</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-light dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-icons text-slate-400">assignment_turned_in</span>
+<span>Inspections</span>
+</a>
+</nav>
+<div class="p-4 mt-auto border-t border-border-light dark:border-border-dark">
+<div class="p-3 bg-neutral-light dark:bg-slate-800 rounded-lg flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="text-xs font-medium text-slate-500 uppercase">Blockchain Online</span>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Top Bar -->
+<header class="h-16 border-b border-border-light dark:border-border-dark bg-white/80 dark:bg-neutral-dark/80 backdrop-blur-md px-8 flex items-center justify-between z-10">
+<div class="flex items-center bg-neutral-light dark:bg-slate-800 rounded-lg px-3 py-1.5 w-96">
+<span class="material-icons text-slate-400 text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full font-display" placeholder="Search stakeholders, batch IDs..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative">
+<span class="material-icons text-slate-400 hover:text-slate-600 cursor-pointer">notifications</span>
+<span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-[10px] text-white rounded-full flex items-center justify-center font-bold">3</span>
+</div>
+<div class="h-8 w-px bg-border-light dark:bg-border-dark"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-sm font-semibold leading-none">Alex Rivera</p>
+<span class="bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">System Admin</span>
+</div>
+<img alt="Admin Profile" class="w-10 h-10 rounded-full border-2 border-primary/30" data-alt="Close up portrait of male administrator" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJ-ri26Fo30y1G6UiHfEk_Nwdg29XAX7lXHZ2j5iUwNJwNfE1mOmAvtHQI5u8D64JgW3oLiL_2XN-1koMphhPcFs8_xRfslkeLfg22u0fEGUnHcytXamUqIF8JNkCTs_WjLRNwujnHaECw_cTCRiF-Ge-JKsotqos5iMZ4BjHYNxnf3yiezIkEGu-Fq5BXdBLPqnAAE4NPolb-26oEeJ8ouJ3Il1eHD5VuFzLxJ8D3YwOJF9bpO0zth2Lpt7kA6yhEPz7vGJfMOj2X"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="flex-1 overflow-y-auto p-8 space-y-8">
+<!-- Welcome & Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-white dark:bg-neutral-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<span class="material-icons text-primary bg-primary/10 p-2 rounded-lg">pending_actions</span>
+<span class="text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded">+12%</span>
+</div>
+<h3 class="text-slate-500 text-sm font-medium">Pending KYC</h3>
+<p class="text-2xl font-bold mt-1">24</p>
+</div>
+<div class="bg-white dark:bg-neutral-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<span class="material-icons text-blue-500 bg-blue-50 p-2 rounded-lg">groups</span>
+<span class="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">Active</span>
+</div>
+<h3 class="text-slate-500 text-sm font-medium">Active Users</h3>
+<p class="text-2xl font-bold mt-1">1,482</p>
+</div>
+<div class="bg-white dark:bg-neutral-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<span class="material-icons text-amber-500 bg-amber-50 p-2 rounded-lg">local_shipping</span>
+</div>
+<h3 class="text-slate-500 text-sm font-medium">Live Batches</h3>
+<p class="text-2xl font-bold mt-1">86</p>
+</div>
+<div class="bg-white dark:bg-neutral-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<span class="material-icons text-primary bg-primary/10 p-2 rounded-lg">account_balance_wallet</span>
+</div>
+<h3 class="text-slate-500 text-sm font-medium">System Alerts</h3>
+<p class="text-2xl font-bold mt-1">0</p>
+</div>
+</div>
+<!-- KYC Table Section -->
+<div class="bg-white dark:bg-neutral-dark rounded-xl border border-border-light dark:border-border-dark shadow-sm overflow-hidden">
+<div class="p-6 border-b border-border-light dark:border-border-dark flex items-center justify-between">
+<div>
+<h2 class="text-lg font-bold">KYC Approval Queue</h2>
+<p class="text-sm text-slate-500">Review and verify stakeholder identities for blockchain access.</p>
+</div>
+<button class="flex items-center gap-2 bg-neutral-light dark:bg-slate-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all">
+<span class="material-icons text-sm">filter_list</span>
+                        Filter
+                    </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-neutral-light/50 dark:bg-slate-800/50 text-[11px] uppercase tracking-wider font-bold text-slate-500">
+<th class="px-6 py-4">Stakeholder</th>
+<th class="px-6 py-4">Role</th>
+<th class="px-6 py-4">Submission Date</th>
+<th class="px-6 py-4">Blockchain Status</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark">
+<!-- Row 1 -->
+<tr class="hover:bg-neutral-light/30 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Green Valley" class="w-9 h-9 rounded-lg object-cover" data-alt="Aerial view of green valley farm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1pWpisonSxvt-Rtxy4sDcSC005hoh-2DTSJrL-BLlOsTmW45TtOXPUXFuDRiC1zF_bH0qI2ZX3XEyYUwqrhp5-izw8NuRK220qBSAi2BAUWQu35SZtiSoyzrLmjdsN8KABccx-WoLEU8U67ksW4VISzB8PVfCXu36SMabsExv_TOXUNHO_gdk8SAyhEal5uohN8CTV4bYqhHSKF1hVbVKIwfspn_1Cr4FTZCQTdd4X8dLB9s9iD4HE5Slz0J2gkBNcMMNT4WUWbS5"/>
+<div>
+<p class="font-bold text-sm">Green Valley Farms</p>
+<p class="text-[11px] text-slate-500 uppercase">FID: #49283-FV</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm px-2.5 py-1 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 rounded-lg font-medium">Farmer</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm">Oct 24, 2023</p>
+<p class="text-xs text-slate-500">14:22 GMT</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-sm font-medium text-amber-600">Pending Validation</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="inline-flex items-center justify-center p-2 rounded-lg bg-primary hover:bg-primary/90 text-white transition-all shadow-sm" title="Approve">
+<span class="material-icons text-sm">check</span>
+</button>
+<button class="inline-flex items-center justify-center p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition-all shadow-sm" title="Reject">
+<span class="material-icons text-sm">close</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-neutral-light/30 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Logistics Pro" class="w-9 h-9 rounded-lg object-cover" data-alt="Warehouse logistics and transport facility" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLEJM-HA6TXlClMlYbo-VVdRojgyW2JNsO3nXjk0A4cuERPplv1FBOcRyTHZ8_kL-uf-7o1oTtURE_dG03RhWUJ0oTv0KjUQsIiAWipQwcNhvdHZc1udQIy5EFflH-SYWF4yCVXIEsRcrvqdpraN7hmCP8SGC6RuX62B-U4ug_416fNDKCG2nCr5B73JviEmonf6Y-mRlvN5Ttp_2ifmEz0ogX1PjIKOruiJ4V8NhKhcvFqzZsgQPZMC1PkMfOaVzTPwYrZTjok_bJ"/>
+<div>
+<p class="font-bold text-sm">Swift Logistics Co.</p>
+<p class="text-[11px] text-slate-500 uppercase">LID: #99211-LG</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm px-2.5 py-1 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 rounded-lg font-medium">Distributor</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm">Oct 24, 2023</p>
+<p class="text-xs text-slate-500">11:05 GMT</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-sm font-medium text-primary">In Progress</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="inline-flex items-center justify-center p-2 rounded-lg bg-primary hover:bg-primary/90 text-white transition-all shadow-sm">
+<span class="material-icons text-sm">check</span>
+</button>
+<button class="inline-flex items-center justify-center p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition-all shadow-sm">
+<span class="material-icons text-sm">close</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-neutral-light/30 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Fresh Market" class="w-9 h-9 rounded-lg object-cover" data-alt="Fresh vegetables in a retail store" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC65eXVQSZE3_VTm0Zr1iMQpRrp26Wr9YcJufFzZziQFdBFVMirTyodTrdpxnCrkShf2xNHkyQgXalVoQR5ttQv-1rdpfKAQvUIqHPyF-MAOXZhTKYI54ZaViLW_db7ZYBfHQ6obDdggXxCL_lOIZaL6ZOXn1ngZbfpNI9TjTLKAVNVmK2a38stOXdZq2t0WwO7rdj6eo3fYP1O5EzOMExRSI97X-69T43_U9v3F-rfH5VuG92C0fhTDO1N9uC-2VY5yCyrO2TlVkfJ"/>
+<div>
+<p class="font-bold text-sm">FreshMart Retailers</p>
+<p class="text-[11px] text-slate-500 uppercase">RID: #33120-RT</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm px-2.5 py-1 bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400 rounded-lg font-medium">Retailer</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm">Oct 23, 2023</p>
+<p class="text-xs text-slate-500">09:15 GMT</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-sm font-medium text-amber-600">Document Review</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right space-x-2">
+<button class="inline-flex items-center justify-center p-2 rounded-lg bg-primary hover:bg-primary/90 text-white transition-all shadow-sm">
+<span class="material-icons text-sm">check</span>
+</button>
+<button class="inline-flex items-center justify-center p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition-all shadow-sm">
+<span class="material-icons text-sm">close</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-border-light dark:border-border-dark flex items-center justify-between">
+<p class="text-xs text-slate-500">Showing 3 of 24 pending requests</p>
+<div class="flex gap-1">
+<button class="p-1.5 rounded bg-neutral-light dark:bg-slate-800 disabled:opacity-50" disabled="">
+<span class="material-icons text-sm">chevron_left</span>
+</button>
+<button class="px-3 py-1 text-xs font-bold bg-primary text-white rounded">1</button>
+<button class="px-3 py-1 text-xs font-bold hover:bg-neutral-light dark:hover:bg-slate-800 rounded">2</button>
+<button class="px-3 py-1 text-xs font-bold hover:bg-neutral-light dark:hover:bg-slate-800 rounded">3</button>
+<button class="p-1.5 rounded bg-neutral-light dark:bg-slate-800">
+<span class="material-icons text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Verification Info Cards -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="bg-white dark:bg-neutral-dark p-6 rounded-xl border border-border-light dark:border-border-dark">
+<h3 class="font-bold mb-4 flex items-center gap-2">
+<span class="material-icons text-primary">security</span>
+                        Blockchain Audit Log
+                    </h3>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+<div class="w-0.5 flex-1 bg-border-light dark:bg-border-dark"></div>
+</div>
+<div class="pb-4">
+<p class="text-sm font-semibold">User #7721 Approved</p>
+<p class="text-xs text-slate-500">Hash: 0x4f2...3a1c • 2 mins ago</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+<div class="w-0.5 flex-1 bg-border-light dark:bg-border-dark"></div>
+</div>
+<div class="pb-4">
+<p class="text-sm font-semibold">Contract Update Successful</p>
+<p class="text-xs text-slate-500">Batch tracing updated • 15 mins ago</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-2 h-2 bg-slate-300 rounded-full"></div>
+</div>
+<div>
+<p class="text-sm font-semibold">New KYC Submission</p>
+<p class="text-xs text-slate-500">Green Valley Farms • 45 mins ago</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-primary/5 dark:bg-primary/10 p-6 rounded-xl border border-primary/20 relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="font-bold text-primary mb-2">System Insight</h3>
+<p class="text-sm text-slate-700 dark:text-slate-300 mb-4">KYC verification speed has increased by <span class="font-bold">24%</span> since implementing automated document OCR.</p>
+<div class="flex gap-4">
+<div class="bg-white/50 dark:bg-black/20 p-3 rounded-lg flex-1">
+<p class="text-[10px] uppercase font-bold text-slate-500">Avg. Approval</p>
+<p class="text-lg font-bold">1.4 Days</p>
+</div>
+<div class="bg-white/50 dark:bg-black/20 p-3 rounded-lg flex-1">
+<p class="text-[10px] uppercase font-bold text-slate-500">Trust Score</p>
+<p class="text-lg font-bold">99.8%</p>
+</div>
+</div>
+</div>
+<span class="material-icons absolute -bottom-6 -right-6 text-9xl text-primary/10">auto_awesome</span>
+</div>
+</div>
+</div>
+</main>
+</body></html>

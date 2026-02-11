@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgriChain Landing Page</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#14522d",
+                        "primary-hover": "#0f3e22",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#131f18",
+                        "neutral-surface": "#e8ebe9", // Derived from primary hue
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-100 font-display selection:bg-primary selection:text-white">
+<!-- Navigation -->
+<nav class="sticky top-0 z-50 w-full backdrop-blur-md bg-background-light/90 dark:bg-background-dark/90 border-b border-primary/10 dark:border-primary/20">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-20">
+<!-- Logo -->
+<div class="flex items-center gap-2">
+<div class="bg-primary p-1.5 rounded-lg">
+<span class="material-icons text-white">agriculture</span>
+</div>
+<span class="text-2xl font-bold text-primary dark:text-white tracking-tight">AgriChain</span>
+</div>
+<!-- Desktop Menu -->
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-green-400 font-medium transition-colors" href="#">How it Works</a>
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-green-400 font-medium transition-colors" href="#">Features</a>
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-green-400 font-medium transition-colors" href="#">Network</a>
+</div>
+<!-- Auth Buttons -->
+<div class="hidden md:flex items-center space-x-4">
+<a class="text-primary dark:text-green-400 font-semibold hover:opacity-80 transition-opacity" href="#">Log In</a>
+<a class="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-lg font-semibold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]" href="#">
+                        Get Started
+                    </a>
+</div>
+<!-- Mobile menu button -->
+<div class="md:hidden flex items-center">
+<button class="text-gray-600 dark:text-gray-300 hover:text-primary">
+<span class="material-icons text-2xl">menu</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<section class="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-28">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+<div class="grid lg:grid-cols-2 gap-12 items-center">
+<!-- Text Content -->
+<div class="space-y-8">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary dark:text-green-300 text-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        Blockchain-Verified Traceability
+                    </div>
+<h1 class="text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
+                        Traceable Agriculture from <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-green-600">Farm to Fork.</span>
+</h1>
+<p class="text-xl text-gray-600 dark:text-gray-400 leading-relaxed max-w-lg">
+                        Secure the future of food with immutable blockchain records. Empowering farmers, distributors, and consumers with complete transparency.
+                    </p>
+<div class="flex flex-col sm:flex-row gap-4 pt-2">
+<a class="bg-primary hover:bg-primary-hover text-white text-lg px-8 py-4 rounded-xl font-semibold shadow-xl shadow-primary/30 transition-all hover:-translate-y-1 text-center" href="#">
+                            Start Tracking Now
+                        </a>
+<a class="group flex items-center justify-center gap-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 text-lg px-8 py-4 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-all" href="#">
+<span class="material-icons text-primary dark:text-green-400 group-hover:scale-110 transition-transform">play_circle</span>
+                            View Demo
+                        </a>
+</div>
+<div class="pt-8 border-t border-gray-200 dark:border-white/10 flex items-center gap-8">
+<div>
+<p class="text-3xl font-bold text-gray-900 dark:text-white">10k+</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">Active Farmers</p>
+</div>
+<div>
+<p class="text-3xl font-bold text-gray-900 dark:text-white">5M+</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">Products Tracked</p>
+</div>
+<div>
+<p class="text-3xl font-bold text-gray-900 dark:text-white">100%</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">Transparent</p>
+</div>
+</div>
+</div>
+<!-- Hero Image/Illustration -->
+<div class="relative">
+<div class="absolute -inset-4 bg-primary/20 blur-3xl rounded-full opacity-30"></div>
+<div class="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-white/10 group">
+<img alt="Farmer using tablet in green field" class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105" data-alt="Modern farmer using digital tablet in a lush green field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDb-IuTBcvlVZI4SD17Y7FDhT2pcVL4b2sdCS2DcaHxC5nN-KgLaGdhWOef68bydjmD-hqKqa73I_ckxk8vdZKaEGkdXSKy7PVxJbIfgT1co5d9Am2-6vjR1wO89HrTQeIPzGY9r4uNUWw6I6NCUFbYRlFbJ1ZqbTho98mLvVQBrXsKZwnPoLSPYfXlGAJ4stCQpnLd7owWKfCUUp_uDanncGNLwDCK-bRm6o6cBXFOhFZtOANu9Fxo-lFEtI8J1Ksf-zK0PGoXGrPn"/>
+<!-- Floating UI Element Overlay -->
+<div class="absolute bottom-6 left-6 right-6 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-gray-100 dark:border-white/10">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-bold text-primary dark:text-green-400 uppercase tracking-wider">Latest Shipment</span>
+<span class="flex items-center text-xs text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 rounded">
+<span class="material-icons text-[14px] mr-1">verified</span> Verified
+                                </span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+<span class="material-icons text-lg">local_shipping</span>
+</div>
+<div>
+<p class="text-sm font-bold text-gray-900 dark:text-white">Batch #ORG-2023-884</p>
+<p class="text-xs text-gray-500 dark:text-gray-400">En route to Distribution Center</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Background Pattern -->
+<div class="absolute top-0 right-0 -z-10 w-1/3 h-full bg-gradient-to-l from-primary/5 to-transparent"></div>
+</section>
+<!-- Supply Chain Flow Section -->
+<section class="py-20 bg-white dark:bg-[#1a2921]">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center max-w-3xl mx-auto mb-16">
+<h2 class="text-primary dark:text-green-400 font-bold tracking-wide uppercase text-sm mb-2">The Process</h2>
+<h3 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">How AgriChain Works</h3>
+<p class="text-gray-600 dark:text-gray-400">
+                    A seamless, transparent journey from the soil to your table. Every step is recorded on the blockchain for immutable proof of quality.
+                </p>
+</div>
+<!-- Flow Diagram -->
+<div class="relative">
+<!-- Connecting Line (Desktop) -->
+<div class="hidden lg:block absolute top-12 left-0 w-full h-0.5 bg-gray-200 dark:bg-white/10 -z-0"></div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 relative z-10">
+<!-- Step 1: Farmer -->
+<div class="group relative">
+<div class="flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-2xl bg-white dark:bg-background-dark border-2 border-primary/20 group-hover:border-primary shadow-lg flex items-center justify-center mb-6 transition-all duration-300 group-hover:-translate-y-2">
+<span class="material-icons text-4xl text-primary dark:text-green-400">agriculture</span>
+</div>
+<h4 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Farmer</h4>
+<p class="text-sm text-gray-500 dark:text-gray-400">Harvests crops and creates the initial digital tag.</p>
+</div>
+<!-- Mobile/Tablet Arrow -->
+<div class="lg:hidden absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-gray-300">
+<span class="material-icons">arrow_downward</span>
+</div>
+</div>
+<!-- Step 2: Distributor -->
+<div class="group relative">
+<div class="flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-2xl bg-white dark:bg-background-dark border-2 border-primary/20 group-hover:border-primary shadow-lg flex items-center justify-center mb-6 transition-all duration-300 group-hover:-translate-y-2">
+<span class="material-icons text-4xl text-primary dark:text-green-400">inventory_2</span>
+</div>
+<h4 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Distributor</h4>
+<p class="text-sm text-gray-500 dark:text-gray-400">Aggregates produce and verifies quality standards.</p>
+</div>
+<!-- Mobile/Tablet Arrow -->
+<div class="lg:hidden absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-gray-300">
+<span class="material-icons">arrow_downward</span>
+</div>
+</div>
+<!-- Step 3: Transporter -->
+<div class="group relative">
+<div class="flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-2xl bg-white dark:bg-background-dark border-2 border-primary/20 group-hover:border-primary shadow-lg flex items-center justify-center mb-6 transition-all duration-300 group-hover:-translate-y-2">
+<span class="material-icons text-4xl text-primary dark:text-green-400">local_shipping</span>
+</div>
+<h4 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Transporter</h4>
+<p class="text-sm text-gray-500 dark:text-gray-400">Logistics tracking with temperature &amp; condition monitoring.</p>
+</div>
+<!-- Mobile/Tablet Arrow -->
+<div class="lg:hidden absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-gray-300">
+<span class="material-icons">arrow_downward</span>
+</div>
+</div>
+<!-- Step 4: Retailer -->
+<div class="group relative">
+<div class="flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-2xl bg-white dark:bg-background-dark border-2 border-primary/20 group-hover:border-primary shadow-lg flex items-center justify-center mb-6 transition-all duration-300 group-hover:-translate-y-2">
+<span class="material-icons text-4xl text-primary dark:text-green-400">storefront</span>
+</div>
+<h4 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Retailer</h4>
+<p class="text-sm text-gray-500 dark:text-gray-400">Recieves goods and places them on shelves for sale.</p>
+</div>
+<!-- Mobile/Tablet Arrow -->
+<div class="lg:hidden absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-gray-300">
+<span class="material-icons">arrow_downward</span>
+</div>
+</div>
+<!-- Step 5: Consumer -->
+<div class="group">
+<div class="flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-2xl bg-primary text-white shadow-xl shadow-primary/30 flex items-center justify-center mb-6 transition-all duration-300 group-hover:-translate-y-2 relative overflow-hidden">
+<div class="absolute inset-0 bg-white/10 rounded-2xl"></div>
+<span class="material-icons text-4xl">qr_code_scanner</span>
+</div>
+<h4 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Consumer</h4>
+<p class="text-sm text-gray-500 dark:text-gray-400">Scans the QR code to see the entire product journey.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Grid -->
+<section class="py-24 bg-neutral-surface/30 dark:bg-background-dark">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid md:grid-cols-3 gap-8">
+<!-- Feature 1 -->
+<div class="bg-white dark:bg-white/5 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-white/5">
+<div class="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 flex items-center justify-center mb-6">
+<span class="material-icons">security</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Immutable Records</h3>
+<p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Data once entered onto the blockchain cannot be altered, ensuring absolute integrity of the supply chain history.
+                    </p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-white dark:bg-white/5 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-white/5">
+<div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 flex items-center justify-center mb-6">
+<span class="material-icons">query_stats</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Real-time Tracking</h3>
+<p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Monitor the movement of goods in real-time. Identify bottlenecks instantly and optimize your logistics.
+                    </p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-white dark:bg-white/5 p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-white/5">
+<div class="w-12 h-12 rounded-lg bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 flex items-center justify-center mb-6">
+<span class="material-icons">verified_user</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Quality Assurance</h3>
+<p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Verify certifications (Organic, Fair Trade) directly on the chain, building unmatched trust with consumers.
+                    </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Role Selection CTA -->
+<section class="py-24 relative overflow-hidden">
+<div class="absolute inset-0 bg-primary dark:bg-primary/20"></div>
+<!-- Decorative bg image with overlay -->
+<div class="absolute inset-0 opacity-10 mix-blend-overlay bg-fixed" data-alt="Abstract aerial view of green crop fields" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuASoc8LW0SaKoI4DZG0Exytxj01s751yaEGPa_JFAgkbzKpywulN9Lcw9-_IANDZRO3ZHXH_hEOVipj-4xjOPbiSNSQJ4t1E-G55droXWN2AMN9Qxvv6-qD6sYTqjAB0AhfjD2ADkHgZPgc5CpHGJCdOSxEGFVOZ0NI5-TvHw5LR3XoiMTz_WLLfjbCMKXVYI9rprfemcBZN7O2Qkf3dpNRgsLHgwB8PA66lkVSV6Zciaa8LUBpqW7UHpboLerQBKw-GwrEwDo66fNE');"></div>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+<h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Ready to join the transparent future of food?</h2>
+<p class="text-lg text-white/90 mb-10 max-w-2xl mx-auto">
+                Join thousands of stakeholders in the world's most trusted agricultural network. Select your role to get started today.
+            </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+<a class="w-full sm:w-auto bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-xl font-bold shadow-xl transition-transform hover:-translate-y-1" href="#">
+                    Get Started as Farmer
+                </a>
+<a class="w-full sm:w-auto bg-primary-hover border border-white/20 text-white hover:bg-black/20 px-8 py-4 rounded-xl font-bold transition-transform hover:-translate-y-1" href="#">
+                    Join as Partner
+                </a>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-background-light dark:bg-background-dark border-t border-gray-200 dark:border-white/10 pt-16 pb-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+<div class="col-span-2 md:col-span-1">
+<div class="flex items-center gap-2 mb-4">
+<div class="bg-primary p-1 rounded">
+<span class="material-icons text-white text-sm">agriculture</span>
+</div>
+<span class="text-xl font-bold text-primary dark:text-white">AgriChain</span>
+</div>
+<p class="text-sm text-gray-500 dark:text-gray-400">
+                        Revolutionizing agriculture with blockchain technology for a sustainable future.
+                    </p>
+</div>
+<div>
+<h4 class="font-bold text-gray-900 dark:text-white mb-4">Platform</h4>
+<ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+<li><a class="hover:text-primary transition-colors" href="#">How it works</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Security</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Pricing</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-gray-900 dark:text-white mb-4">Company</h4>
+<ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+<li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Careers</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Contact</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-gray-900 dark:text-white mb-4">Connect</h4>
+<div class="flex space-x-4">
+<a class="w-8 h-8 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-primary hover:text-white transition-colors" href="#">
+<span class="text-xs">TW</span>
+</a>
+<a class="w-8 h-8 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-primary hover:text-white transition-colors" href="#">
+<span class="text-xs">LI</span>
+</a>
+<a class="w-8 h-8 rounded-full bg-gray-200 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-primary hover:text-white transition-colors" href="#">
+<span class="text-xs">FB</span>
+</a>
+</div>
+</div>
+</div>
+<div class="border-t border-gray-200 dark:border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+<p>© 2023 AgriChain Systems. All rights reserved.</p>
+<div class="flex space-x-6 mt-4 md:mt-0">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Terms of Service</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

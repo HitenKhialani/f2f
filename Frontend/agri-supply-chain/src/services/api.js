@@ -1,0 +1,101 @@
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor to add auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Auth APIs
+export const authAPI = {
+  login: (credentials) => api.post('/auth/login/', credentials),
+  register: (data) => api.post('/auth/register/', data),
+  logout: (data) => api.post('/auth/logout/', data),
+  me: () => api.get('/auth/me/'),
+};
+
+// Stakeholder APIs
+export const stakeholderAPI = {
+  getProfile: (id) => api.get(`/stakeholder-profiles/${id}/`),
+  updateProfile: (id, data) => api.patch(`/stakeholder-profiles/${id}/`, data),
+  listProfiles: () => api.get('/stakeholder-profiles/'),
+};
+
+// KYC APIs
+export const kycAPI = {
+  list: () => api.get('/kyc-records/'),
+  submit: (data) => api.post('/kyc-records/', data),
+  updateStatus: (id, data) => api.patch(`/kyc-records/${id}/`, data),
+};
+
+// Crop Batch APIs
+export const batchAPI = {
+  list: () => api.get('/crop-batches/'),
+  create: (data) => api.post('/crop-batches/', data),
+  get: (id) => api.get(`/crop-batches/${id}/`),
+  update: (id, data) => api.patch(`/crop-batches/${id}/`, data),
+};
+
+// Transport APIs
+export const transportAPI = {
+  list: () => api.get('/transport-requests/'),
+  create: (data) => api.post('/transport-requests/', data),
+  get: (id) => api.get(`/transport-requests/${id}/`),
+  update: (id, data) => api.patch(`/transport-requests/${id}/`, data),
+};
+
+// Inspection APIs
+export const inspectionAPI = {
+  list: () => api.get('/inspection-reports/'),
+  create: (data) => api.post('/inspection-reports/', data),
+  get: (id) => api.get(`/inspection-reports/${id}/`),
+};
+
+// Retail APIs
+export const retailAPI = {
+  list: () => api.get('/retail-listings/'),
+  create: (data) => api.post('/retail-listings/', data),
+  get: (id) => api.get(`/retail-listings/${id}/`),
+  update: (id, data) => api.patch(`/retail-listings/${id}/`, data),
+};
+
+// Price Breakdown APIs
+export const priceAPI = {
+  get: (id) => api.get(`/price-breakdown/${id}/`),
+  create: (data) => api.post('/price-breakdown/', data),
+};
+
+// Consumer APIs
+export const consumerAPI = {
+  scan: (data) => api.post('/consumer-scans/', data),
+  getTimeline: (batchId) => api.get(`/crop-batches/${batchId}/timeline/`),
+};
+
+export default api;

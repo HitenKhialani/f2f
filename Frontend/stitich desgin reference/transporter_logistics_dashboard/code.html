@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Transporter Logistics Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6a",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102217",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased">
+<div class="flex min-h-screen">
+<!-- Sidebar Navigation -->
+<aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col fixed h-full">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-icons text-white">local_shipping</span>
+</div>
+<h1 class="font-bold text-xl tracking-tight">AgriLogix</h1>
+</div>
+<nav class="flex-1 px-4 space-y-1 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary font-semibold rounded-lg" href="#">
+<span class="material-icons text-[20px]">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-icons text-[20px]">inventory_2</span>
+<span>Shipments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-icons text-[20px]">groups</span>
+<span>Fleet Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-icons text-[20px]">assessment</span>
+<span>Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors" href="#">
+<span class="material-icons text-[20px]">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 px-2 py-2">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Profile picture of a male logistics manager" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDY95KGNryn-LzNfiDjdPNFj7ExaeP6YRevawbIk0ImmMb7KmhX5F87HGlSSHesZ1ob-Qen6BP7hH-q-Ya9fC2R81qL1xfv4yzG5jKmeKx-LMc8U8faTUDpARRVbRs8ldDUOZOrKSRgSNS0ZFWxuNOosL2_mIJUYqvLXWhsMEkMbjo0obFo8rwkU4sRND7pwH4xXn9sKFhy2PIrogT3ajQ_uWlEC5GK3CfWTaMzbVNgleB4vGkSvrFfAMuTNaspKR8Oh9n2ojf-9Ae4"/>
+<div class="flex-1 overflow-hidden">
+<p class="text-sm font-semibold truncate">Marcus Chen</p>
+<p class="text-xs text-slate-500 dark:text-slate-400 truncate">Logistics Lead</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 min-h-screen">
+<!-- Top Bar -->
+<header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-10">
+<div class="flex items-center gap-4">
+<h2 class="text-lg font-semibold">Logistics Overview</h2>
+<span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-emerald-700 dark:text-primary border border-primary/30">
+                        Transporter
+                    </span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 relative">
+<span class="material-icons">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+</button>
+<button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+<span class="material-icons text-sm">add</span>
+<span>New Shipment</span>
+</button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-8 space-y-8">
+<!-- KPI Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">Assigned Requests</span>
+<span class="material-icons text-blue-500">assignment</span>
+</div>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-bold">12</span>
+<span class="text-xs text-emerald-500 font-medium mb-1.5">+2 today</span>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">In Transit</span>
+<span class="material-icons text-primary">local_shipping</span>
+</div>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-bold">24</span>
+<span class="text-xs text-slate-400 font-medium mb-1.5">Active now</span>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">Delivered</span>
+<span class="material-icons text-emerald-500">task_alt</span>
+</div>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-bold">148</span>
+<span class="text-xs text-emerald-500 font-medium mb-1.5">this month</span>
+</div>
+</div>
+</div>
+<!-- Main Table Section -->
+<section class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<h3 class="font-bold text-lg">Active Transport Requests</h3>
+<div class="flex items-center gap-2">
+<div class="relative">
+<span class="material-icons absolute left-3 top-2 text-slate-400 text-sm">search</span>
+<input class="pl-9 pr-4 py-1.5 text-sm border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-lg focus:ring-primary focus:border-primary" placeholder="Search requests..." type="text"/>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
+<span class="material-icons text-sm">filter_list</span>
+<span>Filter</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+<th class="px-6 py-4 font-semibold">Request ID</th>
+<th class="px-6 py-4 font-semibold">Batch ID</th>
+<th class="px-6 py-4 font-semibold">Origin</th>
+<th class="px-6 py-4 font-semibold">Destination</th>
+<th class="px-6 py-4 font-semibold">Status</th>
+<th class="px-6 py-4 font-semibold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">TR-89241</td>
+<td class="px-6 py-4 text-slate-500 dark:text-slate-400">#BCH-0042</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium">Sacramento Hub</div>
+<div class="text-xs text-slate-400">California, US</div>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium">San Francisco Port</div>
+<div class="text-xs text-slate-400">California, US</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                            New Assignment
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="bg-primary text-white px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm hover:shadow-md transition-all">Accept</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">TR-89238</td>
+<td class="px-6 py-4 text-slate-500 dark:text-slate-400">#BCH-0039</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium">Fresno Facility</div>
+<div class="text-xs text-slate-400">California, US</div>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium">LA Distribution Center</div>
+<div class="text-xs text-slate-400">California, US</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-primary">
+                                            In Transit
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Update Status</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">TR-89235</td>
+<td class="px-6 py-4 text-slate-500 dark:text-slate-400">#BCH-0031</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium">Oakland Storage</div>
+<div class="text-xs text-slate-400">California, US</div>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium">Seattle Logistics</div>
+<div class="text-xs text-slate-400">Washington, US</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-primary">
+                                            In Transit
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Update Status</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">TR-89231</td>
+<td class="px-6 py-4 text-slate-500 dark:text-slate-400">#BCH-0028</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium">Napa Valley Estates</div>
+<div class="text-xs text-slate-400">California, US</div>
+</td>
+<td class="px-6 py-4">
+<div class="text-sm font-medium">Denver Hub</div>
+<div class="text-xs text-slate-400">Colorado, US</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                                            Pending Pickup
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="bg-primary text-white px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm hover:shadow-md transition-all">Start Transit</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<p class="text-sm text-slate-500 dark:text-slate-400">Showing 4 of 12 requests</p>
+<div class="flex gap-2">
+<button class="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50" disabled="">
+<span class="material-icons text-sm">chevron_left</span>
+</button>
+<button class="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-white dark:hover:bg-slate-700">
+<span class="material-icons text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Shipment Map Preview -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<h3 class="font-bold text-lg">Route Monitoring</h3>
+<span class="text-sm text-primary font-medium">Live View</span>
+</div>
+<div class="h-64 bg-slate-100 dark:bg-slate-800 relative">
+<div class="absolute inset-0 bg-cover bg-center opacity-70 grayscale" data-alt="Map of California logistics routes" data-location="California" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBAUmAjeOrpS8CTvcmIzhzpetCxZSwibPNW-zp8mKv2OSOE7pQ8XXjZlNuNI0ZGwbfVH1-ngTyGPCrjXOSXnsl2wDqheuSDB4-BjuLTQz6IkT7shh-ef6yxvpG70ScEK8-speRjo5jju2zHRHqVAKQVK18vCQ8cqF3vR_khsW6AxJ3v7TyCHj2AljY7OWwj0k0ZZ-w91eP1LA6Z7ugx5kjU77WYk5THSReQiDnu3FMkFjop_xWt3KL22vdrm7AylNNtEgm2XsxzWa-c')"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="bg-white/90 dark:bg-slate-900/90 px-4 py-2 rounded-lg border border-primary flex items-center gap-2">
+<span class="w-3 h-3 bg-primary rounded-full animate-pulse"></span>
+<span class="text-sm font-semibold">Truck TR-202 is approaching Sacramento</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col justify-between">
+<div>
+<h3 class="font-bold text-lg mb-4">Quick Stats</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-sm text-slate-500">Avg. Delivery Time</span>
+<span class="text-sm font-bold">1.2 Days</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[85%]"></div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm text-slate-500">Efficiency Rate</span>
+<span class="text-sm font-bold text-emerald-500">98.2%</span>
+</div>
+<div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[98%]"></div>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-3 border-2 border-primary/20 hover:border-primary/50 text-primary font-bold rounded-lg transition-all">
+                            View Detailed Analytics
+                        </button>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

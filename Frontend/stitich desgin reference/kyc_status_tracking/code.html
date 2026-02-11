@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KYC Status Tracking | Agri Supply Chain</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec6a",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102217",
+                        "neutral-agri": {
+                            50: "#f0f9f3",
+                            100: "#e1f2e7",
+                            200: "#c3e5cf",
+                            300: "#a5d8b7",
+                            400: "#69bd87",
+                            500: "#49a36a",
+                            600: "#3a8255",
+                            700: "#2b6140",
+                            800: "#1d412b",
+                            900: "#0e2015",
+                        }
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-neutral-agri-900 dark:text-neutral-agri-50 min-h-screen flex flex-col">
+<!-- Navigation -->
+<nav class="border-b border-neutral-agri-200 dark:border-neutral-agri-800 bg-white dark:bg-neutral-agri-900 px-6 py-4">
+<div class="max-w-7xl mx-auto flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+<span class="material-icons text-white text-xl">account_tree</span>
+</div>
+<span class="text-xl font-bold tracking-tight">AgriChain <span class="text-primary">KYC</span></span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-neutral-agri-600 dark:text-neutral-agri-300 hover:text-primary transition-colors">
+<span class="material-icons">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-neutral-agri-200 dark:bg-neutral-agri-700 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile photo of a farmer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYUEIYI_8emnDHoGsANmYd3H-OBi6FMWdZanTLqPqXFOGYG1XzQJQKAEQSpTYgq3htzJoNkfwuCeYb6XCSBRqpbbsSC1X-_aTk-WixcbGxGGlw2M1dbZyv1joawohnRzpio4ATKvqbkHgAJ9Axt9SHjpykVNIKJnniW0b99VEbZulZ1gZWr_Mls09hR8pHCSbA_1FIv6-qHjvIMuvHpte-RbWytxZFPbt20P-fN5iH_ZVGqHdftxorh2aPN51JaVaHA-1tZ6nL5BQb"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow flex items-center justify-center p-6">
+<div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- SECTION 1: PENDING STATE -->
+<div class="flex flex-col gap-6">
+<div class="flex items-center gap-3 mb-2">
+<span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-bold rounded uppercase tracking-wider">State: Pending</span>
+<div class="h-px flex-grow bg-neutral-agri-200 dark:border-neutral-agri-800"></div>
+</div>
+<div class="bg-white dark:bg-neutral-agri-900/50 border border-neutral-agri-200 dark:border-neutral-agri-800 rounded-xl shadow-sm p-8 flex flex-col items-center text-center">
+<div class="w-20 h-20 bg-amber-50 dark:bg-amber-900/20 rounded-full flex items-center justify-center mb-6 relative">
+<span class="material-icons text-4xl text-amber-500 animate-pulse">hourglass_empty</span>
+<div class="absolute inset-0 border-4 border-amber-500/20 rounded-full border-t-amber-500 animate-spin" style="animation-duration: 3s;"></div>
+</div>
+<h2 class="text-2xl font-bold mb-3">Verification in Progress</h2>
+<p class="text-neutral-agri-600 dark:text-neutral-agri-400 mb-8 max-w-sm">
+                        Our team is currently reviewing your documents for the Agri Supply Chain registry. This usually takes 24-48 hours.
+                    </p>
+<!-- Blockchain Stepper -->
+<div class="w-full max-w-md bg-neutral-agri-50 dark:bg-neutral-agri-800/50 rounded-lg p-6 mb-8 text-left">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-neutral-agri-500 mb-4 flex items-center gap-2">
+<span class="material-icons text-sm">link</span> Blockchain Ledger Status
+                        </h3>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+<span class="material-icons text-white text-xs">check</span>
+</div>
+<div class="w-0.5 h-full bg-primary/30 my-1"></div>
+</div>
+<div>
+<p class="text-sm font-semibold">Data Uploaded</p>
+<p class="text-xs text-neutral-agri-500">Hash: 0x82...f92a</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-6 h-6 rounded-full border-2 border-amber-500 flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-amber-500"></div>
+</div>
+<div class="w-0.5 h-full bg-neutral-agri-200 dark:bg-neutral-agri-700 my-1"></div>
+</div>
+<div>
+<p class="text-sm font-semibold text-amber-600">Manual Verification</p>
+<p class="text-xs text-neutral-agri-500">Awaiting node confirmation</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="w-6 h-6 rounded-full border-2 border-neutral-agri-200 dark:border-neutral-agri-700 flex items-center justify-center"></div>
+</div>
+<div>
+<p class="text-sm font-semibold text-neutral-agri-400">Ledger Finalization</p>
+<p class="text-xs text-neutral-agri-500 italic">Expected: Tomorrow</p>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full bg-neutral-agri-100 dark:bg-neutral-agri-800 hover:bg-neutral-agri-200 dark:hover:bg-neutral-agri-700 text-neutral-agri-900 dark:text-neutral-agri-50 font-semibold py-3 px-6 rounded-lg transition-all">
+                        Back to Dashboard
+                    </button>
+</div>
+</div>
+<!-- SECTION 2: REJECTED STATE -->
+<div class="flex flex-col gap-6">
+<div class="flex items-center gap-3 mb-2">
+<span class="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold rounded uppercase tracking-wider">State: Rejected</span>
+<div class="h-px flex-grow bg-neutral-agri-200 dark:border-neutral-agri-800"></div>
+</div>
+<div class="bg-white dark:bg-neutral-agri-900/50 border border-neutral-agri-200 dark:border-neutral-agri-800 rounded-xl shadow-sm p-8 flex flex-col items-center text-center">
+<div class="w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-6">
+<span class="material-icons text-4xl text-red-500">report_problem</span>
+</div>
+<h2 class="text-2xl font-bold mb-3">Verification Unsuccessful</h2>
+<p class="text-neutral-agri-600 dark:text-neutral-agri-400 mb-8 max-w-sm">
+                        We couldn't verify your identity based on the documents provided. Please see the details below and resubmit.
+                    </p>
+<!-- Reason Card -->
+<div class="w-full bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-lg p-6 mb-8 text-left">
+<h3 class="text-sm font-bold text-red-700 dark:text-red-400 mb-2 flex items-center gap-2">
+<span class="material-icons text-sm">info</span> Reasons for Rejection:
+                        </h3>
+<ul class="space-y-2">
+<li class="text-sm text-red-600 dark:text-red-300 flex items-start gap-2">
+<span class="material-icons text-xs mt-1">fiber_manual_record</span>
+                                Proof of Land Ownership is expired or illegible.
+                            </li>
+<li class="text-sm text-red-600 dark:text-red-300 flex items-start gap-2">
+<span class="material-icons text-xs mt-1">fiber_manual_record</span>
+                                National ID selfie did not match the submitted ID photo.
+                            </li>
+</ul>
+</div>
+<div class="w-full flex flex-col gap-3">
+<button class="w-full bg-primary hover:opacity-90 text-neutral-agri-900 font-bold py-3 px-6 rounded-lg transition-all shadow-sm">
+                            Re-upload Documents
+                        </button>
+<button class="w-full border border-neutral-agri-300 dark:border-neutral-agri-700 hover:bg-neutral-agri-50 dark:hover:bg-neutral-agri-800 text-neutral-agri-700 dark:text-neutral-agri-200 font-semibold py-3 px-6 rounded-lg transition-all">
+                            Contact Support
+                        </button>
+</div>
+<p class="mt-6 text-xs text-neutral-agri-500 max-w-xs">
+                        Blockchain KYC ensures immutable trust in the Agri Supply Chain. For assistance, visit our <a class="text-primary underline" href="#">Resubmission Guide</a>.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Meta -->
+<footer class="p-8 border-t border-neutral-agri-200 dark:border-neutral-agri-800 bg-white dark:bg-neutral-agri-950">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-neutral-agri-500">
+<div class="flex items-center gap-2">
+<span class="material-icons text-sm">security</span>
+<span>Protected by Ethereum Layer 2 Immutable Ledger</span>
+</div>
+<div class="flex gap-6">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Compliance Standards</a>
+<a class="hover:text-primary transition-colors" href="#">Network Status</a>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Chain Sync: 100%</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Batch Detailed Information | Agri Supply Chain</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#30e87a",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#112117",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation -->
+<nav class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16 items-center">
+<div class="flex items-center gap-4">
+<div class="bg-primary p-2 rounded-lg">
+<span class="material-icons text-white">eco</span>
+</div>
+<span class="text-xl font-bold tracking-tight">AgriTrace <span class="text-primary">Batch</span></span>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-icons text-sm">print</span>
+<span class="text-sm font-medium">Print Label</span>
+</button>
+<button class="bg-primary hover:bg-opacity-90 text-slate-900 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all">
+<span class="material-icons text-sm">verified_user</span>
+<span>Verify Ledger</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Hero Header -->
+<header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-primary/20 text-primary-dark font-bold text-xs px-2 py-1 rounded uppercase tracking-wider">Arabica Premium</span>
+<span class="text-slate-500 dark:text-slate-400 font-medium tracking-wide">ID: #BN-99201</span>
+</div>
+<h1 class="text-3xl font-extrabold flex items-center gap-3">
+                    Highland Roast Batch 2024
+                    <span class="material-icons text-primary text-2xl">check_circle</span>
+</h1>
+</div>
+<div class="flex gap-2">
+<div class="text-right px-4 border-r border-slate-200 dark:border-slate-800">
+<p class="text-xs text-slate-500 uppercase font-bold tracking-widest">Status</p>
+<p class="text-primary font-bold">In Transit (Milling)</p>
+</div>
+<div class="text-right px-4">
+<p class="text-xs text-slate-500 uppercase font-bold tracking-widest">Last Updated</p>
+<p class="font-bold">2 hours ago</p>
+</div>
+</div>
+</header>
+<!-- Summary Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="bg-primary/10 p-3 rounded-lg">
+<span class="material-icons text-primary">inventory_2</span>
+</div>
+<div>
+<p class="text-sm text-slate-500 font-medium">Quantity</p>
+<p class="text-2xl font-bold">1,250 kg</p>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
+<span class="material-icons text-blue-500">water_drop</span>
+</div>
+<div>
+<p class="text-sm text-slate-500 font-medium">Moisture Level</p>
+<p class="text-2xl font-bold">11.4%</p>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-lg">
+<span class="material-icons text-amber-500">grade</span>
+</div>
+<div>
+<p class="text-sm text-slate-500 font-medium">Quality Score</p>
+<p class="text-2xl font-bold">88/100</p>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-lg">
+<span class="material-icons text-slate-500">event</span>
+</div>
+<div>
+<p class="text-sm text-slate-500 font-medium">Harvest Date</p>
+<p class="text-2xl font-bold">Oct 12, 2023</p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Side: Core Information -->
+<div class="lg:col-span-2 space-y-8">
+<!-- Farmer Details -->
+<section class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<h2 class="text-lg font-bold">Producer Information</h2>
+<span class="text-sm text-primary font-medium flex items-center gap-1">
+<span class="material-icons text-sm">verified</span> Verified Producer
+                        </span>
+</div>
+<div class="p-6 flex flex-col md:flex-row gap-8">
+<img class="w-24 h-24 rounded-full object-cover ring-4 ring-primary/20" data-alt="Portrait of a coffee farmer in Ethiopia" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeUa6W3Ta6Z1Pe0SLiQEBbhr6znh-ERB_TUaTiHNOddST8beLLjGb33qbzl3PCPdJs7WRFjegB2nw-JP8WOQt7CiH8jcY6uHjdQkQJbCpY6RafRYkLFSWeIpoaRDD7m-CWoDFOMaKU2-P79LmWJXHIcgz-oZnm5tROQOV4MYDy7Qh5D1oAvDgV5DDwaGeb5l_drV1JDhb-qBHtKqKdYSP8F4dEN-tUGiTbnFXEZps-10Ze0g2shqrs87lq6L4QzJpJHo0bdile3IVa"/>
+<div class="flex-1 grid grid-cols-2 gap-y-4 gap-x-8">
+<div>
+<p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Farmer Name</p>
+<p class="font-semibold">Samuel Bekele</p>
+</div>
+<div>
+<p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Region / Farm</p>
+<p class="font-semibold">Sidama Zone, Amaro Farm</p>
+</div>
+<div>
+<p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Certifications</p>
+<div class="flex gap-2 mt-1">
+<span class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold">FAIRTRADE</span>
+<span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold">ORGANIC</span>
+</div>
+</div>
+<div>
+<p class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Annual Yield</p>
+<p class="font-semibold">45.2 Tons</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Certificates -->
+<section class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800">
+<h2 class="text-lg font-bold">Quality &amp; Compliance Documents</h2>
+</div>
+<div class="p-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+<div class="group relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-[3/4]">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A scanned quality certificate document" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqraBXi8NVGzUVgDpbsYeFLSa_Wu7J8N5YPNHWz3dfs9B6naExuXXnUF1QCtmEjgl6nLiRP0AeTVzeOPoTom2ok1Mduaw9bIFWFrylNxLQ1Vm47rg0qJ_JupRXlqJuAPmS4PouyYHsccagtxaCdXNXT48w4Aou6B9XoToOVbMtOzJfWb9CDsrGHcvvMdSbDAWoumJxyZnM-eUrUWlinKsBaYRfH8M1MKaNei8VEpJQy1kp7AtVOEt-xXIxPflDVxD9rzosHksDJdtc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
+<p class="text-white text-sm font-bold">Organic Certification</p>
+<p class="text-slate-300 text-[10px]">ID: CERT-2023-01</p>
+<button class="mt-2 bg-white/20 hover:bg-white/30 text-white text-xs py-1.5 rounded backdrop-blur-sm transition-all flex items-center justify-center gap-1">
+<span class="material-icons text-sm">visibility</span> View Document
+                                    </button>
+</div>
+</div>
+<div class="group relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-[3/4]">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Official government export permit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwPT07Sv6KXIwaKVffvR5uG2k3WYyLDhaDtUTAcwaMJGZXy9LBripzdu_9oCessEbGdFzuUmi2N0rgFdxcVIsrdb72Ahz_Dfjaxy5C4YQ731fMPz83iFs-EPsZZUaD8EaZQLtBAvXph6ILuqdljkV8hEywqzFiYIhQjnxk_FhxGSsmd6zLXSUOQ_HoKQN064u4Y1IcMC4PhuNAv12Xt-Wpm58Qog_Y6_aniC8IdRpWQcO-cxEJ1AEQLbY44zepAHDHhCKNjIjszfnF"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
+<p class="text-white text-sm font-bold">Phytosanitary Permit</p>
+<p class="text-slate-300 text-[10px]">ID: PER-88293</p>
+<button class="mt-2 bg-white/20 hover:bg-white/30 text-white text-xs py-1.5 rounded backdrop-blur-sm transition-all flex items-center justify-center gap-1">
+<span class="material-icons text-sm">visibility</span> View Document
+                                    </button>
+</div>
+</div>
+<div class="group relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-[3/4] bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+<div class="text-center p-6">
+<span class="material-icons text-slate-400 text-3xl mb-2">add_circle_outline</span>
+<p class="text-xs text-slate-500 font-medium">Upload Lab Results</p>
+</div>
+<button class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"></button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Side: Blockchain History Timeline -->
+<div class="space-y-8">
+<section class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm h-full flex flex-col">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<h2 class="text-lg font-bold">Audit History</h2>
+<span class="material-icons text-slate-400">history</span>
+</div>
+<div class="flex-1 p-6 relative">
+<!-- Timeline Line -->
+<div class="absolute left-8 top-10 bottom-10 w-0.5 bg-slate-200 dark:bg-slate-800"></div>
+<!-- Timeline Events -->
+<div class="space-y-8 relative">
+<!-- Event 1 -->
+<div class="flex gap-6">
+<div class="relative z-10 w-5 h-5 rounded-full bg-primary ring-4 ring-primary/20 flex-shrink-0 mt-1"></div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-sm">Milling &amp; Sorting</h3>
+<span class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Current</span>
+</div>
+<p class="text-xs text-slate-500 mb-2">Central Wet Mill - Addis Ababa</p>
+<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded border border-slate-200 dark:border-slate-700">
+<p class="text-[10px] text-slate-400 font-mono mb-1 uppercase">TX Hash</p>
+<p class="text-[11px] font-mono text-primary truncate">0x9a2f...de81c4</p>
+</div>
+<p class="text-[10px] text-slate-400 mt-2 font-medium">Oct 28, 2023 • 14:32</p>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="flex gap-6">
+<div class="relative z-10 w-5 h-5 rounded-full bg-slate-400 flex-shrink-0 mt-1"></div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-sm">Transport to Central</h3>
+</div>
+<p class="text-xs text-slate-500 mb-2">Registered by Logistics Lead</p>
+<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded border border-slate-200 dark:border-slate-700">
+<p class="text-[10px] text-slate-400 font-mono mb-1 uppercase">TX Hash</p>
+<p class="text-[11px] font-mono text-slate-500 truncate">0x44b2...8f321a</p>
+</div>
+<p class="text-[10px] text-slate-400 mt-2 font-medium">Oct 25, 2023 • 09:15</p>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="flex gap-6">
+<div class="relative z-10 w-5 h-5 rounded-full bg-slate-400 flex-shrink-0 mt-1"></div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-sm">Harvest Logged</h3>
+</div>
+<p class="text-xs text-slate-500 mb-2">Amaro Farm Gate Entry</p>
+<div class="bg-slate-50 dark:bg-slate-800/50 p-2 rounded border border-slate-200 dark:border-slate-700">
+<p class="text-[10px] text-slate-400 font-mono mb-1 uppercase">TX Hash</p>
+<p class="text-[11px] font-mono text-slate-500 truncate">0xe190...cc4452</p>
+</div>
+<p class="text-[10px] text-slate-400 mt-2 font-medium">Oct 12, 2023 • 18:00</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 bg-slate-50 dark:bg-slate-800/50 text-center border-t border-slate-200 dark:border-slate-800">
+<button class="text-sm font-bold text-slate-500 hover:text-primary transition-colors flex items-center justify-center gap-2 mx-auto">
+                            Show More Events <span class="material-icons text-sm">keyboard_arrow_down</span>
+</button>
+</div>
+</section>
+</div>
+</div>
+<!-- Footer Map Mockup Section -->
+<section class="mt-8 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm h-64 relative">
+<div class="absolute inset-0 bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+<!-- Map placeholder -->
+<div class="flex flex-col items-center">
+<span class="material-icons text-slate-300 dark:text-slate-600 text-6xl">map</span>
+<p class="text-slate-400 dark:text-slate-500 font-medium">Interactive Route Map View</p>
+</div>
+<div class="absolute inset-0 opacity-30 pointer-events-none" data-location="Addis Ababa" style="background-image: radial-gradient(#30e87a 1px, transparent 1px); background-size: 20px 20px;">
+</div>
+</div>
+<div class="absolute top-4 left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 rounded-lg border border-slate-200 dark:border-slate-800 shadow-lg">
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Current Coordinates</p>
+<p class="text-sm font-mono font-bold">9.0333° N, 38.7500° E</p>
+</div>
+</section>
+</main>
+<footer class="mt-12 py-8 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+<div class="max-w-7xl mx-auto px-4 text-center">
+<p class="text-sm text-slate-400">© 2024 AgriTrace Supply Chain Systems. All records secured via Ethereum Mainnet.</p>
+</div>
+</footer>
+</body></html>

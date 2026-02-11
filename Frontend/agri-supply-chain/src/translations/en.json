@@ -1,0 +1,213 @@
+{
+  "app": {
+    "name": "AgriChain",
+    "tagline": "India's Trusted Agricultural Supply Chain",
+    "description": "Secure the future of food with immutable blockchain records"
+  },
+  "nav": {
+    "login": "Log In",
+    "logout": "Log Out",
+    "register": "Register",
+    "getStarted": "Get Started",
+    "back": "Back",
+    "profile": "Profile",
+    "home": "Home"
+  },
+  "roles": {
+    "farmer": "Farmer",
+    "distributor": "Distributor",
+    "transporter": "Transporter",
+    "retailer": "Retailer",
+    "consumer": "Consumer",
+    "admin": "Admin",
+    "farmerHindi": "किसान",
+    "distributorHindi": "वितरक",
+    "transporterHindi": "परिवहनकर्ता",
+    "retailerHindi": "विक्रेता",
+    "consumerHindi": "उपभोक्ता",
+    "adminHindi": "व्यवस्थापक"
+  },
+  "landing": {
+    "heroTitle": "Traceable Agriculture from Farm to Fork",
+    "heroSubtitle": "Blockchain-Verified Traceability",
+    "heroDescription": "Secure the future of food with immutable blockchain records. Empowering farmers, distributors, and consumers with complete transparency.",
+    "startTracking": "Start Tracking Now",
+    "viewDemo": "View Demo",
+    "stats": {
+      "activeFarmers": "Active Farmers",
+      "productsTracked": "Products Tracked",
+      "statesCovered": "States Covered",
+      "dataSecurity": "Data Security"
+    },
+    "whyChoose": "Why AgriChain?",
+    "whyChooseSubtitle": "Complete solution for digitizing Indian agriculture",
+    "features": {
+      "cropDetails": {
+        "title": "Complete Crop Details",
+        "desc": "Track complete crop journey from farm to consumer with blockchain verification"
+      },
+      "secureBlockchain": {
+        "title": "Secure Blockchain",
+        "desc": "Immutable records ensure complete transparency and trust in the supply chain"
+      },
+      "realTimeTracking": {
+        "title": "Real-time Tracking",
+        "desc": "Monitor transport and logistics in real-time with GPS integration"
+      },
+      "allStakeholders": {
+        "title": "All Stakeholders",
+        "desc": "Connect farmers, distributors, transporters, retailers and consumers seamlessly"
+      }
+    },
+    "crops": "Supported Crops",
+    "joinToday": "Join AgriChain Today",
+    "joinSubtitle": "Be part of India's most trusted agricultural supply chain platform",
+    "registerNow": "Register Now",
+    "traceCrop": "Trace a Crop",
+    "footer": {
+      "tagline": "India's Trusted Agricultural Supply Chain Management System",
+      "stakeholders": "Stakeholders",
+      "resources": "Resources",
+      "contact": "Contact",
+      "helpCenter": "Help Center",
+      "apiDocs": "API Documentation",
+      "blog": "Blog",
+      "rights": "All rights reserved"
+    }
+  },
+  "roleSelection": {
+    "title": "Select Your Role",
+    "subtitle": "Choose your role in the agricultural supply chain",
+    "alreadyRegistered": "Already registered? Log in",
+    "roles": {
+      "farmer": {
+        "title": "Farmer",
+        "hindiTitle": "किसान",
+        "desc": "Crop production and batch management",
+        "features": ["Create crop batches", "Upload certificates", "Connect with distributors"]
+      },
+      "distributor": {
+        "title": "Distributor",
+        "hindiTitle": "वितरक",
+        "desc": "Crop inspection and storage",
+        "features": ["Inspect crops", "Create quality reports", "Sell to retailers"]
+      },
+      "transporter": {
+        "title": "Transporter",
+        "hindiTitle": "परिवहनकर्ता",
+        "desc": "Fast and secure transport services",
+        "features": ["View transport requests", "Real-time tracking", "Delivery proof"]
+      },
+      "retailer": {
+        "title": "Retailer",
+        "hindiTitle": "विक्रेता",
+        "desc": "Stock management and sales",
+        "features": ["View inventory", "Create sale listings", "Connect with consumers"]
+      },
+      "consumer": {
+        "title": "Consumer",
+        "hindiTitle": "उपभोक्ता",
+        "desc": "Check crop origin and traceability",
+        "features": ["Scan QR code", "View crop history", "Trusted purchases"]
+      }
+    }
+  },
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Please enter your details to access the supply chain portal",
+    "email": "Email Address",
+    "password": "Password",
+    "remember": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign in to Dashboard",
+    "signingIn": "Signing in...",
+    "newToPlatform": "New to the platform?",
+    "createAccount": "Create an account",
+    "secureNode": "Secure Blockchain Node: v3.4.1",
+    "agriRevolution": "Join India's Agricultural Revolution",
+    "platformDesc": "AgriChain empowers farmers, makes supply chains transparent, and gives consumers confidence.",
+    "farmerEarnings": "Farmer Earnings",
+    "farmerFamilies": "Farmer Families"
+  },
+  "register": {
+    "title": "Registration",
+    "subtitle": "Create your account",
+    "steps": {
+      "account": "Account",
+      "profile": "Profile"
+    },
+    "fields": {
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "phone": "Phone Number",
+      "organization": "Organization / Farm Name",
+      "shopName": "Shop Name",
+      "companyName": "Company Name",
+      "address": "Address (Village/District/State)"
+    },
+    "placeholders": {
+      "name": "Rajesh Kumar",
+      "email": "rajesh@example.com",
+      "phone": "+91 98765 43210",
+      "organization": "Organization name",
+      "address": "Enter your complete address"
+    },
+    "next": "Next",
+    "back": "Back",
+    "register": "Register",
+    "processing": "Processing...",
+    "haveAccount": "Already have an account?",
+    "login": "Log in"
+  },
+  "kyc": {
+    "pending": {
+      "title": "KYC Verification Pending",
+      "message": "Your account has been successfully created. You can only use the dashboard after KYC verification is complete.",
+      "inProcess": "Verification in Process",
+      "timeEstimate": "This process may take 24-48 hours",
+      "accountCreated": "Account Created",
+      "kycPending": "KYC Pending",
+      "needHelp": "Need help?",
+      "contactSupport": "If you have any issues, please contact our support team",
+      "contactEmail": "support@agrichain.in"
+    },
+    "rejected": {
+      "title": "KYC Verification Rejected",
+      "message": "Unfortunately, your KYC verification has been rejected. Your account is currently suspended.",
+      "kycRejected": "KYC Rejected",
+      "reasonNotAvailable": "Rejection reason not available in system. Please contact support.",
+      "helpSupport": "Help & Support",
+      "appealText": "If you believe this is an error, or if you want to appeal this decision, please contact our support team.",
+      "backToLogin": "Back to Login Page"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "status": "Status",
+    "date": "Date",
+    "action": "Action",
+    "actions": "Actions",
+    "noData": "No data found",
+    "notFound": "Not found",
+    "comingSoon": "Coming Soon",
+    "more": "More",
+    "seeAll": "See All"
+  },
+  "language": {
+    "switch": "Switch Language",
+    "english": "English",
+    "hindi": "Hindi",
+    "current": "Current Language"
+  }
+}

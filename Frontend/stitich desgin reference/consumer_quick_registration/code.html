@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Consumer Quick Registration | AgriTrace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#30e87a",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#112117",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 min-h-screen">
+<div class="flex min-h-screen flex-col lg:flex-row">
+<!-- Left Panel: Branding & Visuals -->
+<div class="relative hidden lg:flex lg:w-1/2 bg-background-dark overflow-hidden">
+<!-- Decorative Background Image -->
+<div class="absolute inset-0 z-0 opacity-40">
+<img alt="Lush green farm field with morning dew" class="h-full w-full object-cover" data-alt="Lush green farm field with morning dew" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZg1A2YuqACvB_MvAlsUrstAzMQ6eBa-pk0zQnPaelxhJ_lcQckXIsKKX5KKN9yRWVw48jliMoqpRGe45ZdAhprHZj7CiNvS06It-0U3YNvvnvwkZYmikGQc9yAoOvEEgpb-Ntjzh-ZczX1AOa-g__6EDlPq2-gwTXXEU4bTqs2ygiGH1DX5aSK-C9-9LdQRzDEl6FSsdJbK9KMDzhflFfG-wI_hGRwLkjNy5_-mdRpswng58cgFSnGru5Njx5BT5-Fu5naRNn61mv"/>
+</div>
+<!-- Gradient Overlay -->
+<div class="absolute inset-0 z-10 bg-gradient-to-t from-background-dark via-background-dark/40 to-transparent"></div>
+<!-- Content Container -->
+<div class="relative z-20 flex flex-col justify-between p-12 w-full">
+<!-- Logo -->
+<div class="flex items-center space-x-2">
+<div class="bg-primary p-2 rounded-lg">
+<span class="material-icons text-background-dark text-3xl">eco</span>
+</div>
+<span class="text-2xl font-bold tracking-tight text-white">AgriTrace</span>
+</div>
+<!-- Value Proposition -->
+<div class="max-w-md">
+<h1 class="text-4xl font-bold text-white leading-tight mb-6">
+                        Empowering Consumers with <span class="text-primary">Transparent Data.</span>
+</h1>
+<p class="text-lg text-slate-300 leading-relaxed">
+                        Verify the origin, quality, and journey of your produce in real-time. Join thousands of consumers making informed food choices.
+                    </p>
+<div class="mt-10 space-y-4">
+<div class="flex items-start space-x-3">
+<span class="material-icons text-primary mt-1">check_circle</span>
+<div>
+<p class="text-white font-medium">Instant Traceability</p>
+<p class="text-slate-400 text-sm">Scan QR codes to see the farm of origin.</p>
+</div>
+</div>
+<div class="flex items-start space-x-3">
+<span class="material-icons text-primary mt-1">check_circle</span>
+<div>
+<p class="text-white font-medium">No Paperwork</p>
+<p class="text-slate-400 text-sm">Jump straight into the supply chain ecosystem.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Copyright -->
+<div class="text-slate-500 text-sm">
+                    © 2024 AgriTrace Systems Inc. All rights reserved.
+                </div>
+</div>
+</div>
+<!-- Right Panel: Registration Form -->
+<div class="flex flex-col w-full lg:w-1/2 justify-center items-center p-8 lg:p-24 bg-background-light dark:bg-background-dark">
+<!-- Mobile Header (Visible only on small screens) -->
+<div class="lg:hidden flex items-center space-x-2 mb-12">
+<div class="bg-primary p-1.5 rounded-lg">
+<span class="material-icons text-background-dark text-xl">eco</span>
+</div>
+<span class="text-xl font-bold tracking-tight">AgriTrace</span>
+</div>
+<div class="w-full max-w-md">
+<div class="mb-10 text-center lg:text-left">
+<h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Join the Chain</h2>
+<p class="text-slate-600 dark:text-slate-400">Quick onboarding for instant traceability access.</p>
+</div>
+<form class="space-y-6">
+<!-- Full Name -->
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" for="name">Full Name</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons text-slate-400 text-lg">person_outline</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition duration-150 ease-in-out placeholder:text-slate-400 dark:placeholder:text-slate-600" id="name" name="name" placeholder="e.g. John Doe" required="" type="text"/>
+</div>
+</div>
+<!-- Email Address -->
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" for="email">Email Address</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons text-slate-400 text-lg">mail_outline</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition duration-150 ease-in-out placeholder:text-slate-400 dark:placeholder:text-slate-600" id="email" name="email" placeholder="john@example.com" required="" type="email"/>
+</div>
+</div>
+<!-- Phone Number -->
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2" for="phone">Phone Number</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons text-slate-400 text-lg">smartphone</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition duration-150 ease-in-out placeholder:text-slate-400 dark:placeholder:text-slate-600" id="phone" name="phone" placeholder="+1 (555) 000-0000" required="" type="tel"/>
+</div>
+</div>
+<!-- Submit Button -->
+<div class="pt-2">
+<button class="w-full flex justify-center items-center py-4 px-4 border border-transparent rounded-lg shadow-sm text-base font-bold text-background-dark bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 uppercase tracking-wider" type="submit">
+                            Start Exploring
+                            <span class="material-icons ml-2 text-xl">arrow_forward</span>
+</button>
+</div>
+</form>
+<!-- Footer Text -->
+<div class="mt-8 text-center">
+<p class="text-sm text-slate-500 dark:text-slate-400 mb-6">
+<span class="material-icons text-primary align-middle text-sm mr-1">verified_user</span>
+                        No KYC required. Access traceability data instantly.
+                    </p>
+<div class="flex items-center justify-center space-x-1 text-sm font-medium">
+<span class="text-slate-600 dark:text-slate-400">Already have an account?</span>
+<a class="text-primary hover:underline" href="#">Sign In</a>
+</div>
+</div>
+<!-- Utility Links -->
+<div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex justify-center space-x-6 text-xs text-slate-400">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors" href="#">Help Center</a>
+</div>
+</div>
+</div>
+</div>
+</body></html>

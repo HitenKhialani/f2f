@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Role Selection - AgriChain Trace</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#14522d",
+                        "primary-hover": "#0e3a20",
+                        "primary-light": "#e4f0e8",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#131f18",
+                        "card-light": "#ffffff",
+                        "card-dark": "#1c2b22",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    boxShadow: {
+                        "soft": "0 4px 20px -2px rgba(20, 82, 45, 0.08)",
+                        "hover": "0 10px 25px -5px rgba(20, 82, 45, 0.15)",
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-100 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="w-full py-6 px-4 sm:px-8 border-b border-primary/10 bg-white/80 dark:bg-background-dark/80 backdrop-blur-sm sticky top-0 z-10">
+<div class="max-w-7xl mx-auto flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white">
+<span class="material-icons-round text-lg">spa</span>
+</div>
+<span class="text-xl font-bold text-primary dark:text-white tracking-tight">AgriChain<span class="font-light">Trace</span></span>
+</div>
+<a class="text-sm font-medium text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-white transition-colors" href="#">Help &amp; Support</a>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+<div class="max-w-7xl w-full space-y-12 text-center">
+<!-- Hero Section -->
+<div class="space-y-4 max-w-2xl mx-auto">
+<h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-primary dark:text-white">
+                    Select Your Role
+                </h1>
+<p class="text-lg text-gray-600 dark:text-gray-300">
+                    Identify your position in the supply chain to access your tailored dashboard and blockchain tools.
+                </p>
+</div>
+<!-- Role Selection Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 justify-items-center">
+<!-- Farmer Card -->
+<div class="group relative w-full bg-card-light dark:bg-card-dark rounded-xl p-8 shadow-soft hover:shadow-hover border border-transparent hover:border-primary/30 transition-all duration-300 flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-primary-light dark:bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+<span class="material-icons-round text-3xl text-primary dark:text-green-400">agriculture</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Farmer</h3>
+<p class="text-gray-600 dark:text-gray-400 mb-8 flex-grow">
+                        Record harvest data, mint batch tokens, and manage your farm profile efficiently.
+                    </p>
+<button class="w-full py-3 px-4 rounded-lg border border-primary text-primary font-semibold hover:bg-primary hover:text-white dark:border-green-500 dark:text-green-400 dark:hover:bg-green-600 dark:hover:text-white dark:hover:border-green-600 transition-all duration-200">
+                        Select Role
+                    </button>
+</div>
+<!-- Distributor Card -->
+<div class="group relative w-full bg-card-light dark:bg-card-dark rounded-xl p-8 shadow-soft hover:shadow-hover border border-transparent hover:border-primary/30 transition-all duration-300 flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-primary-light dark:bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+<span class="material-icons-round text-3xl text-primary dark:text-green-400">warehouse</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Distributor</h3>
+<p class="text-gray-600 dark:text-gray-400 mb-8 flex-grow">
+                        Verify quality standards, aggregate batches, and manage wholesale distribution networks.
+                    </p>
+<button class="w-full py-3 px-4 rounded-lg border border-primary text-primary font-semibold hover:bg-primary hover:text-white dark:border-green-500 dark:text-green-400 dark:hover:bg-green-600 dark:hover:text-white dark:hover:border-green-600 transition-all duration-200">
+                        Select Role
+                    </button>
+</div>
+<!-- Transporter Card -->
+<div class="group relative w-full bg-card-light dark:bg-card-dark rounded-xl p-8 shadow-soft hover:shadow-hover border border-transparent hover:border-primary/30 transition-all duration-300 flex flex-col items-center text-center">
+<div class="w-16 h-16 rounded-full bg-primary-light dark:bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+<span class="material-icons-round text-3xl text-primary dark:text-green-400">local_shipping</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Transporter</h3>
+<p class="text-gray-600 dark:text-gray-400 mb-8 flex-grow">
+                        Update live shipment status, track GPS location, and log storage temperature conditions.
+                    </p>
+<button class="w-full py-3 px-4 rounded-lg border border-primary text-primary font-semibold hover:bg-primary hover:text-white dark:border-green-500 dark:text-green-400 dark:hover:bg-green-600 dark:hover:text-white dark:hover:border-green-600 transition-all duration-200">
+                        Select Role
+                    </button>
+</div>
+<!-- Retailer Card (Centered in bottom row on large screens) -->
+<div class="group relative w-full bg-card-light dark:bg-card-dark rounded-xl p-8 shadow-soft hover:shadow-hover border border-transparent hover:border-primary/30 transition-all duration-300 flex flex-col items-center text-center lg:col-start-1 lg:justify-self-end xl:col-auto xl:justify-self-auto">
+<div class="w-16 h-16 rounded-full bg-primary-light dark:bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+<span class="material-icons-round text-3xl text-primary dark:text-green-400">storefront</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Retailer</h3>
+<p class="text-gray-600 dark:text-gray-400 mb-8 flex-grow">
+                        Receive inventory, display product provenance to customers, and manage sales data.
+                    </p>
+<button class="w-full py-3 px-4 rounded-lg border border-primary text-primary font-semibold hover:bg-primary hover:text-white dark:border-green-500 dark:text-green-400 dark:hover:bg-green-600 dark:hover:text-white dark:hover:border-green-600 transition-all duration-200">
+                        Select Role
+                    </button>
+</div>
+<!-- Consumer Card (Centered in bottom row on large screens) -->
+<div class="group relative w-full bg-card-light dark:bg-card-dark rounded-xl p-8 shadow-soft hover:shadow-hover border border-transparent hover:border-primary/30 transition-all duration-300 flex flex-col items-center text-center lg:col-start-3 lg:justify-self-start xl:col-auto xl:justify-self-auto md:col-span-2 lg:col-span-1 md:w-1/2 lg:w-full md:mx-auto">
+<div class="w-16 h-16 rounded-full bg-primary-light dark:bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+<span class="material-icons-round text-3xl text-primary dark:text-green-400">qr_code_scanner</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Consumer</h3>
+<p class="text-gray-600 dark:text-gray-400 mb-8 flex-grow">
+                        Scan QR codes to view the complete product journey and verify authenticity.
+                    </p>
+<button class="w-full py-3 px-4 rounded-lg border border-primary text-primary font-semibold hover:bg-primary hover:text-white dark:border-green-500 dark:text-green-400 dark:hover:bg-green-600 dark:hover:text-white dark:hover:border-green-600 transition-all duration-200">
+                        Select Role
+                    </button>
+</div>
+</div>
+<!-- Bottom Helper Text -->
+<div class="mt-8">
+<p class="text-sm text-gray-500 dark:text-gray-400">
+                    Not sure which role to select? <a class="text-primary hover:underline font-medium dark:text-green-400" href="#">Read our documentation</a> or contact support.
+                </p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-6 px-4 bg-white dark:bg-background-dark border-t border-primary/10 mt-auto">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 dark:text-gray-400 gap-4">
+<p>© 2023 AgriChain Trace. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="hover:text-primary dark:hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary dark:hover:text-white transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+<!-- Background Texture/Gradient for subtle effect -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 opacity-30" style="background: radial-gradient(circle at 50% 0%, rgba(20, 82, 45, 0.1), transparent 70%);"></div>
+</body></html>

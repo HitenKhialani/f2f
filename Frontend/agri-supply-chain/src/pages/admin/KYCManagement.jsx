@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  Users, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Users,
+  CheckCircle,
+  XCircle,
   Search,
   Filter,
   FileCheck,
@@ -69,12 +69,15 @@ const KYCManagement = () => {
 
   const filteredRecords = kycRecords.filter(record => {
     const searchLower = searchTerm.toLowerCase();
+    const user = record.profile_details?.user_details;
+    const role = record.profile_details?.role;
     return (
-      record.profile?.user?.username?.toLowerCase().includes(searchLower) ||
-      record.profile?.user?.email?.toLowerCase().includes(searchLower) ||
-      record.profile?.role?.toLowerCase().includes(searchLower)
+      user?.username?.toLowerCase().includes(searchLower) ||
+      user?.email?.toLowerCase().includes(searchLower) ||
+      role?.toLowerCase().includes(searchLower)
     );
   });
+
 
   return (
     <div className="space-y-6">
@@ -180,20 +183,21 @@ const KYCManagement = () => {
                           <Users className="w-5 h-5 text-green-600" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{record.profile?.user?.username || 'N/A'}</p>
-                          <p className="text-sm text-gray-500">{record.profile?.user?.email || 'N/A'}</p>
+                          <p className="font-medium text-gray-900">{record.profile_details?.user_details?.username || 'N/A'}</p>
+                          <p className="text-sm text-gray-500">{record.profile_details?.user_details?.email || 'N/A'}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700 capitalize">
-                      {record.profile?.role || 'N/A'}
+                      {record.profile_details?.role || 'N/A'}
                     </td>
+
                     <td className="px-6 py-4 text-sm text-gray-700">
                       {record.document_type || 'KYC Document'}
                       {record.document_file && (
-                        <a 
-                          href={record.document_file} 
-                          target="_blank" 
+                        <a
+                          href={record.document_file}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="ml-2 text-green-600 hover:underline text-xs"
                         >
@@ -253,8 +257,9 @@ const KYCManagement = () => {
               {selectedRecord.rejectMode ? 'Reject KYC' : 'Approve KYC'}
             </h3>
             <p className="text-gray-600 mb-4">
-              User: <span className="font-medium">{selectedRecord.profile?.user?.username}</span>
+              User: <span className="font-medium">{selectedRecord.profile_details?.user_details?.username}</span>
             </p>
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Notes (optional)
@@ -279,14 +284,13 @@ const KYCManagement = () => {
               </button>
               <button
                 onClick={() => handleDecision(
-                  selectedRecord.id, 
+                  selectedRecord.id,
                   selectedRecord.rejectMode ? 'rejected' : 'approved'
                 )}
-                className={`flex-1 px-4 py-2 text-white rounded-lg ${
-                  selectedRecord.rejectMode 
-                    ? 'bg-red-600 hover:bg-red-700' 
+                className={`flex-1 px-4 py-2 text-white rounded-lg ${selectedRecord.rejectMode
+                    ? 'bg-red-600 hover:bg-red-700'
                     : 'bg-green-600 hover:bg-green-700'
-                }`}
+                  }`}
               >
                 {selectedRecord.rejectMode ? 'Reject' : 'Approve'}
               </button>

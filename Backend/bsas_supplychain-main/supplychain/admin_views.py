@@ -10,7 +10,9 @@ from supplychain.serializers import (
     KYCRecordSerializer,
     StakeholderProfileSerializer,
     UserSerializer,
+    UserWithProfileSerializer,
 )
+
 
 User = get_user_model()
 
@@ -82,9 +84,11 @@ class KYCDecisionView(APIView):
 
         # Update KYC record
         kyc_record.status = decision
-        kyc_record.verified_by = request.user.stakeholderprofile
+        kyc_record.verified_by = request.user  # Corrected: Must be User instance
         kyc_record.notes = notes
         kyc_record.save()
+
+
 
         # Update stakeholder profile KYC status
         profile = kyc_record.profile
@@ -106,12 +110,15 @@ class UserListView(APIView):
 
     def get(self, request):
         role_filter = request.query_params.get("role")
-        users = User.objects.all().prefetch_related("stakeholderprofile")
+        
+        # Exclude superusers and users with ADMIN role
+        users = User.objects.filter(is_superuser=False).exclude(stakeholderprofile__role=models.StakeholderRole.ADMIN).prefetch_related("stakeholderprofile")
 
         if role_filter:
             users = users.filter(stakeholderprofile__role=role_filter)
 
-        serializer = UserSerializer(users, many=True)
+        serializer = UserWithProfileSerializer(users, many=True)
+
         return Response(serializer.data)
 
 

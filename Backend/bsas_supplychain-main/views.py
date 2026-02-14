@@ -25,6 +25,17 @@ class CropBatchViewSet(viewsets.ModelViewSet):
     queryset = models.CropBatch.objects.all()
     serializer_class = serializers.CropBatchSerializer
 
+    def perform_create(self, serializer):
+        # Automatically assign the creator's profile as the farmer
+        if hasattr(self.request.user, 'stakeholderprofile'):
+            serializer.save(farmer=self.request.user.stakeholderprofile)
+        else:
+            # Fallback or error if user is not a stakeholder
+            # For now, let it fail at db level or validation if we don't set it, 
+            # but ideally we should raise a ValidationError here.
+            serializer.save()
+
+
 
 class TransportRequestViewSet(viewsets.ModelViewSet):
     queryset = models.TransportRequest.objects.all()

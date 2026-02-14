@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Sprout, 
+import {
+  Sprout,
   Plus,
   Package,
   CheckCircle,
@@ -41,12 +41,12 @@ const FarmerDashboard = () => {
     try {
       const response = await batchAPI.list();
       setBatches(response.data || []);
-      
+
       // Calculate stats
       const total = response.data?.length || 0;
       const active = total; // All batches are active by default
       const sold = 0; // Sold field doesn't exist yet
-      
+
       setStats({ total, active, sold });
     } catch (error) {
       console.error('Error fetching batches:', error);
@@ -58,7 +58,16 @@ const FarmerDashboard = () => {
   const handleCreateBatch = async (e) => {
     e.preventDefault();
     try {
-      await batchAPI.create(formData);
+      // Create payload matching the serializer fields
+      // farm_location is not in the CreateBatchSerializer/Model yet, so we exclude it to prevent 400 errors
+      const payload = {
+        crop_type: formData.crop_type,
+        quantity: formData.quantity,
+        harvest_date: formData.harvest_date,
+        // farm_location: formData.farm_location // Excluded until backend model update
+      };
+
+      await batchAPI.create(payload);
       setShowCreateForm(false);
       setFormData({
         crop_type: '',
@@ -66,6 +75,7 @@ const FarmerDashboard = () => {
         harvest_date: '',
         farm_location: '',
       });
+
       fetchBatches();
     } catch (error) {
       console.error('Error creating batch:', error);
@@ -152,7 +162,7 @@ const FarmerDashboard = () => {
                       type="text"
                       required
                       value={formData.crop_type}
-                      onChange={(e) => setFormData({...formData, crop_type: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, crop_type: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       placeholder="e.g., Wheat, Rice"
                     />
@@ -163,7 +173,7 @@ const FarmerDashboard = () => {
                       type="number"
                       required
                       value={formData.quantity}
-                      onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       placeholder="1000"
                     />
@@ -173,7 +183,7 @@ const FarmerDashboard = () => {
                     <input
                       type="date"
                       value={formData.harvest_date}
-                      onChange={(e) => setFormData({...formData, harvest_date: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, harvest_date: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
@@ -183,7 +193,7 @@ const FarmerDashboard = () => {
                       type="text"
                       required
                       value={formData.farm_location}
-                      onChange={(e) => setFormData({...formData, farm_location: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, farm_location: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       placeholder="Village, District, State"
                     />
@@ -223,7 +233,7 @@ const FarmerDashboard = () => {
               />
             </div>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">

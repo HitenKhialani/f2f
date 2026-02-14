@@ -16,18 +16,34 @@ class UserSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 
+
+
+
 class StakeholderProfileSerializer(serializers.ModelSerializer):
+    user_details = UserSerializer(source="user", read_only=True)
+
     class Meta:
         model = models.StakeholderProfile
-        fields = ["id", "user", "role", "phone", "address", "wallet_id", "kyc_status"]
+        fields = ["id", "user", "user_details", "role", "phone", "wallet_id", "organization", "address", "kyc_status"]
+
+class UserWithProfileSerializer(serializers.ModelSerializer):
+    stakeholderprofile = StakeholderProfileSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "date_joined", "is_active", "stakeholderprofile"]
+
 
 
 class KYCRecordSerializer(serializers.ModelSerializer):
+    profile_details = StakeholderProfileSerializer(source="profile", read_only=True)
+
     class Meta:
         model = models.KYCRecord
         fields = [
             "id",
             "profile",
+            "profile_details",
             "document_type",
             "document_number",
             "document_file",
@@ -35,6 +51,7 @@ class KYCRecordSerializer(serializers.ModelSerializer):
             "verified_by",
             "verified_at",
         ]
+
 
 
 class CropBatchSerializer(serializers.ModelSerializer):
@@ -52,7 +69,8 @@ class CropBatchSerializer(serializers.ModelSerializer):
             "qr_code_data",
             "created_at",
         ]
-        read_only_fields = ["product_batch_id", "qr_code_data", "created_at"]
+        read_only_fields = ["farmer", "product_batch_id", "qr_code_data", "created_at"]
+
 
 
 class TransportRequestSerializer(serializers.ModelSerializer):

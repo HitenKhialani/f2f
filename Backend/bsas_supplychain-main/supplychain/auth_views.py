@@ -105,22 +105,27 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data.get("email")
+        # 'email' field in request can be email or username
+        identifier = request.data.get("email")
         password = request.data.get("password")
 
-        if not email or not password:
+        if not identifier or not password:
             return Response(
-                {"message": "Email and password are required"},
+                {"message": "Email/Username and password are required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
+        # Try fetching by email first, then username
+        user = User.objects.filter(email=identifier).first()
+        if not user:
+            user = User.objects.filter(username=identifier).first()
+
+        if not user:
             return Response(
                 {"message": "Invalid credentials"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+
 
         if not user.check_password(password):
             return Response(
@@ -131,10 +136,21 @@ class LoginView(APIView):
         try:
             profile = models.StakeholderProfile.objects.get(user=user)
         except models.StakeholderProfile.DoesNotExist:
-            return Response(
-                {"message": "User profile not found"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            # If user is superuser, create an Admin profile automatically
+            if user.is_superuser:
+                profile = models.StakeholderProfile.objects.create(
+                    user=user,
+                    role=models.StakeholderRole.ADMIN,
+                    kyc_status=models.KYCStatus.APPROVED,
+                    phone="N/A",
+                    organization="System Admin"
+                )
+            else:
+                return Response(
+                    {"message": "User profile not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
 
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)

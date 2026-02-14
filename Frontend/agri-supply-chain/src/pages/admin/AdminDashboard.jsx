@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Users, 
-  Sprout, 
-  Truck, 
-  FileCheck, 
+import {
+  Users,
+  Sprout,
+  Truck,
+  FileCheck,
   ShoppingCart,
   TrendingUp,
   Clock,
@@ -43,7 +43,7 @@ const AdminDashboard = () => {
       // Fetch stats from admin API
       const statsResponse = await adminAPI.getDashboardStats();
       const data = statsResponse.data;
-      
+
       setStats({
         pendingKYC: data.pending_kyc || 0,
         totalUsers: data.total_users || 0,
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
         totalBatches: data.total_batches || 0,
         totalTransportRequests: data.total_transport_requests || 0,
       });
-      
+
       // Fetch pending KYC records
       const kycResponse = await adminAPI.getPendingKYC();
       setKycRecords(kycResponse.data);
@@ -222,14 +222,15 @@ const AdminDashboard = () => {
                           <Users className="w-4 h-4 text-green-600" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{record.profile?.user?.username || 'N/A'}</p>
-                          <p className="text-sm text-gray-500">{record.profile?.user?.email || 'N/A'}</p>
+                          <p className="font-medium text-gray-900">{record.profile_details?.user_details?.username || 'N/A'}</p>
+                          <p className="text-sm text-gray-500">{record.profile_details?.user_details?.email || 'N/A'}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700 capitalize">
-                      {record.profile?.role}
+                      {record.profile_details?.role || 'N/A'}
                     </td>
+
                     <td className="px-6 py-4 text-sm text-gray-700">
                       {record.document_type || 'KYC Document'}
                     </td>

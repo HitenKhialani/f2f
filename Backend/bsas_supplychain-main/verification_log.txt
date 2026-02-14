@@ -1,0 +1,12 @@
+--- Verifying Admin Panel Refinements ---
+
+1. Testing Superuser Login Auto-Profile Creation...
+Confirmed: Superuser has no profile initially.
+SUCCESS: Login successful.
+SUCCESS: Profile auto-created. Role: admin, KYC: approved
+
+2. Testing User List Filtering (Hide Admins)...
+User List Count: 3
+SUCCESS: Superuser is HIDDEN from list.
+SUCCESS: Farmer is VISIBLE in list.
+SUCCESS: Farmer has correct nested profile data.

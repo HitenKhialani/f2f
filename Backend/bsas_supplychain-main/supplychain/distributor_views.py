@@ -59,7 +59,7 @@ class StoreBatchView(APIView):
         
         # Validate transition
         if not BatchStatusTransitionValidator.can_transition(
-            batch, request.user, BatchStatus.STORED_BY_DISTRIBUTOR
+            batch, request.user, BatchStatus.STORED
         ):
             return Response(
                 {"success": False, "message": "Invalid status transition"},
@@ -67,7 +67,7 @@ class StoreBatchView(APIView):
             )
         
         # Update status
-        batch.status = BatchStatus.STORED_BY_DISTRIBUTOR
+        batch.status = BatchStatus.STORED
         batch.save()
         
         # Log event
@@ -145,7 +145,7 @@ class RequestTransportToRetailerView(APIView):
             )
         
         # Verify status
-        if batch.status != BatchStatus.STORED_BY_DISTRIBUTOR:
+        if batch.status != BatchStatus.STORED:
             return Response(
                 {"success": False, "message": f"Cannot request transport for batch with status {batch.status}"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -154,6 +154,7 @@ class RequestTransportToRetailerView(APIView):
         # Create transport request
         transport_request = models.TransportRequest.objects.create(
             batch=batch,
+            requested_by=distributor_profile,
             from_party=distributor_profile,
             to_party=retailer,
             status='PENDING'

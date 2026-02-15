@@ -116,9 +116,21 @@ class TransportAcceptView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        # Determine correct next status based on destination
+        to_party_role = transport_request.to_party.role
+        if to_party_role == models.StakeholderRole.DISTRIBUTOR:
+            next_status = models.BatchStatus.IN_TRANSIT_TO_DISTRIBUTOR
+        elif to_party_role == models.StakeholderRole.RETAILER:
+            next_status = models.BatchStatus.IN_TRANSIT_TO_RETAILER
+        else:
+            return Response(
+                {"success": False, "message": "Invalid destination role"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         # Validate status transition
         can_transition, error_msg = BatchStatusTransitionValidator.can_transition(
-            batch, request.user, models.BatchStatus.IN_TRANSIT
+            batch, request.user, next_status
         )
         
         if not can_transition:
@@ -132,8 +144,8 @@ class TransportAcceptView(APIView):
         transport_request.status = 'ACCEPTED'
         transport_request.save()
         
-        # Update batch status
-        batch.status = models.BatchStatus.IN_TRANSIT
+        # Update batch status based on destination
+        batch.status = next_status
         batch.save()
         
         # Log event
@@ -170,6 +182,12 @@ class TransportDeliverView(APIView):
                     {"success": False, "message": "Only the assigned transporter can mark delivery"},
                     status=status.HTTP_403_FORBIDDEN
                 )
+        except AttributeError:
+            # Handle case where transporter is not yet assigned
+            return Response(
+                {"success": False, "message": "Transport request not assigned to a transporter"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except:
             return Response(
                 {"success": False, "message": "User profile not found"},
@@ -202,15 +220,14 @@ class TransportDeliverView(APIView):
         batch.save()
         
         # Log event
-        log_batch_event(
+        from .event_logger import log_ownership_transfer
+        log_ownership_transfer(
             batch=batch,
+            from_user=transport_request.from_party.user,
+            to_user=transport_request.to_party.user,
             event_type=event_type,
-            user=request.user,
-            metadata={
-                'new_owner': batch.current_owner.username,
-                'transport_request_id': transport_request.id,
-                'destination_role': to_party_role,
-            }
+            user_performing_action=request.user,
+            reason=f"Delivery to {to_party_role}"
         )
         
         return Response({

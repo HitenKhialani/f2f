@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { Store, ArrowLeft, Package } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, retailAPI } from '../../services/api';
 
 const NewListingPage = () => {
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [batches, setBatches] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -26,7 +28,7 @@ const NewListingPage = () => {
             const response = await batchAPI.list();
             // Filter for batches that are delivered to retailer and owned by current user
             const deliveredBatches = response.data.filter(
-                batch => batch.status === 'DELIVERED_TO_RETAILER'
+                batch => batch.status === 'DELIVERED_TO_RETAILER' && batch.current_owner === user?.id
             );
             setBatches(deliveredBatches);
         } catch (error) {

@@ -6,6 +6,15 @@ from rest_framework import routers
 from supplychain import views
 from supplychain import admin_views
 from supplychain.auth_views import RegisterView, LoginView, LogoutView, MeView
+from supplychain.transport_views import (
+    TransportRequestCreateView,
+    TransportAcceptView,
+    TransportDeliverView,
+    TransportRejectView
+)
+from supplychain.distributor_views import StoreBatchView, RequestTransportToRetailerView
+from supplychain.retailer_views import MarkBatchSoldView
+from supplychain.consumer_views import BatchTraceView
 
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet, basename="user")
@@ -35,5 +44,21 @@ urlpatterns = [
     path("api/auth/login/", LoginView.as_view(), name="auth-login"),
     path("api/auth/logout/", LogoutView.as_view(), name="auth-logout"),
     path("api/auth/me/", MeView.as_view(), name="auth-me"),
+    
+    # Transport Workflow Endpoints
+    path("api/transport/request/", TransportRequestCreateView.as_view(), name="transport-request-create"),
+    path("api/transport/<int:pk>/accept/", TransportAcceptView.as_view(), name="transport-accept"),
+    path("api/transport/<int:pk>/deliver/", TransportDeliverView.as_view(), name="transport-deliver"),
+    path("api/transport/<int:pk>/reject/", TransportRejectView.as_view(), name="transport-reject"),
+    
+    # Distributor Endpoints
+    path("api/distributor/batch/<int:batch_id>/store/", StoreBatchView.as_view(), name="distributor-store-batch"),
+    path("api/distributor/transport/request-to-retailer/", RequestTransportToRetailerView.as_view(), name="distributor-request-transport-retailer"),
+    
+    # Retailer Endpoints
+    path("api/retailer/batch/<int:batch_id>/mark-sold/", MarkBatchSoldView.as_view(), name="retailer-mark-sold"),
+    
+    # Consumer Trace Endpoint
+    path("api/consumer/trace/<str:batch_id>/", BatchTraceView.as_view(), name="consumer-trace"),
 ]
 

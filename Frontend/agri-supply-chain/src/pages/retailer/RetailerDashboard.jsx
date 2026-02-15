@@ -9,13 +9,14 @@ import {
   Truck
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
-import { batchAPI, transportAPI, retailerAPI } from '../../services/api';
+import { batchAPI, transportAPI, retailerAPI, retailAPI } from '../../services/api';
 
 const RetailerDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('incoming');
   const [batches, setBatches] = useState([]);
   const [transportRequests, setTransportRequests] = useState([]);
+  const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,12 +25,14 @@ const RetailerDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [batchesRes, transportRes] = await Promise.all([
+      const [batchesRes, transportRes, listingsRes] = await Promise.all([
         batchAPI.list(),
         transportAPI.list(),
+        retailAPI.list(),
       ]);
       setBatches(batchesRes.data);
       setTransportRequests(transportRes.data);
+      setListings(listingsRes.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -56,11 +59,14 @@ const RetailerDashboard = () => {
         // Show transport requests where status is not DELIVERED
         return transportRequests.filter(tr => tr.status !== 'DELIVERED');
       case 'received':
+        // Show batches delivered to retailer but not yet listed
         return batches.filter(b => b.status === 'DELIVERED_TO_RETAILER');
       case 'listed':
-        return batches.filter(b => b.status === 'LISTED');
+        // Show retail listings
+        return listings.filter(l => l.is_for_sale === true);
       case 'sold':
-        return batches.filter(b => b.status === 'SOLD');
+        // Show retail listings that are sold
+        return listings.filter(l => l.is_for_sale === false);
       default:
         return [];
     }
@@ -164,24 +170,31 @@ const RetailerDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {activeTab === 'incoming'
                           ? `TR-${item.id}`
-                          : item.product_batch_id}
+                          : item.product_batch_id || item.batch?.product_batch_id || `LISTING-${item.id}`}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {activeTab === 'incoming'
                           ? item.batch_details?.crop_type
-                          : item.crop_type}
+                          : item.crop_type || item.batch?.crop_type || '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {activeTab === 'incoming'
                           ? item.from_party_details?.organization || item.from_party_details?.user_details?.username
-                          : `${item.quantity} kg`}
+                          : activeTab === 'listed' || activeTab === 'sold'
+                            ? `₹${item.total_price || (parseFloat(item.farmer_base_price || 0) + parseFloat(item.transport_fees || 0) + parseFloat(item.distributor_margin || 0) + parseFloat(item.retailer_margin || 0)).toFixed(2)}`
+                            : `${item.quantity} kg`}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          activeTab === 'sold' ? 'bg-green-100 text-green-700' :
+                          activeTab === 'listed' ? 'bg-blue-100 text-blue-700' :
+                          item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
                           item.status === 'LISTED' ? 'bg-blue-100 text-blue-700' :
                             'bg-yellow-100 text-yellow-700'
-                          }`}>
-                          {item.status?.replace(/_/g, ' ')}
+                        }`}>
+                          {activeTab === 'listed' ? 'LISTED FOR SALE' : 
+                           activeTab === 'sold' ? 'SOLD' : 
+                           item.status?.replace(/_/g, ' ')}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">

@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import {
   Store,
   Package,
   Truck,
   Archive,
-  ArrowRight
+  ArrowRight,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Navigation,
+  MapPin,
+  X,
+  Plus
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
-import { batchAPI, stakeholderAPI, transportAPI, distributorAPI } from '../../services/api';
+import { batchAPI, stakeholderAPI, transportAPI, distributorAPI, batchSplitAPI } from '../../services/api';
 
 const DistributorDashboard = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('incoming');
   const [batches, setBatches] = useState([]);
@@ -18,8 +27,14 @@ const DistributorDashboard = () => {
   const [retailers, setRetailers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showTransportModal, setShowTransportModal] = useState(false);
+  const [showSplitModal, setShowSplitModal] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [selectedRetailer, setSelectedRetailer] = useState('');
+  const [splitData, setSplitData] = useState({
+    splits: [
+      { label: '', quantity: '', retailer: '' }
+    ]
+  });
 
   useEffect(() => {
     fetchData();
@@ -31,7 +46,7 @@ const DistributorDashboard = () => {
       const [batchesRes, transportRes, retailersRes] = await Promise.all([
         batchAPI.list(),
         transportAPI.list(),
-        stakeholderAPI.listProfiles({ role: 'RETAILER', kyc_status: 'APPROVED' }),
+        stakeholderAPI.listProfiles({ role: 'retailer', kyc_status: 'approved' }),
       ]);
       setBatches(batchesRes.data);
       setTransportRequests(transportRes.data);
@@ -54,6 +69,75 @@ const DistributorDashboard = () => {
     }
   };
 
+  const handleSplitBatch = (batch) => {
+    setSelectedBatch(batch);
+    setShowSplitModal(true);
+    // Initialize with one empty split
+    setSplitData({
+      splits: [{ label: '', quantity: '', retailer: '' }]
+    });
+  };
+
+  const handleAddSplit = () => {
+    setSplitData({
+      splits: [...splitData.splits, { label: '', quantity: '', retailer: '' }]
+    });
+  };
+
+  const handleSplitChange = (index, field, value) => {
+    const newSplits = [...splitData.splits];
+    newSplits[index][field] = value;
+    setSplitData({ splits: newSplits });
+  };
+
+  const handleRemoveSplit = (index) => {
+    if (splitData.splits.length > 1) {
+      const newSplits = splitData.splits.filter((_, i) => i !== index);
+      setSplitData({ splits: newSplits });
+    }
+  };
+
+  const handleSubmitSplit = async () => {
+    // Validate total quantity doesn't exceed parent batch
+    const totalQuantity = splitData.splits.reduce((sum, split) => sum + (parseFloat(split.quantity) || 0), 0);
+    const parentQuantity = parseFloat(selectedBatch.quantity);
+    
+    if (totalQuantity > parentQuantity) {
+      alert(`Total split quantity (${totalQuantity} kg) cannot exceed parent batch quantity (${parentQuantity} kg)`);
+      return;
+    }
+    
+    // Validate all fields are filled
+    for (let i = 0; i < splitData.splits.length; i++) {
+      const split = splitData.splits[i];
+      if (!split.label || !split.quantity || !split.retailer) {
+        alert(`Please fill all fields for split ${i + 1}`);
+        return;
+      }
+    }
+    
+    try {
+      // Create batch splits with child batches
+      for (const split of splitData.splits) {
+        await batchSplitAPI.create({
+          parent_batch: selectedBatch.id,
+          split_label: split.label,
+          quantity: parseFloat(split.quantity),
+          destination_retailer: parseInt(split.retailer),
+          notes: `Split from ${selectedBatch.product_batch_id}`
+        });
+      }
+      
+      alert(`${splitData.splits.length} child batches created successfully!`);
+      setShowSplitModal(false);
+      setSelectedBatch(null);
+      fetchData();
+    } catch (error) {
+      console.error('Error splitting batch:', error);
+      alert(error.response?.data?.message || 'Failed to split batch');
+    }
+  };
+
   const handleRequestTransport = async () => {
     if (!selectedBatch || !selectedRetailer) {
       alert('Please select a retailer');
@@ -72,7 +156,11 @@ const DistributorDashboard = () => {
       fetchData();
     } catch (error) {
       console.error('Error requesting transport:', error);
-      alert(error.response?.data?.message || 'Failed to request transport');
+      console.error('Error response:', error.response);
+      const errorMessage = error.response?.data?.message || 
+                           error.response?.data?.detail || 
+                           'Failed to request transport';
+      alert(`Transport Error ${error.response?.status || 'Unknown'}: ${errorMessage}`);
     }
   };
 
@@ -81,14 +169,15 @@ const DistributorDashboard = () => {
       case 'incoming':
         return batches.filter(b => b.status === 'DELIVERED_TO_DISTRIBUTOR');
       case 'inventory':
-        return batches.filter(b => b.status === 'STORED_BY_DISTRIBUTOR');
+        return batches.filter(b => b.status === 'STORED');
       case 'outgoing':
         // Show actual transport requests for outgoing tab
         return transportRequests.filter(tr =>
           tr.status === 'PENDING' ||
           tr.status === 'ACCEPTED' ||
-          tr.status === 'IN_TRANSIT'
-        );
+          tr.status === 'IN_TRANSIT' ||
+          tr.status === 'IN_TRANSIT_TO_RETAILER'
+        ).filter(tr => tr.from_party_details?.user_details?.username === user?.username);
       default:
         return [];
     }
@@ -202,24 +291,30 @@ const DistributorDashboard = () => {
                             Store Batch
                           </button>
                         )}
-                        {activeTab === 'inventory' && item.status === 'STORED_BY_DISTRIBUTOR' && (
-                          <button
-                            onClick={() => {
-                              setSelectedBatch(item);
-                              setShowTransportModal(true);
-                            }}
-                            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 mr-2"
-                          >
-                            Request Transport
-                          </button>
-                        )}
-                        {(activeTab === 'incoming' || activeTab === 'inventory') && (
-                          <button
-                            onClick={() => navigate(`/distributor/inspection/${item.id}`)}
-                            className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
-                          >
-                            Inspect
-                          </button>
+                        {activeTab === 'inventory' && item.status === 'STORED' && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setSelectedBatch(item);
+                                setShowTransportModal(true);
+                              }}
+                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 mr-2"
+                            >
+                              Request Transport
+                            </button>
+                            <button
+                              onClick={() => handleSplitBatch(item)}
+                              className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 mr-2"
+                            >
+                              Split Batch
+                            </button>
+                            <button
+                              onClick={() => navigate(`/distributor/inspection/${item.id}`)}
+                              className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                            >
+                              Inspect
+                            </button>
+                          </>
                         )}
                         {activeTab === 'outgoing' && (
                           <span className="text-gray-500 italic">Tracking Transport</span>
@@ -279,6 +374,125 @@ const DistributorDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Split Batch Modal */}
+      {showSplitModal && selectedBatch && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Split Batch: {selectedBatch.product_batch_id}</h3>
+                <button 
+                  onClick={() => setShowSplitModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Parent Batch:</strong> {selectedBatch.crop_type} - {selectedBatch.quantity} kg
+                </p>
+                <p className="text-sm text-blue-800 mt-1">
+                  <strong>Total Quantity to Split:</strong> {selectedBatch.quantity} kg
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                {splitData.splits.map((split, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="font-medium">Child Batch {index + 1}</h4>
+                      {splitData.splits.length > 1 && (
+                        <button
+                          onClick={() => handleRemoveSplit(index)}
+                          className="text-red-500 hover:text-red-700 text-sm"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Label *
+                        </label>
+                        <input
+                          type="text"
+                          value={split.label}
+                          onChange={(e) => handleSplitChange(index, 'label', e.target.value)}
+                          placeholder="e.g., Split A"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Quantity (kg) *
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          value={split.quantity}
+                          onChange={(e) => handleSplitChange(index, 'quantity', e.target.value)}
+                          placeholder="e.g., 200"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Destination Retailer *
+                        </label>
+                        <select
+                          value={split.retailer}
+                          onChange={(e) => handleSplitChange(index, 'retailer', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        >
+                          <option value="">Select Retailer</option>
+                          {retailers.map(retailer => (
+                            <option key={retailer.id} value={retailer.id}>
+                              {retailer.organization || retailer.user_details?.username}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
+                <button
+                  onClick={handleAddSplit}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 flex items-center"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Another Split
+                </button>
+                
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => setShowSplitModal(false)}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmitSplit}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  >
+                    Split Batch
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 };

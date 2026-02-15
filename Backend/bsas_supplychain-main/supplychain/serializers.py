@@ -74,8 +74,10 @@ class CropBatchSerializer(serializers.ModelSerializer):
             "product_batch_id",
             "qr_code_data",
             "created_at",
+            "is_child_batch",
+            "parent_batch",
         ]
-        read_only_fields = ["farmer", "product_batch_id", "qr_code_data", "created_at", "current_owner"]
+        read_only_fields = ["farmer", "product_batch_id", "qr_code_data", "created_at", "current_owner", "is_child_batch", "parent_batch"]
 
 
 
@@ -113,36 +115,46 @@ class InspectionReportSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "batch",
-            "distributor",
             "report_file",
             "storage_conditions",
             "passed",
             "inspected_at",
         ]
-        read_only_fields = ["inspected_at"]
+        read_only_fields = ["inspected_at", "distributor"]
 
 
 class BatchSplitSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.BatchSplit
-        fields = ["id", "parent_batch", "split_label", "destination_retailer", "notes"]
+        fields = ["id", "parent_batch", "split_label", "quantity", "destination_retailer", "child_batch", "notes", "created_at"]
+        read_only_fields = ["created_at", "child_batch"]
 
 
 class RetailListingSerializer(serializers.ModelSerializer):
+    batch_details = CropBatchSerializer(source="batch", read_only=True)
+    retailer_details = StakeholderProfileSerializer(source="retailer", read_only=True)
+    total_price = serializers.SerializerMethodField()
+    
     class Meta:
         model = models.RetailListing
         fields = [
             "id",
             "batch",
+            "batch_details",
             "retailer",
+            "retailer_details",
             "farmer_base_price",
             "transport_fees",
             "distributor_margin",
             "retailer_margin",
+            "total_price",
             "is_for_sale",
             "created_at",
         ]
-        read_only_fields = ["created_at"]
+        read_only_fields = ["created_at", "retailer"]
+    
+    def get_total_price(self, obj):
+        return float(obj.total_price)
 
 
 class ConsumerScanSerializer(serializers.ModelSerializer):

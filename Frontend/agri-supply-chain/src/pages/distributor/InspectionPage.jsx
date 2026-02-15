@@ -50,7 +50,11 @@ const InspectionPage = () => {
             navigate('/distributor/dashboard');
         } catch (error) {
             console.error('Error submitting inspection:', error);
-            alert(error.response?.data?.message || 'Failed to submit inspection');
+            console.error('Error response:', error.response);
+            const errorMessage = error.response?.data?.message || 
+                               error.response?.data?.detail || 
+                               'Failed to submit inspection';
+            alert(`Inspection Error ${error.response?.status || 'Unknown'}: ${errorMessage}`);
         } finally {
             setSubmitting(false);
         }
@@ -128,8 +132,8 @@ const InspectionPage = () => {
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Current Status</p>
-                            <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${batch.status === 'RECEIVED_BY_DISTRIBUTOR' ? 'bg-yellow-100 text-yellow-700' :
-                                    batch.status === 'INSPECTED' ? 'bg-green-100 text-green-700' :
+                            <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${batch.status === 'DELIVERED_TO_DISTRIBUTOR' ? 'bg-yellow-100 text-yellow-700' :
+                                    batch.status === 'STORED' ? 'bg-green-100 text-green-700' :
                                         'bg-gray-100 text-gray-700'
                                 }`}>
                                 {batch.status?.replace(/_/g, ' ')}

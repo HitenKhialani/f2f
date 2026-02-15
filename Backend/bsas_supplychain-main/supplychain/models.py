@@ -61,9 +61,9 @@ class KYCRecord(models.Model):
 class BatchStatus(models.TextChoices):
     CREATED = "CREATED", "Created"
     TRANSPORT_REQUESTED = "TRANSPORT_REQUESTED", "Transport Requested"
-    IN_TRANSIT = "IN_TRANSIT", "In Transit"
+    IN_TRANSIT_TO_DISTRIBUTOR = "IN_TRANSIT_TO_DISTRIBUTOR", "In Transit to Distributor"
     DELIVERED_TO_DISTRIBUTOR = "DELIVERED_TO_DISTRIBUTOR", "Delivered to Distributor"
-    STORED_BY_DISTRIBUTOR = "STORED_BY_DISTRIBUTOR", "Stored by Distributor"
+    STORED = "STORED", "Stored"
     TRANSPORT_REQUESTED_TO_RETAILER = "TRANSPORT_REQUESTED_TO_RETAILER", "Transport Requested to Retailer"
     IN_TRANSIT_TO_RETAILER = "IN_TRANSIT_TO_RETAILER", "In Transit to Retailer"
     DELIVERED_TO_RETAILER = "DELIVERED_TO_RETAILER", "Delivered to Retailer"
@@ -88,6 +88,12 @@ class CropBatch(models.Model):
         max_length=32, choices=BatchStatus.choices, default=BatchStatus.CREATED
     )
     farm_location = models.CharField(max_length=255, blank=True)
+    
+    # Track if this is a child batch from splitting
+    is_child_batch = models.BooleanField(default=False)
+    parent_batch = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, null=True, blank=True, related_name='child_batches'
+    )
 
     crop_type = models.CharField(max_length=120)
     quantity = models.DecimalField(max_digits=12, decimal_places=2)
@@ -245,12 +251,20 @@ class BatchSplit(models.Model):
         CropBatch, on_delete=models.CASCADE, related_name="splits"
     )
     split_label = models.CharField(max_length=100)
+    quantity = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     destination_retailer = models.ForeignKey(
         StakeholderProfile,
         on_delete=models.PROTECT,
         related_name="received_splits",
         null=True,
         blank=True,
+    )
+    child_batch = models.ForeignKey(
+        CropBatch,
+        on_delete=models.CASCADE,
+        related_name="child_of_split",
+        null=True,
+        blank=True
     )
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

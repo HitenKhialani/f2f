@@ -45,7 +45,10 @@ export const authAPI = {
 export const stakeholderAPI = {
   getProfile: (id) => api.get(`/stakeholders/${id}/`),
   updateProfile: (id, data) => api.patch(`/stakeholders/${id}/`, data),
-  listProfiles: () => api.get('/stakeholders/'),
+  listProfiles: (params) => {
+    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+    return api.get(`/stakeholders/${queryString}`);
+  },
 };
 
 // KYC APIs
@@ -91,10 +94,11 @@ export const retailAPI = {
   update: (id, data) => api.patch(`/retail-listings/${id}/`, data),
 };
 
-// Price Breakdown APIs
-export const priceAPI = {
-  get: (id) => api.get(`/price-breakdown/${id}/`),
-  create: (data) => api.post('/price-breakdown/', data),
+// Batch Split APIs
+export const batchSplitAPI = {
+  list: () => api.get('/batch-splits/'),
+  create: (data) => api.post('/batch-splits/', data),
+  get: (id) => api.get(`/batch-splits/${id}/`),
 };
 
 // Consumer APIs

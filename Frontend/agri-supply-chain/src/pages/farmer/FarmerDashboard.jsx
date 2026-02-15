@@ -45,10 +45,12 @@ const FarmerDashboard = () => {
   const fetchBatches = async () => {
     try {
       const response = await batchAPI.list();
-      setBatches(response.data || []);
+      // Filter out child batches - farmer should only see their original batches
+      const originalBatches = (response.data || []).filter(batch => !batch.is_child_batch);
+      setBatches(originalBatches);
 
       // Calculate stats
-      const total = response.data?.length || 0;
+      const total = originalBatches?.length || 0;
       const active = total; // All batches are active by default
       const sold = 0; // Sold field doesn't exist yet
 

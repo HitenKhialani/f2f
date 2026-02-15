@@ -14,11 +14,13 @@ import MainLayout from '../../components/layout/MainLayout';
 import { transportAPI } from '../../services/api';
 
 const TransporterDashboard = () => {
+  const [activeTab, setActiveTab] = useState('farmer');
   const [requests, setRequests] = useState([]);
   const [stats, setStats] = useState({
-    assigned: 0,
+    farmerShipments: 0,
+    distributorShipments: 0,
     inTransit: 0,
-    delivered: 0,
+    completed: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -29,11 +31,35 @@ const TransporterDashboard = () => {
   const fetchRequests = async () => {
     try {
       const response = await transportAPI.list();
+      console.log('Transport requests raw data:', response.data);
       setRequests(response.data);
+      
+      // Calculate stats
+      const farmerRequests = response.data.filter(r => 
+        r.status === 'PENDING' && 
+        r.from_party_details?.role === 'farmer'
+      );
+      
+      const distributorRequests = response.data.filter(r => {
+        const isPending = r.status === 'PENDING';
+        const isFromDistributor = r.from_party_details?.role === 'distributor';
+        console.log(`Request ${r.id}: status=${r.status}, from_role=${r.from_party_details?.role}, isPending=${isPending}, isFromDistributor=${isFromDistributor}`);
+        return isPending && isFromDistributor;
+      });
+      
+      const inTransitRequests = response.data.filter(r => 
+        r.status === 'ACCEPTED' || r.status === 'IN_TRANSIT' || r.status === 'IN_TRANSIT_TO_RETAILER'
+      );
+      
+      const completedRequests = response.data.filter(r => r.status === 'DELIVERED');
+      
+      console.log('Filtered requests:', { farmerRequests, distributorRequests, inTransitRequests, completedRequests });
+      
       setStats({
-        assigned: response.data.filter(r => r.status === 'ACCEPTED' || r.status === 'IN_TRANSIT').length,
-        inTransit: response.data.filter(r => r.status === 'IN_TRANSIT').length,
-        delivered: response.data.filter(r => r.status === 'DELIVERED').length,
+        farmerShipments: farmerRequests.length,
+        distributorShipments: distributorRequests.length,
+        inTransit: inTransitRequests.length,
+        completed: completedRequests.length,
       });
     } catch (error) {
       console.error('Error fetching transport requests:', error);
@@ -59,6 +85,36 @@ const TransporterDashboard = () => {
       alert(error.response?.data?.message || 'Failed to update status');
     }
   };
+
+  const getFilteredRequests = () => {
+    switch(activeTab) {
+      case 'farmer':
+        return requests.filter(r => 
+          r.status === 'PENDING' && 
+          r.from_party_details?.role === 'farmer'
+        );
+      case 'distributor':
+        // Temporary: show all requests to debug
+        console.log('All requests for debugging:', requests);
+        return requests.filter(r => {
+          const result = r.from_party_details?.role === 'distributor';
+          console.log(`Filtering request ${r.id}: role=${r.from_party_details?.role}, matches=${result}`);
+          return result;
+        });
+      case 'in-transit':
+        return requests.filter(r => 
+          r.status === 'ACCEPTED' || 
+          r.status === 'IN_TRANSIT' || 
+          r.status === 'IN_TRANSIT_TO_RETAILER'
+        );
+      case 'completed':
+        return requests.filter(r => r.status === 'DELIVERED');
+      default:
+        return [];
+    }
+  };
+
+  const filteredRequests = getFilteredRequests();
 
   const getStatusBadge = (status) => {
     const styles = {
@@ -87,12 +143,12 @@ const TransporterDashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-4 gap-6">
           <div className="card p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Active Deliveries</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.assigned}</p>
+                <p className="text-sm text-gray-600 mb-1">Farmer Shipments</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.farmerShipments}</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
                 <Package className="w-6 h-6 text-blue-600" />
@@ -103,11 +159,11 @@ const TransporterDashboard = () => {
           <div className="card p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Currently In Transit</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.inTransit}</p>
+                <p className="text-sm text-gray-600 mb-1">Distributor Shipments</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.distributorShipments}</p>
               </div>
-              <div className="bg-amber-100 p-3 rounded-lg">
-                <Truck className="w-6 h-6 text-amber-600" />
+              <div className="bg-purple-100 p-3 rounded-lg">
+                <Truck className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </div>
@@ -115,14 +171,72 @@ const TransporterDashboard = () => {
           <div className="card p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Delivered</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.delivered}</p>
+                <p className="text-sm text-gray-600 mb-1">In Transit</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.inTransit}</p>
+              </div>
+              <div className="bg-amber-100 p-3 rounded-lg">
+                <Navigation className="w-6 h-6 text-amber-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Completed</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
                 <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveTab('farmer')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'farmer'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <Package className="w-4 h-4 inline mr-2" />
+              Farmer Shipments
+            </button>
+            <button
+              onClick={() => setActiveTab('distributor')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'distributor'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <Truck className="w-4 h-4 inline mr-2" />
+              Distributor Shipments
+            </button>
+            <button
+              onClick={() => setActiveTab('in-transit')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'in-transit'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <Navigation className="w-4 h-4 inline mr-2" />
+              In Transit
+            </button>
+            <button
+              onClick={() => setActiveTab('completed')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'completed'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <CheckCircle className="w-4 h-4 inline mr-2" />
+              Completed
+            </button>
+          </nav>
         </div>
 
         {/* Transport Table */}
@@ -150,15 +264,15 @@ const TransporterDashboard = () => {
                       Loading...
                     </td>
                   </tr>
-                ) : requests.length === 0 ? (
+                ) : filteredRequests.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="text-center py-8 text-gray-500">
                       <Truck className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-                      <p>No transport requests</p>
+                      <p>No {activeTab.replace('-', ' ')} requests</p>
                     </td>
                   </tr>
                 ) : (
-                  requests.map((request) => (
+                  filteredRequests.map((request) => (
                     <tr key={request.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <span className="font-mono text-sm text-gray-900">
@@ -212,15 +326,7 @@ const TransporterDashboard = () => {
                               </button>
                             </>
                           )}
-                          {request.status === 'ACCEPTED' && (
-                            <button
-                              onClick={() => handleStatusUpdate(request.id, 'IN_TRANSIT')}
-                              className="px-3 py-1 bg-amber-600 text-white text-xs rounded hover:bg-amber-700"
-                            >
-                              Start Transport
-                            </button>
-                          )}
-                          {request.status === 'IN_TRANSIT' && (
+                          {(request.status === 'ACCEPTED' || request.status.includes('IN_TRANSIT')) && (
                             <button
                               onClick={() => handleStatusUpdate(request.id, 'DELIVERED')}
                               className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"

@@ -15,15 +15,15 @@ class BatchStatusTransitionValidator:
             StakeholderRole.FARMER: [BatchStatus.TRANSPORT_REQUESTED],
         },
         BatchStatus.TRANSPORT_REQUESTED: {
-            StakeholderRole.TRANSPORTER: [BatchStatus.IN_TRANSIT],
+            StakeholderRole.TRANSPORTER: [BatchStatus.IN_TRANSIT_TO_DISTRIBUTOR],
         },
-        BatchStatus.IN_TRANSIT: {
+        BatchStatus.IN_TRANSIT_TO_DISTRIBUTOR: {
             StakeholderRole.TRANSPORTER: [BatchStatus.DELIVERED_TO_DISTRIBUTOR],
         },
         BatchStatus.DELIVERED_TO_DISTRIBUTOR: {
-            StakeholderRole.DISTRIBUTOR: [BatchStatus.STORED_BY_DISTRIBUTOR],
+            StakeholderRole.DISTRIBUTOR: [BatchStatus.STORED],
         },
-        BatchStatus.STORED_BY_DISTRIBUTOR: {
+        BatchStatus.STORED: {
             StakeholderRole.DISTRIBUTOR: [BatchStatus.TRANSPORT_REQUESTED_TO_RETAILER],
         },
         BatchStatus.TRANSPORT_REQUESTED_TO_RETAILER: {

@@ -14,7 +14,7 @@ import {
   Eye
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
-import { batchAPI } from '../../services/api';
+import { batchAPI, transportAPI, stakeholderAPI } from '../../services/api';
 
 const FarmerDashboard = () => {
   const [batches, setBatches] = useState([]);
@@ -25,6 +25,10 @@ const FarmerDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showTransportModal, setShowTransportModal] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState(null);
+  const [distributors, setDistributors] = useState([]);
+  const [selectedDistributor, setSelectedDistributor] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     crop_type: '',
@@ -35,6 +39,7 @@ const FarmerDashboard = () => {
 
   useEffect(() => {
     fetchBatches();
+    fetchDistributors();
   }, []);
 
   const fetchBatches = async () => {
@@ -52,6 +57,38 @@ const FarmerDashboard = () => {
       console.error('Error fetching batches:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDistributors = async () => {
+    try {
+      const response = await stakeholderAPI.listProfiles();
+      const distributorList = response.data.filter(profile => profile.role === 'distributor');
+      setDistributors(distributorList);
+    } catch (error) {
+      console.error('Error fetching distributors:', error);
+    }
+  };
+
+  const handleRequestTransport = async () => {
+    if (!selectedDistributor) {
+      alert('Please select a distributor');
+      return;
+    }
+
+    try {
+      await transportAPI.createRequest({
+        batch_id: selectedBatch.id,
+        distributor_id: selectedDistributor
+      });
+      setShowTransportModal(false);
+      setSelectedBatch(null);
+      setSelectedDistributor('');
+      fetchBatches(); // Refresh to show updated status
+      alert('Transport request created successfully!');
+    } catch (error) {
+      console.error('Error creating transport request:', error);
+      alert(error.response?.data?.message || 'Failed to create transport request');
     }
   };
 
@@ -219,6 +256,54 @@ const FarmerDashboard = () => {
           </div>
         )}
 
+        {/* Transport Request Modal */}
+        {showTransportModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Request Transport</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Batch</label>
+                  <p className="text-sm text-gray-600">{selectedBatch?.product_batch_id} - {selectedBatch?.crop_type}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Select Distributor</label>
+                  <select
+                    value={selectedDistributor}
+                    onChange={(e) => setSelectedDistributor(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">Choose a distributor...</option>
+                    {distributors.map(dist => (
+                      <option key={dist.id} value={dist.id}>
+                        {dist.user_details?.username || dist.organization || `Distributor ${dist.id}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowTransportModal(false);
+                    setSelectedBatch(null);
+                    setSelectedDistributor('');
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRequestTransport}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  Request Transport
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Batches Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="p-4 border-b border-gray-100">
@@ -243,6 +328,7 @@ const FarmerDashboard = () => {
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Quantity</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Harvest Date</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Location</th>
+                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -272,24 +358,33 @@ const FarmerDashboard = () => {
                         {batch.farm_location || 'N/A'}
                       </td>
                       <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${batch.status === 'CREATED' ? 'bg-blue-100 text-blue-700' :
+                          batch.status === 'TRANSPORT_REQUESTED' ? 'bg-yellow-100 text-yellow-700' :
+                            batch.status === 'IN_TRANSIT' ? 'bg-purple-100 text-purple-700' :
+                              'bg-green-100 text-green-700'
+                          }`}>
+                          {batch.status?.replace(/_/g, ' ') || 'CREATED'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
+                          {batch.status === 'CREATED' && (
+                            <button
+                              onClick={() => {
+                                setSelectedBatch(batch);
+                                setShowTransportModal(true);
+                              }}
+                              className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                              title="Request Transport"
+                            >
+                              Request Transport
+                            </button>
+                          )}
                           <button
                             className="p-1 text-gray-400 hover:text-gray-600"
                             title="View Details"
                           >
                             <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-1 text-gray-400 hover:text-gray-600"
-                            title="Edit"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-1 text-gray-400 hover:text-red-600"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>

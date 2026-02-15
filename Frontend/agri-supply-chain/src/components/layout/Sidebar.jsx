@@ -1,14 +1,14 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Sprout, 
-  Truck, 
-  Store, 
-  ShoppingCart, 
-  User, 
-  Shield, 
-  FileCheck, 
+import {
+  LayoutDashboard,
+  Sprout,
+  Truck,
+  Store,
+  ShoppingCart,
+  User,
+  Shield,
+  FileCheck,
   Users,
   LogOut,
   ChevronRight
@@ -31,32 +31,22 @@ const Sidebar = () => {
         { path: '/admin/dashboard', icon: <Shield className="w-5 h-5" />, label: 'Dashboard' },
         { path: '/admin/kyc', icon: <FileCheck className="w-5 h-5" />, label: 'KYC Requests' },
         { path: '/admin/users', icon: <Users className="w-5 h-5" />, label: 'Users' },
-        { path: '/admin/batches', icon: <Sprout className="w-5 h-5" />, label: 'Crop Batches' },
       ],
       FARMER: [
         { path: '/farmer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/farmer/batches', icon: <Sprout className="w-5 h-5" />, label: 'My Crops' },
-        { path: '/farmer/new-batch', icon: <ChevronRight className="w-5 h-5" />, label: 'Add New Crop' },
       ],
       DISTRIBUTOR: [
         { path: '/distributor/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/distributor/batches', icon: <Store className="w-5 h-5" />, label: 'Incoming Crops' },
-        { path: '/distributor/inspections', icon: <FileCheck className="w-5 h-5" />, label: 'Inspections' },
       ],
       TRANSPORTER: [
         { path: '/transporter/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/transporter/requests', icon: <Truck className="w-5 h-5" />, label: 'Transport Requests' },
-        { path: '/transporter/active', icon: <ChevronRight className="w-5 h-5" />, label: 'Active Transport' },
       ],
       RETAILER: [
         { path: '/retailer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/retailer/inventory', icon: <Store className="w-5 h-5" />, label: 'Inventory' },
-        { path: '/retailer/listings', icon: <ShoppingCart className="w-5 h-5" />, label: 'Sale Listings' },
+        { path: '/retailer/listing/new', icon: <ShoppingCart className="w-5 h-5" />, label: 'New Listing' },
       ],
       CONSUMER: [
         { path: '/consumer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/consumer/trace', icon: <Sprout className="w-5 h-5" />, label: 'Track Crops' },
-        { path: '/consumer/history', icon: <ChevronRight className="w-5 h-5" />, label: 'History' },
       ],
     };
     return items[role] || [];

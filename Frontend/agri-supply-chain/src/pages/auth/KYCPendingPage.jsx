@@ -22,7 +22,7 @@ const KYCPendingPage = () => {
               onClick={logout}
               className="text-gray-600 hover:text-primary font-medium"
             >
-              लॉग आउट
+              Logout
             </button>
           </div>
         </div>
@@ -73,8 +73,8 @@ const KYCPendingPage = () => {
             <p className="text-sm text-gray-500 mb-4">
               If you have any issues, please contact our support team
             </p>
-            <a 
-              href="mailto:support@agrichain.in" 
+            <a
+              href="mailto:support@agrichain.in"
               className="text-primary font-medium hover:underline"
             >
               support@agrichain.in

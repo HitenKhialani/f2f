@@ -13,13 +13,22 @@ from supplychain.admin_views import (
     UserListView,
 )
 from supplychain.auth_views import LoginView, LogoutView, MeView, RegisterView
+from supplychain.transport_views import (
+    TransportRequestCreateView,
+    TransportAcceptView,
+    TransportDeliverView,
+    TransportRejectView,
+)
+from supplychain.consumer_views import BatchTraceView
+from supplychain.distributor_views import StoreBatchView, RequestTransportToRetailerView
+from supplychain.retailer_views import MarkBatchSoldView
 
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet, basename="user")
 router.register(r"stakeholders", views.StakeholderProfileViewSet)
 router.register(r"kyc-records", views.KYCRecordViewSet)
-router.register(r"crop-batches", views.CropBatchViewSet)
-router.register(r"transport-requests", views.TransportRequestViewSet)
+router.register(r"crop-batches", views.CropBatchViewSet, basename="cropbatch")
+router.register(r"transport-requests", views.TransportRequestViewSet, basename="transportrequest")
 router.register(r"inspection-reports", views.InspectionReportViewSet)
 router.register(r"batch-splits", views.BatchSplitViewSet)
 router.register(r"retail-listings", views.RetailListingViewSet)
@@ -40,4 +49,16 @@ urlpatterns = [
     path("api/admin/kyc/decide/<int:pk>/", KYCDecisionView.as_view(), name="admin-kyc-decide"),
     path("api/admin/users/", UserListView.as_view(), name="admin-users"),
     path("api/admin/users/<int:pk>/", UserDetailView.as_view(), name="admin-user-detail"),
+    # Transport workflow endpoints
+    path("api/transport/request/", TransportRequestCreateView.as_view(), name="transport-request"),
+    path("api/transport/<int:pk>/accept/", TransportAcceptView.as_view(), name="transport-accept"),
+    path("api/transport/<int:pk>/deliver/", TransportDeliverView.as_view(), name="transport-deliver"),
+    path("api/transport/<int:pk>/reject/", TransportRejectView.as_view(), name="transport-reject"),
+    # Consumer endpoints
+    path("api/consumer/trace/<str:batch_id>/", BatchTraceView.as_view(), name="consumer-trace"),
+    # Distributor endpoints
+    path("api/distributor/batch/<int:batch_id>/store/", StoreBatchView.as_view(), name="distributor-store-batch"),
+    path("api/distributor/transport/request-to-retailer/", RequestTransportToRetailerView.as_view(), name="distributor-request-transport-retailer"),
+    # Retailer endpoints
+    path("api/retailer/batch/<int:batch_id>/mark-sold/", MarkBatchSoldView.as_view(), name="retailer-mark-sold"),
 ]

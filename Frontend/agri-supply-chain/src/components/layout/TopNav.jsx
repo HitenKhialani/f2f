@@ -21,12 +21,12 @@ const TopNav = () => {
 
   const getRoleLabel = () => {
     const labels = {
-      ADMIN: 'व्यवस्थापक',
-      FARMER: 'किसान',
-      DISTRIBUTOR: 'वितरक',
-      TRANSPORTER: 'परिवहनकर्ता',
-      RETAILER: 'विक्रेता',
-      CONSUMER: 'उपभोक्ता',
+      ADMIN: 'Admin',
+      FARMER: 'Farmer',
+      DISTRIBUTOR: 'Distributor',
+      TRANSPORTER: 'Transporter',
+      RETAILER: 'Retailer',
+      CONSUMER: 'Consumer',
     };
     return labels[role] || role;
   };
@@ -82,7 +82,7 @@ const TopNav = () => {
                     onClick={() => setShowDropdown(false)}
                   >
                     <User className="w-4 h-4" />
-                    प्रोफाइल
+                    Profile
                   </Link>
                   <button
                     onClick={() => {
@@ -92,7 +92,7 @@ const TopNav = () => {
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                   >
                     <LogOut className="w-4 h-4" />
-                    लॉग आउट
+                    Logout
                   </button>
                 </div>
               )}

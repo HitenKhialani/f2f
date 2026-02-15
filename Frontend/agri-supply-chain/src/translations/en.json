@@ -19,13 +19,7 @@
     "transporter": "Transporter",
     "retailer": "Retailer",
     "consumer": "Consumer",
-    "admin": "Admin",
-    "farmerHindi": "किसान",
-    "distributorHindi": "वितरक",
-    "transporterHindi": "परिवहनकर्ता",
-    "retailerHindi": "विक्रेता",
-    "consumerHindi": "उपभोक्ता",
-    "adminHindi": "व्यवस्थापक"
+    "admin": "Admin"
   },
   "landing": {
     "heroTitle": "Traceable Agriculture from Farm to Fork",
@@ -82,33 +76,48 @@
     "roles": {
       "farmer": {
         "title": "Farmer",
-        "hindiTitle": "किसान",
         "desc": "Crop production and batch management",
-        "features": ["Create crop batches", "Upload certificates", "Connect with distributors"]
+        "features": [
+          "Create crop batches",
+          "Upload certificates",
+          "Connect with distributors"
+        ]
       },
       "distributor": {
         "title": "Distributor",
-        "hindiTitle": "वितरक",
         "desc": "Crop inspection and storage",
-        "features": ["Inspect crops", "Create quality reports", "Sell to retailers"]
+        "features": [
+          "Inspect crops",
+          "Create quality reports",
+          "Sell to retailers"
+        ]
       },
       "transporter": {
         "title": "Transporter",
-        "hindiTitle": "परिवहनकर्ता",
         "desc": "Fast and secure transport services",
-        "features": ["View transport requests", "Real-time tracking", "Delivery proof"]
+        "features": [
+          "View transport requests",
+          "Real-time tracking",
+          "Delivery proof"
+        ]
       },
       "retailer": {
         "title": "Retailer",
-        "hindiTitle": "विक्रेता",
         "desc": "Stock management and sales",
-        "features": ["View inventory", "Create sale listings", "Connect with consumers"]
+        "features": [
+          "View inventory",
+          "Create sale listings",
+          "Connect with consumers"
+        ]
       },
       "consumer": {
         "title": "Consumer",
-        "hindiTitle": "उपभोक्ता",
         "desc": "Check crop origin and traceability",
-        "features": ["Scan QR code", "View crop history", "Trusted purchases"]
+        "features": [
+          "Scan QR code",
+          "View crop history",
+          "Trusted purchases"
+        ]
       }
     }
   },

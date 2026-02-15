@@ -211,6 +211,8 @@ class MeView(APIView):
                     "id": user.id,
                     "username": user.username,
                     "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
                 },
                 "role": profile.role.upper(),
                 "kyc_status": profile.kyc_status.upper(),
@@ -220,6 +222,51 @@ class MeView(APIView):
                     "address": profile.address,
                     "wallet_id": profile.wallet_id,
                 },
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def patch(self, request):
+        user = request.user
+        try:
+            profile = models.StakeholderProfile.objects.get(user=user)
+        except models.StakeholderProfile.DoesNotExist:
+            return Response(
+                {"message": "User profile not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        data = request.data
+        
+        # Update User fields
+        if "first_name" in data:
+            user.first_name = data["first_name"]
+        if "last_name" in data:
+            user.last_name = data["last_name"]
+        if "email" in data:
+            user.email = data["email"]
+        user.save()
+
+        # Update Profile fields
+        if "organization" in data:
+            profile.organization = data["organization"]
+        if "address" in data:
+            profile.address = data["address"]
+        if "phone" in data:
+            profile.phone = data["phone"]
+        
+        profile.save()
+
+        return Response(
+            {
+                "message": "Profile updated successfully",
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "stakeholder_profile": {
+                    "organization": profile.organization,
+                    "address": profile.address,
+                    "phone": profile.phone,
+                }
             },
             status=status.HTTP_200_OK,
         )

@@ -1,0 +1,9 @@
+Username: farmer01, Email: farmer01@gmail.com, Active: True
+Username: admin, Email: admin@agrichain.in, Active: True
+Username: hiten, Email: hitenkhialani05@gmail.com, Active: True
+Username: hiten01, Email: hitenkhialani05@gmail.com, Active: True
+Username: testfarmer, Email: farmer@test.com, Active: True
+Username: transporter01, Email: transporter01@gmail.com, Active: True
+Username: distributor01, Email: distributor01@gmail.com, Active: True
+Username: retailer01, Email: retailer01@gmail.com, Active: True
+Username: consumer01, Email: consumer01@gmail.com, Active: True

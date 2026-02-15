@@ -9,7 +9,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "password"]
+        fields = ["id", "username", "email", "password", "first_name", "last_name"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
@@ -55,11 +55,17 @@ class KYCRecordSerializer(serializers.ModelSerializer):
 
 
 class CropBatchSerializer(serializers.ModelSerializer):
+    current_owner_username = serializers.CharField(source="current_owner.username", read_only=True)
+    
     class Meta:
         model = models.CropBatch
         fields = [
             "id",
             "farmer",
+            "current_owner",
+            "current_owner_username",
+            "status",
+            "farm_location",
             "crop_type",
             "quantity",
             "harvest_date",
@@ -69,20 +75,29 @@ class CropBatchSerializer(serializers.ModelSerializer):
             "qr_code_data",
             "created_at",
         ]
-        read_only_fields = ["farmer", "product_batch_id", "qr_code_data", "created_at"]
+        read_only_fields = ["farmer", "product_batch_id", "qr_code_data", "created_at", "current_owner"]
 
 
 
 class TransportRequestSerializer(serializers.ModelSerializer):
+    batch_details = CropBatchSerializer(source="batch", read_only=True)
+    from_party_details = StakeholderProfileSerializer(source="from_party", read_only=True)
+    to_party_details = StakeholderProfileSerializer(source="to_party", read_only=True)
+    transporter_details = StakeholderProfileSerializer(source="transporter", read_only=True)
+
     class Meta:
         model = models.TransportRequest
         fields = [
             "id",
             "batch",
+            "batch_details",
             "requested_by",
             "from_party",
+            "from_party_details",
             "to_party",
+            "to_party_details",
             "transporter",
+            "transporter_details",
             "status",
             "vehicle_details",
             "driver_details",

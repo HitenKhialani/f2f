@@ -1,8 +1,17 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Sprout, Shield, Truck, Users, TrendingUp, ChevronRight } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+  const { role, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && role) {
+      navigate(`/${role.toLowerCase()}/dashboard`);
+    }
+  }, [isAuthenticated, role, navigate]);
   const stats = [
     { value: '10,000+', label: 'Active Indian Farmers', sublabel: 'Connected' },
     { value: '5M+', label: 'Products Tracked', sublabel: 'On Blockchain' },
@@ -101,9 +110,9 @@ const LandingPage = () => {
             </div>
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-green-400/20 rounded-3xl transform rotate-3"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1500382017468-1579e9c2118e?w=800&auto=format&fit=crop&q=80" 
-                alt="Indian Farming" 
+              <img
+                src="https://images.unsplash.com/photo-1500382017468-1579e9c2118e?w=800&auto=format&fit=crop&q=80"
+                alt="Indian Farming"
                 className="relative rounded-2xl shadow-2xl w-full h-[500px] object-cover"
               />
               <div className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-xl p-4">

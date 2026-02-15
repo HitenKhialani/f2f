@@ -34,13 +34,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     const response = await authAPI.login(credentials);
     const { token, refresh, user, role, kyc_status } = response.data;
-    
+
     localStorage.setItem('token', token);
     localStorage.setItem('refresh', refresh);
     setUser(user);
     setRole(role);
     setKycStatus(kyc_status);
-    
+    console.log('User logged in:', role);
+
     return { user, role, kyc_status };
   };
 

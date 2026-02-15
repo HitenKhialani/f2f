@@ -58,10 +58,37 @@ class KYCRecord(models.Model):
         return f"{self.profile.user.username} - {self.document_type}"
 
 
+class BatchStatus(models.TextChoices):
+    CREATED = "CREATED", "Created"
+    TRANSPORT_REQUESTED = "TRANSPORT_REQUESTED", "Transport Requested"
+    IN_TRANSIT = "IN_TRANSIT", "In Transit"
+    DELIVERED_TO_DISTRIBUTOR = "DELIVERED_TO_DISTRIBUTOR", "Delivered to Distributor"
+    STORED_BY_DISTRIBUTOR = "STORED_BY_DISTRIBUTOR", "Stored by Distributor"
+    TRANSPORT_REQUESTED_TO_RETAILER = "TRANSPORT_REQUESTED_TO_RETAILER", "Transport Requested to Retailer"
+    IN_TRANSIT_TO_RETAILER = "IN_TRANSIT_TO_RETAILER", "In Transit to Retailer"
+    DELIVERED_TO_RETAILER = "DELIVERED_TO_RETAILER", "Delivered to Retailer"
+    LISTED = "LISTED", "Listed for Sale"
+    SOLD = "SOLD", "Sold"
+    TRANSPORT_REJECTED = "TRANSPORT_REJECTED", "Transport Rejected"
+
+
 class CropBatch(models.Model):
     farmer = models.ForeignKey(
         StakeholderProfile, on_delete=models.PROTECT, related_name="crop_batches"
     )
+    # New Fields for Stabilization
+    current_owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="owned_batches",
+    )
+    status = models.CharField(
+        max_length=32, choices=BatchStatus.choices, default=BatchStatus.CREATED
+    )
+    farm_location = models.CharField(max_length=255, blank=True)
+
     crop_type = models.CharField(max_length=120)
     quantity = models.DecimalField(max_digits=12, decimal_places=2)
     harvest_date = models.DateField()
@@ -81,10 +108,61 @@ class CropBatch(models.Model):
             import datetime
 
             self.product_batch_id = f"BATCH-{datetime.datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
+        
+        # Auto-set owner to farmer's user if not set
+        if not self.current_owner and self.farmer:
+            self.current_owner = self.farmer.user
+            
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
-        return self.product_batch_id
+        return f"{self.product_batch_id} ({self.status})"
+
+
+class BatchEventType(models.TextChoices):
+    CREATED = "CREATED", "Batch Created"
+    TRANSPORT_REQUESTED = "TRANSPORT_REQUESTED", "Transport Requested"
+    TRANSPORT_ACCEPTED = "TRANSPORT_ACCEPTED", "Transport Accepted"
+    TRANSPORT_STARTED = "TRANSPORT_STARTED", "Transport Started"
+    DELIVERED_TO_DISTRIBUTOR = "DELIVERED_TO_DISTRIBUTOR", "Delivered to Distributor"
+    STORED = "STORED", "Stored by Distributor"
+    INSPECTED = "INSPECTED", "Inspected"
+    INSPECTION_PASSED = "INSPECTION_PASSED", "Inspection Passed"
+    INSPECTION_FAILED = "INSPECTION_FAILED", "Inspection Failed"
+    TRANSPORT_REQUESTED_TO_RETAILER = "TRANSPORT_REQUESTED_TO_RETAILER", "Transport Requested to Retailer"
+    IN_TRANSIT_TO_RETAILER = "IN_TRANSIT_TO_RETAILER", "In Transit to Retailer"
+    DELIVERED_TO_RETAILER = "DELIVERED_TO_RETAILER", "Delivered to Retailer"
+    LISTED = "LISTED", "Listed for Retail"
+    SOLD = "SOLD", "Sold to Consumer"
+    TRANSPORT_REJECTED = "TRANSPORT_REJECTED", "Transport Rejected"
+
+
+class BatchEvent(models.Model):
+    """
+    Immutable event log for batch history.
+    Prepares for blockchain integration.
+    """
+    batch = models.ForeignKey(
+        CropBatch, on_delete=models.CASCADE, related_name="events"
+    )
+    event_type = models.CharField(max_length=32, choices=BatchEventType.choices)
+    performed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="batch_events"
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+    metadata = models.JSONField(default=dict, blank=True)
+    
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['batch', '-timestamp']),
+        ]
+    
+    def __str__(self):
+        return f"{self.batch.product_batch_id} - {self.event_type} at {self.timestamp}"
 
 
 class Certificate(models.Model):
@@ -120,7 +198,7 @@ class TransportRequest(models.Model):
         null=True,
         blank=True,
     )
-    status = models.CharField(max_length=32, default="pending")
+    status = models.CharField(max_length=32, default="PENDING")
     vehicle_details = models.TextField(blank=True)
     driver_details = models.TextField(blank=True)
     pickup_at = models.DateTimeField(null=True, blank=True)

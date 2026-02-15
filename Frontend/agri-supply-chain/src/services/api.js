@@ -35,17 +35,17 @@ api.interceptors.response.use(
 
 // Auth APIs
 export const authAPI = {
-  login: (credentials) => api.post('/auth/login/', credentials),
+  login: (data) => api.post('/auth/login/', data),
   register: (data) => api.post('/auth/register/', data),
-  logout: (data) => api.post('/auth/logout/', data),
   me: () => api.get('/auth/me/'),
+  updateProfile: (data) => api.patch('/auth/me/', data),
 };
 
 // Stakeholder APIs
 export const stakeholderAPI = {
-  getProfile: (id) => api.get(`/stakeholder-profiles/${id}/`),
-  updateProfile: (id, data) => api.patch(`/stakeholder-profiles/${id}/`, data),
-  listProfiles: () => api.get('/stakeholder-profiles/'),
+  getProfile: (id) => api.get(`/stakeholders/${id}/`),
+  updateProfile: (id, data) => api.patch(`/stakeholders/${id}/`, data),
+  listProfiles: () => api.get('/stakeholders/'),
 };
 
 // KYC APIs
@@ -69,6 +69,11 @@ export const transportAPI = {
   create: (data) => api.post('/transport-requests/', data),
   get: (id) => api.get(`/transport-requests/${id}/`),
   update: (id, data) => api.patch(`/transport-requests/${id}/`, data),
+  // New transport workflow endpoints
+  createRequest: (data) => api.post('/transport/request/', data),
+  acceptRequest: (id) => api.post(`/transport/${id}/accept/`),
+  deliverRequest: (id) => api.post(`/transport/${id}/deliver/`),
+  rejectRequest: (id) => api.post(`/transport/${id}/reject/`),
 };
 
 // Inspection APIs
@@ -96,6 +101,18 @@ export const priceAPI = {
 export const consumerAPI = {
   scan: (data) => api.post('/consumer-scans/', data),
   getTimeline: (batchId) => api.get(`/crop-batches/${batchId}/timeline/`),
+  traceBatch: (batchId) => api.get(`/consumer/trace/${batchId}/`),
+};
+
+// Distributor APIs
+export const distributorAPI = {
+  storeBatch: (batchId) => api.post(`/distributor/batch/${batchId}/store/`),
+  requestTransportToRetailer: (data) => api.post('/distributor/transport/request-to-retailer/', data),
+};
+
+// Retailer APIs
+export const retailerAPI = {
+  markSold: (batchId) => api.post(`/retailer/batch/${batchId}/mark-sold/`),
 };
 
 export default api;

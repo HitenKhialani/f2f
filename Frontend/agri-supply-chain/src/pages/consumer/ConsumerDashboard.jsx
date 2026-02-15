@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
+import {
   Search,
   ScanLine,
   History,
@@ -11,31 +11,57 @@ import {
   ArrowRight
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
+import { consumerAPI } from '../../services/api';
 
 const ConsumerDashboard = () => {
   const [batchId, setBatchId] = useState('');
   const [searchResult, setSearchResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const getStageIcon = (stage) => {
+    switch (stage) {
+      case 'Crop Production': return <Sprout className="w-5 h-5" />;
+      case 'Transport': return <Truck className="w-5 h-5" />;
+      case 'Quality Inspection': return <ClipboardCheck className="w-5 h-5" />;
+      case 'Retail Sale': return <Store className="w-5 h-5" />;
+      default: return <ClipboardCheck className="w-5 h-5" />;
+    }
+  };
+
   const handleSearch = async (e) => {
     e.preventDefault();
+    if (!batchId.trim()) {
+      alert('Please enter a batch ID');
+      return;
+    }
+
     setLoading(true);
-    // API call would go here
-    setTimeout(() => {
+    try {
+      const response = await consumerAPI.traceBatch(batchId);
+      const data = response.data;
+
+      // Transform API response to match UI format
       setSearchResult({
-        batchId: batchId,
-        cropType: 'Wheat',
-        farmer: 'Rajesh Kumar',
-        location: 'Muzaffarnagar, Uttar Pradesh',
-        timeline: [
-          { stage: 'Crop Production', icon: <Sprout className="w-5 h-5" />, date: '2024-01-15', actor: 'Rajesh Kumar (Farmer)', location: 'Muzaffarnagar, UP' },
-          { stage: 'Transport', icon: <Truck className="w-5 h-5" />, date: '2024-01-20', actor: 'Amit Transport', location: 'Muzaffarnagar → Delhi' },
-          { stage: 'Inspection', icon: <ClipboardCheck className="w-5 h-5" />, date: '2024-01-21', actor: 'Agro Distribution', location: 'Delhi' },
-          { stage: 'Retail Sale', icon: <Store className="w-5 h-5" />, date: '2024-01-25', actor: 'Kirana Store', location: 'Delhi' },
-        ]
+        batchId: data.batch.id,
+        cropType: data.batch.crop_type,
+        farmer: data.farmer.name,
+        location: data.farmer.location || data.farmer.organization || 'N/A',
+        timeline: data.timeline.map(item => ({
+          stage: item.stage,
+          icon: getStageIcon(item.stage),
+          date: new Date(item.date).toLocaleDateString('hi-IN'),
+          actor: `${item.actor} (${item.actor_type})`,
+          location: item.location,
+          status: item.status,
+        }))
       });
+    } catch (error) {
+      console.error('Error tracing batch:', error);
+      alert(error.response?.data?.message || 'Batch not found. Please check the Batch ID.');
+      setSearchResult(null);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -57,7 +83,7 @@ const ConsumerDashboard = () => {
             <p className="text-gray-600 mb-6">
               Enter Batch ID or QR code to view the complete journey of the crop
             </p>
-            
+
             <form onSubmit={handleSearch} className="flex gap-4">
               <input
                 type="text"
@@ -84,10 +110,10 @@ const ConsumerDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{searchResult.cropType}</h3>
-                  <p className="text-sm text-gray-600">बैच ID: {searchResult.batchId}</p>
+                  <p className="text-sm text-gray-600">Batch ID: {searchResult.batchId}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">उत्पादक</p>
+                  <p className="text-sm text-gray-600">Producer</p>
                   <p className="font-medium text-gray-900">{searchResult.farmer}</p>
                   <p className="text-xs text-gray-500">{searchResult.location}</p>
                 </div>

@@ -1,70 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  Store, 
+import { useNavigate } from 'react-router-dom';
+import {
+  Store,
   Plus,
-  Search,
-  Filter,
   Package,
   ShoppingCart,
-  TrendingUp,
-  IndianRupee
+  CheckCircle,
+  Truck
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
-import { retailAPI } from '../../services/api';
+import { batchAPI, transportAPI, retailerAPI } from '../../services/api';
 
 const RetailerDashboard = () => {
-  const [listings, setListings] = useState([]);
-  const [stats, setStats] = useState({
-    inventory: 0,
-    active: 0,
-    sold: 0,
-    revenue: 0,
-  });
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('incoming');
+  const [batches, setBatches] = useState([]);
+  const [transportRequests, setTransportRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchListings();
+    fetchData();
   }, []);
 
-  const fetchListings = async () => {
+  const fetchData = async () => {
     try {
-      const response = await retailAPI.list();
-      setListings(response.data);
-      
-      // Calculate stats
-      const totalRevenue = response.data.reduce((acc, item) => {
-        if (item.status === 'sold') {
-          return acc + (item.farmer_base_price + item.transport_fees + item.distributor_margin + item.retailer_margin);
-        }
-        return acc;
-      }, 0);
-
-      setStats({
-        inventory: response.data.length,
-        active: response.data.filter(l => l.status === 'for_sale').length,
-        sold: response.data.filter(l => l.status === 'sold').length,
-        revenue: totalRevenue,
-      });
+      const [batchesRes, transportRes] = await Promise.all([
+        batchAPI.list(),
+        transportAPI.list(),
+      ]);
+      setBatches(batchesRes.data);
+      setTransportRequests(transportRes.data);
     } catch (error) {
-      console.error('Error fetching listings:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusBadge = (status) => {
-    if (status === 'sold') {
-      return <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">Sold</span>;
-    } else if (status === 'for_sale') {
-      return <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">For Sale</span>;
+  const handleMarkSold = async (batchId) => {
+    if (!confirm('Mark this batch as sold?')) return;
+
+    try {
+      await retailerAPI.markSold(batchId);
+      alert('Batch marked as sold successfully');
+      fetchData();
+    } catch (error) {
+      console.error('Error marking batch as sold:', error);
+      alert(error.response?.data?.message || 'Failed to mark batch as sold');
     }
-    return <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Inactive</span>;
   };
 
-  const calculateTotalPrice = (item) => {
-    return item.farmer_base_price + item.transport_fees + item.distributor_margin + item.retailer_margin;
+  const getFilteredContent = () => {
+    switch (activeTab) {
+      case 'incoming':
+        // Show transport requests where status is not DELIVERED
+        return transportRequests.filter(tr => tr.status !== 'DELIVERED');
+      case 'received':
+        return batches.filter(b => b.status === 'DELIVERED_TO_RETAILER');
+      case 'listed':
+        return batches.filter(b => b.status === 'LISTED');
+      case 'sold':
+        return batches.filter(b => b.status === 'SOLD');
+      default:
+        return [];
+    }
   };
+
+  const filteredItems = getFilteredContent();
 
   return (
     <MainLayout>
@@ -75,144 +77,133 @@ const RetailerDashboard = () => {
             <h1 className="text-2xl font-bold text-gray-900">Retailer Dashboard</h1>
             <p className="text-gray-600">Manage inventory and sales</p>
           </div>
-          <Link
-            to="/retailer/listing/new"
+          <button
+            onClick={() => navigate('/retailer/listing/new')}
             className="btn-primary flex items-center gap-2"
           >
-            <Plus className="w-5 h-5" />
-            <span>New Listing</span>
-          </Link>
+            <Plus className="w-4 h-4" />
+            New Listing
+          </button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-6">
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Total Inventory</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.inventory}</p>
-              </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Package className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Active Listings</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.active}</p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <ShoppingCart className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Sold</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.sold}</p>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-                <p className="text-3xl font-bold text-gray-900">₹{stats.revenue.toLocaleString('hi-IN')}</p>
-              </div>
-              <div className="bg-amber-100 p-3 rounded-lg">
-                <IndianRupee className="w-6 h-6 text-amber-600" />
-              </div>
-            </div>
-          </div>
+        {/* Tabs */}
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveTab('incoming')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'incoming'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <Truck className="w-4 h-4 inline mr-2" />
+              Incoming Transport
+            </button>
+            <button
+              onClick={() => setActiveTab('received')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'received'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <Package className="w-4 h-4 inline mr-2" />
+              Received
+            </button>
+            <button
+              onClick={() => setActiveTab('listed')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'listed'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <ShoppingCart className="w-4 h-4 inline mr-2" />
+              Listed
+            </button>
+            <button
+              onClick={() => setActiveTab('sold')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'sold'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <CheckCircle className="w-4 h-4 inline mr-2" />
+              Sold
+            </button>
+          </nav>
         </div>
 
-        {/* Listings Table */}
-        <div className="card overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Sale Listings</h2>
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search listings..."
-                    className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
-                  />
-                </div>
-                <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
-                  <Filter className="w-4 h-4" />
-                  Filter
-                </button>
-              </div>
-            </div>
-          </div>
-
+        {/* Batches Table */}
+        <div className="card">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Batch Ref</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Crop Type</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Price (₹)</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Created</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    {activeTab === 'incoming' ? 'Transport ID' : 'Batch ID'}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Crop Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    {activeTab === 'incoming' ? 'Source' : 'Quantity'}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="text-center py-8 text-gray-500">
-                      Loading...
-                    </td>
+                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">Loading...</td>
                   </tr>
-                ) : listings.length === 0 ? (
+                ) : filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="text-center py-8 text-gray-500">
-                      <Store className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-                      <p>No listings found</p>
-                      <Link
-                        to="/retailer/listing/new"
-                        className="inline-flex items-center gap-2 text-primary font-medium hover:underline mt-2"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Create First Listing
-                      </Link>
-                    </td>
+                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">No items found</td>
                   </tr>
                 ) : (
-                  listings.map((listing) => (
-                    <tr key={listing.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <span className="font-mono text-sm text-gray-900">
-                          {listing.batch?.product_batch_id?.slice(0, 8)}...
+                  filteredItems.map((item) => (
+                    <tr key={item.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {activeTab === 'incoming'
+                          ? `TR-${item.id}`
+                          : item.product_batch_id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {activeTab === 'incoming'
+                          ? item.batch_details?.crop_type
+                          : item.crop_type}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {activeTab === 'incoming'
+                          ? item.from_party_details?.organization || item.from_party_details?.user_details?.username
+                          : `${item.quantity} kg`}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
+                          item.status === 'LISTED' ? 'bg-blue-100 text-blue-700' :
+                            'bg-yellow-100 text-yellow-700'
+                          }`}>
+                          {item.status?.replace(/_/g, ' ')}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-medium text-gray-900">
-                        {listing.batch?.crop_type}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="font-medium text-gray-900">
-                          ₹{calculateTotalPrice(listing).toLocaleString('hi-IN')}
-                        </span>
-                        <span className="text-xs text-gray-500 block">
-                          (Farmer: ₹{listing.farmer_base_price} + Transport: ₹{listing.transport_fees} + Margin)
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        {getStatusBadge(listing.status)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {new Date(listing.created_at).toLocaleDateString('hi-IN')}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {activeTab === 'incoming' && (
+                          <span className="text-gray-500 italic">Incoming Delivery</span>
+                        )}
+                        {activeTab === 'received' && item.status === 'DELIVERED_TO_RETAILER' && (
+                          <button
+                            onClick={() => navigate('/retailer/listing/new')}
+                            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                          >
+                            Create Listing
+                          </button>
+                        )}
+                        {activeTab === 'listed' && item.status === 'LISTED' && (
+                          <button
+                            onClick={() => handleMarkSold(item.id)}
+                            className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                          >
+                            Mark as Sold
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))

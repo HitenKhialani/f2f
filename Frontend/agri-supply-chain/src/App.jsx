@@ -24,47 +24,58 @@ import UserManagement from './pages/admin/UserManagement';
 // Role Dashboards
 import FarmerDashboard from './pages/farmer/FarmerDashboard';
 import DistributorDashboard from './pages/distributor/DistributorDashboard';
+import InspectionPage from './pages/distributor/InspectionPage';
 import TransporterDashboard from './pages/transporter/TransporterDashboard';
 import RetailerDashboard from './pages/retailer/RetailerDashboard';
+import NewListingPage from './pages/retailer/NewListingPage';
 import ConsumerDashboard from './pages/consumer/ConsumerDashboard';
+import ProfilePage from './pages/ProfilePage';
 
 // Admin Protected Route
 const AdminProtectedRoute = ({ children }) => {
   const { user, role, kycStatus } = useAuth();
   const isAuthenticated = !!user;
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
   }
-  
+
   if (role?.toLowerCase() !== 'admin') {
     return <Navigate to="/admin/login" replace />;
   }
-  
+
   if (kycStatus === 'PENDING') {
     return <Navigate to="/admin/login" replace />;
   }
-  
+
   if (kycStatus === 'REJECTED') {
     return <Navigate to="/admin/login" replace />;
   }
-  
+
   return children;
 };
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, role } = useAuth();
+  const { user, role, loading } = useAuth();
   const isAuthenticated = !!user;
-  
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-400">
+        Loading session...
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   if (allowedRoles && !allowedRoles.map(r => r.toLowerCase()).includes(role?.toLowerCase())) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/" replace />;
   }
-  
+
   return children;
 };
 
@@ -82,14 +93,14 @@ function App() {
         <Route path="/role-selection" element={<PublicRoute><RoleSelection /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/consumer/trace" element={<ConsumerTrace />} />
-        
+
         {/* Registration */}
         <Route path="/register/:role" element={<RegistrationPage />} />
-        
+
         {/* KYC Status Pages */}
         <Route path="/kyc-pending" element={<KYCPendingPage />} />
         <Route path="/kyc-rejected" element={<KYCRejectedPage />} />
-        
+
         {/* Admin Routes - Separate from main app */}
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
@@ -98,57 +109,83 @@ function App() {
           <Route path="kyc" element={<KYCManagement />} />
           <Route path="users" element={<UserManagement />} />
         </Route>
-        
+
         {/* Farmer Routes */}
-        <Route 
-          path="/farmer/dashboard" 
+        <Route
+          path="/farmer/dashboard"
           element={
             <ProtectedRoute allowedRoles={['FARMER']}>
               <FarmerDashboard />
             </ProtectedRoute>
-          } 
+          }
         />
-        
+
         {/* Distributor Routes */}
-        <Route 
-          path="/distributor/dashboard" 
+        <Route
+          path="/distributor/dashboard"
           element={
             <ProtectedRoute allowedRoles={['DISTRIBUTOR']}>
               <DistributorDashboard />
             </ProtectedRoute>
-          } 
+          }
         />
-        
+        <Route
+          path="/distributor/inspection/:id"
+          element={
+            <ProtectedRoute allowedRoles={['DISTRIBUTOR']}>
+              <InspectionPage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Transporter Routes */}
-        <Route 
-          path="/transporter/dashboard" 
+        <Route
+          path="/transporter/dashboard"
           element={
             <ProtectedRoute allowedRoles={['TRANSPORTER']}>
               <TransporterDashboard />
             </ProtectedRoute>
-          } 
+          }
         />
-        
+
         {/* Retailer Routes */}
-        <Route 
-          path="/retailer/dashboard" 
+        <Route
+          path="/retailer/dashboard"
           element={
             <ProtectedRoute allowedRoles={['RETAILER']}>
               <RetailerDashboard />
             </ProtectedRoute>
-          } 
+          }
         />
-        
+        <Route
+          path="/retailer/listing/new"
+          element={
+            <ProtectedRoute allowedRoles={['RETAILER']}>
+              <NewListingPage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Consumer Routes */}
-        <Route 
-          path="/consumer/dashboard" 
+        <Route
+          path="/consumer/dashboard"
           element={
             <ProtectedRoute allowedRoles={['CONSUMER']}>
               <ConsumerDashboard />
             </ProtectedRoute>
-          } 
+          }
         />
-        
+
+        {/* Universal Profile Route */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={['FARMER', 'DISTRIBUTOR', 'TRANSPORTER', 'RETAILER', 'CONSUMER']}>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

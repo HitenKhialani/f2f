@@ -93,6 +93,7 @@ function App() {
         <Route path="/role-selection" element={<PublicRoute><RoleSelection /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/consumer/trace" element={<ConsumerTrace />} />
+        <Route path="/trace/:publicId" element={<ConsumerTrace />} />
 
         {/* Registration */}
         <Route path="/register/:role" element={<RegistrationPage />} />

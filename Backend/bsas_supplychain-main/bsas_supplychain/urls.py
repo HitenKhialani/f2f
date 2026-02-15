@@ -34,6 +34,9 @@ router.register(r"batch-splits", views.BatchSplitViewSet)
 router.register(r"retail-listings", views.RetailListingViewSet)
 router.register(r"consumer-scans", views.ConsumerScanViewSet)
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
@@ -55,10 +58,13 @@ urlpatterns = [
     path("api/transport/<int:pk>/deliver/", TransportDeliverView.as_view(), name="transport-deliver"),
     path("api/transport/<int:pk>/reject/", TransportRejectView.as_view(), name="transport-reject"),
     # Consumer endpoints
-    path("api/consumer/trace/<str:batch_id>/", BatchTraceView.as_view(), name="consumer-trace"),
+    path("api/public/trace/<str:public_id>/", BatchTraceView.as_view(), name="consumer-trace"),
     # Distributor endpoints
     path("api/distributor/batch/<int:batch_id>/store/", StoreBatchView.as_view(), name="distributor-store-batch"),
     path("api/distributor/transport/request-to-retailer/", RequestTransportToRetailerView.as_view(), name="distributor-request-transport-retailer"),
     # Retailer endpoints
     path("api/retailer/batch/<int:batch_id>/mark-sold/", MarkBatchSoldView.as_view(), name="retailer-mark-sold"),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

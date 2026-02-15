@@ -59,6 +59,6 @@ urlpatterns = [
     path("api/retailer/batch/<int:batch_id>/mark-sold/", MarkBatchSoldView.as_view(), name="retailer-mark-sold"),
     
     # Consumer Trace Endpoint
-    path("api/consumer/trace/<str:batch_id>/", BatchTraceView.as_view(), name="consumer-trace"),
+    path("api/public/trace/<str:public_id>/", BatchTraceView.as_view(), name="consumer-trace"),
 ]
 

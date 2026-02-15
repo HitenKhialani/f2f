@@ -1,179 +1,92 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Search,
   ScanLine,
-  History,
-  Sprout,
-  Truck,
-  ClipboardCheck,
-  Store,
-  ArrowRight
+  Package,
+  ClipboardCheck
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
-import { consumerAPI } from '../../services/api';
 
 const ConsumerDashboard = () => {
   const [batchId, setBatchId] = useState('');
-  const [searchResult, setSearchResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const getStageIcon = (stage) => {
-    switch (stage) {
-      case 'Crop Production': return <Sprout className="w-5 h-5" />;
-      case 'Transport': return <Truck className="w-5 h-5" />;
-      case 'Quality Inspection': return <ClipboardCheck className="w-5 h-5" />;
-      case 'Retail Sale': return <Store className="w-5 h-5" />;
-      default: return <ClipboardCheck className="w-5 h-5" />;
-    }
-  };
-
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault();
     if (!batchId.trim()) {
       alert('Please enter a batch ID');
       return;
     }
-
-    setLoading(true);
-    try {
-      const response = await consumerAPI.traceBatch(batchId);
-      const data = response.data;
-
-      // Transform API response to match UI format
-      setSearchResult({
-        batchId: data.batch.id,
-        cropType: data.batch.crop_type,
-        farmer: data.farmer.name,
-        location: data.farmer.location || data.farmer.organization || 'N/A',
-        timeline: data.timeline.map(item => ({
-          stage: item.stage,
-          icon: getStageIcon(item.stage),
-          date: new Date(item.date).toLocaleDateString('hi-IN'),
-          actor: `${item.actor} (${item.actor_type})`,
-          location: item.location,
-          status: item.status,
-        }))
-      });
-    } catch (error) {
-      console.error('Error tracing batch:', error);
-      alert(error.response?.data?.message || 'Batch not found. Please check the Batch ID.');
-      setSearchResult(null);
-    } finally {
-      setLoading(false);
-    }
+    navigate(`/trace/${batchId.trim()}`);
   };
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Consumer Dashboard</h1>
-          <p className="text-gray-600">Trace crop origin and journey</p>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-8 py-12">
+        {/* Header Section */}
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">AgriChain</h1>
+          <p className="text-xl text-primary font-medium">Verify Your Product Authenticity</p>
         </div>
 
         {/* Search Section */}
-        <div className="card p-8">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ScanLine className="w-8 h-8 text-primary" />
+        <div className="w-full max-w-2xl bg-white p-8 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100">
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <ScanLine className="w-8 h-8 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Trace Your Produce</h2>
+              <p className="text-gray-500 mt-1">Enter your unique Batch ID to see its journey</p>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Crop Traceability</h2>
-            <p className="text-gray-600 mb-6">
-              Enter Batch ID or QR code to view the complete journey of the crop
-            </p>
 
-            <form onSubmit={handleSearch} className="flex gap-4">
-              <input
-                type="text"
-                value={batchId}
-                onChange={(e) => setBatchId(e.target.value)}
-                placeholder="Enter Batch ID (e.g.: 550e8400-e29b)"
-                className="flex-1 input-field"
-              />
+            <form onSubmit={handleSearch} className="space-y-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={batchId}
+                  onChange={(e) => setBatchId(e.target.value)}
+                  placeholder="CB-20260215-53952C63"
+                  className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl text-lg focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none"
+                />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Package className="w-6 h-6" />
+                </div>
+              </div>
+
               <button
                 type="submit"
-                disabled={loading || !batchId}
-                className="btn-primary px-8"
+                disabled={!batchId.trim()}
+                className="w-full py-4 bg-primary text-white rounded-2xl text-lg font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
               >
-                {loading ? 'Searching...' : 'Search'}
+                <Search className="w-5 h-5" />
+                <span>Search</span>
               </button>
             </form>
+
+            <div className="text-center pt-2">
+              <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
+                <ClipboardCheck className="w-4 h-4 text-primary" />
+                Scan QR on product or enter batch ID to view traceability.
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Search Result */}
-        {searchResult && (
-          <div className="card overflow-hidden">
-            <div className="p-6 bg-primary/5 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{searchResult.cropType}</h3>
-                  <p className="text-sm text-gray-600">Batch ID: {searchResult.batchId}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">Producer</p>
-                  <p className="font-medium text-gray-900">{searchResult.farmer}</p>
-                  <p className="text-xs text-gray-500">{searchResult.location}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Timeline */}
-            <div className="p-6">
-              <h3 className="text-sm font-medium text-gray-500 uppercase mb-6">Supply Chain Journey</h3>
-              <div className="space-y-6">
-                {searchResult.timeline.map((item, index) => (
-                  <div key={index} className="flex gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                        {item.icon}
-                      </div>
-                      {index < searchResult.timeline.length - 1 && (
-                        <div className="w-0.5 h-full bg-primary/20 my-2"></div>
-                      )}
-                    </div>
-                    <div className="flex-1 pb-6">
-                      <div className="flex items-center justify-between mb-1">
-                        <h5 className="font-medium text-gray-900">{item.stage}</h5>
-                        <span className="text-sm text-gray-500">{item.date}</span>
-                      </div>
-                      <p className="text-sm text-gray-600">{item.actor}</p>
-                      <p className="text-xs text-gray-400">{item.location}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+        {/* Features Minimal */}
+        <div className="grid grid-cols-3 gap-8 w-full max-w-3xl pt-12 text-center border-t border-gray-100">
+          <div className="space-y-1">
+            <p className="text-lg font-bold text-gray-900">100%</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest">Transparent</p>
           </div>
-        )}
-
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <Link to="/consumer/trace" className="card p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                <ScanLine className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">Scan QR Code</h3>
-                <p className="text-sm text-gray-600">Scan QR code with camera</p>
-              </div>
-              <ArrowRight className="w-5 h-5 text-gray-400" />
-            </div>
-          </Link>
-
-          <div className="card p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <History className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">Search History</h3>
-                <p className="text-sm text-gray-600">View your previous searches</p>
-              </div>
-            </div>
+          <div className="space-y-1 border-x border-gray-100 px-4">
+            <p className="text-lg font-bold text-gray-900">Verified</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest">Ownership</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-lg font-bold text-gray-900">Secure</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest">Blockchain Ready</p>
           </div>
         </div>
       </div>

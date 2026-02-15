@@ -13,122 +13,79 @@ class BatchTraceView(APIView):
     """
     permission_classes = []  # Public endpoint
     
-    def get(self, request, batch_id):
-        # Get batch by product_batch_id (the public ID)
+    def get(self, request, public_id):
+        # Get batch by public_batch_id OR product_batch_id (human readable)
+        from django.db.models import Q
         try:
+            # We first try exact matches, then fallback to partial product_batch_id matches.
+            # Using first() after order_by('-created_at') to ensure we get a result.
             batch = models.CropBatch.objects.select_related(
-                'farmer__user',
-                'current_owner'
-            ).get(product_batch_id=batch_id)
+                'farmer__user', 
+                'parent_batch'
+            ).filter(
+                Q(public_batch_id__iexact=public_id) | 
+                Q(product_batch_id__iexact=public_id) |
+                Q(product_batch_id__icontains=public_id)
+            ).order_by('-created_at').first()
+            
+            if not batch:
+                raise models.CropBatch.DoesNotExist
         except models.CropBatch.DoesNotExist:
             return Response(
-                {"success": False, "message": "Batch not found"},
+                {"success": False, "message": "Batch not found or not listed for sale."},
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Build timeline
+        # Validation: Only return data if status >= LISTED
+        # We check both LISTED and SOLD
+        allowed_statuses = [models.BatchStatus.LISTED, models.BatchStatus.SOLD]
+        if batch.status not in allowed_statuses:
+            return Response(
+                {"success": False, "message": "Product not yet available for public verification."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Fetch Listing for price breakdown
+        listing = models.RetailListing.objects.filter(batch=batch).last()
+        
+        # Calculate parent batch quantity if split
+        parent_qty = batch.quantity
+        if batch.is_child_batch and batch.parent_batch:
+            parent_qty = batch.parent_batch.quantity
+
+        # Fetch Timeline from BatchEvents
+        # Sorted oldest to newest
+        events = models.BatchEvent.objects.filter(batch=batch).order_by('timestamp')
         timeline = []
-        
-        # 1. Crop Production (Batch Created)
-        timeline.append({
-            "stage": "Crop Production",
-            "status": "completed",
-            "date": batch.created_at.isoformat(),
-            "actor": batch.farmer.user.username,
-            "actor_type": "Farmer",
-            "location": batch.farm_location or "N/A",
-            "details": {
-                "crop_type": batch.crop_type,
-                "quantity": str(batch.quantity),
-                "harvest_date": batch.harvest_date.isoformat(),
-            }
-        })
-        
-        # 2. Transport
-        transport_requests = models.TransportRequest.objects.filter(
-            batch=batch
-        ).select_related('transporter__user', 'from_party__user', 'to_party__user').order_by('created_at')
-        
-        for transport in transport_requests:
+        for event in events:
             timeline.append({
-                "stage": "Transport",
-                "status": transport.status,
-                "date": transport.created_at.isoformat(),
-                "actor": transport.transporter.user.username if transport.transporter else "Pending",
-                "actor_type": "Transporter",
-                "location": f"{transport.from_party.organization or 'Origin'} → {transport.to_party.organization or 'Destination'}",
-                "details": {
-                    "from": transport.from_party.user.username,
-                    "to": transport.to_party.user.username,
-                    "status": transport.status,
-                }
+                "stage": event.get_event_type_display(),
+                "actor": event.performed_by.username if event.performed_by else "System",
+                "timestamp": event.timestamp.isoformat()
             })
         
-        # 3. Inspection
-        inspections = models.InspectionReport.objects.filter(
-            batch=batch
-        ).select_related('distributor__user').order_by('inspected_at')
-        
-        for inspection in inspections:
-            timeline.append({
-                "stage": "Quality Inspection",
-                "status": "passed" if inspection.passed else "failed",
-                "date": inspection.inspected_at.isoformat(),
-                "actor": inspection.distributor.user.username,
-                "actor_type": "Distributor",
-                "location": inspection.distributor.organization or "Distribution Center",
-                "details": {
-                    "passed": inspection.passed,
-                    "storage_conditions": inspection.storage_conditions,
-                }
-            })
-        
-        # 4. Retail Listing
-        listings = models.RetailListing.objects.filter(
-            batch=batch
-        ).select_related('retailer__user').order_by('created_at')
-        
-        for listing in listings:
-            timeline.append({
-                "stage": "Retail Sale",
-                "status": listing.status if hasattr(listing, 'status') else "for_sale",
-                "date": listing.created_at.isoformat(),
-                "actor": listing.retailer.user.username,
-                "actor_type": "Retailer",
-                "location": listing.retailer.organization or "Retail Store",
-                "details": {
-                    "price": float(
-                        listing.farmer_base_price + 
-                        listing.transport_fees + 
-                        listing.distributor_margin + 
-                        listing.retailer_margin
-                    ),
-                    "price_breakdown": {
-                        "farmer_base": float(listing.farmer_base_price),
-                        "transport": float(listing.transport_fees),
-                        "distributor_margin": float(listing.distributor_margin),
-                        "retailer_margin": float(listing.retailer_margin),
-                    }
-                }
-            })
-        
-        # Build response
+        # Build response according to SPEC
         response_data = {
-            "success": True,
-            "batch": {
-                "id": batch.product_batch_id,
-                "crop_type": batch.crop_type,
-                "quantity": str(batch.quantity),
+            "product_name": batch.crop_type,
+            "batch_id": batch.product_batch_id,
+            "quantity": f"{batch.quantity} kg",
+            "retail_price": listing.total_price if listing else 0,
+            "status": batch.get_status_display(),
+            "origin": {
+                "farmer_name": batch.farmer.user.username,
+                "farm_location": batch.farm_location,
                 "harvest_date": batch.harvest_date.isoformat(),
-                "status": batch.status,
-                "current_owner": batch.current_owner.username if batch.current_owner else None,
+                "parent_batch_quantity": f"{parent_qty} kg"
             },
-            "farmer": {
-                "name": batch.farmer.user.username,
-                "organization": batch.farmer.organization,
-                "location": batch.farm_location,
+            "price_breakdown": {
+                "farmer_price": float(listing.farmer_base_price) if listing else 0,
+                "transport_cost": float(listing.transport_fees) if listing else 0,
+                "distributor_margin": float(listing.distributor_margin) if listing else 0,
+                "retailer_margin": float(listing.retailer_margin) if listing else 0,
+                "total_price": float(listing.total_price) if listing else 0
             },
             "timeline": timeline,
+            "qr_code_url": batch.qr_code_image.url if batch.qr_code_image else None
         }
         
         return Response(response_data, status=status.HTTP_200_OK)

@@ -104,8 +104,7 @@ export const batchSplitAPI = {
 // Consumer APIs
 export const consumerAPI = {
   scan: (data) => api.post('/consumer-scans/', data),
-  getTimeline: (batchId) => api.get(`/crop-batches/${batchId}/timeline/`),
-  traceBatch: (batchId) => api.get(`/consumer/trace/${batchId}/`),
+  traceBatch: (publicId) => api.get(`/public/trace/${publicId}/`),
 };
 
 // Distributor APIs

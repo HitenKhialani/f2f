@@ -149,7 +149,7 @@ const RetailerDashboard = () => {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Crop Type</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {activeTab === 'incoming' ? 'Source' : 'Quantity'}
+                    {activeTab === 'incoming' ? 'Source' : 'Details'}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -170,7 +170,7 @@ const RetailerDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {activeTab === 'incoming'
                           ? `TR-${item.id}`
-                          : item.product_batch_id || item.batch?.product_batch_id || `LISTING-${item.id}`}
+                          : item.batch_details?.product_batch_id || item.product_batch_id || `LISTING-${item.id}`}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {activeTab === 'incoming'
@@ -181,20 +181,31 @@ const RetailerDashboard = () => {
                         {activeTab === 'incoming'
                           ? item.from_party_details?.organization || item.from_party_details?.user_details?.username
                           : activeTab === 'listed' || activeTab === 'sold'
-                            ? `₹${item.total_price || (parseFloat(item.farmer_base_price || 0) + parseFloat(item.transport_fees || 0) + parseFloat(item.distributor_margin || 0) + parseFloat(item.retailer_margin || 0)).toFixed(2)}`
+                            ? (
+                              <div className="flex flex-col">
+                                <span className="font-bold text-primary">₹{item.total_price || 0}</span>
+                                {item.batch_details?.qr_code_image && (
+                                  <img
+                                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.batch_details.qr_code_image}`}
+                                    alt="QR Code"
+                                    className="w-16 h-16 mt-1 border rounded p-1 bg-white cursor-pointer"
+                                    onClick={() => window.open(`/trace/${item.batch_details.public_batch_id}`, '_blank')}
+                                  />
+                                )}
+                              </div>
+                            )
                             : `${item.quantity} kg`}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          activeTab === 'sold' ? 'bg-green-100 text-green-700' :
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${activeTab === 'sold' ? 'bg-green-100 text-green-700' :
                           activeTab === 'listed' ? 'bg-blue-100 text-blue-700' :
-                          item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
-                          item.status === 'LISTED' ? 'bg-blue-100 text-blue-700' :
-                            'bg-yellow-100 text-yellow-700'
-                        }`}>
-                          {activeTab === 'listed' ? 'LISTED FOR SALE' : 
-                           activeTab === 'sold' ? 'SOLD' : 
-                           item.status?.replace(/_/g, ' ')}
+                            item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
+                              item.status === 'LISTED' ? 'bg-blue-100 text-blue-700' :
+                                'bg-yellow-100 text-yellow-700'
+                          }`}>
+                          {activeTab === 'listed' ? 'LISTED FOR SALE' :
+                            activeTab === 'sold' ? 'SOLD' :
+                              item.status?.replace(/_/g, ' ')}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -210,12 +221,20 @@ const RetailerDashboard = () => {
                           </button>
                         )}
                         {activeTab === 'listed' && item.status === 'LISTED' && (
-                          <button
-                            onClick={() => handleMarkSold(item.id)}
-                            className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
-                          >
-                            Mark as Sold
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => window.open(`/trace/${item.batch_details?.public_batch_id}`, '_blank')}
+                              className="px-3 py-1 bg-primary text-white text-xs rounded hover:bg-primary/90"
+                            >
+                              View Trace
+                            </button>
+                            <button
+                              onClick={() => handleMarkSold(item.id)}
+                              className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                            >
+                              Mark as Sold
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>

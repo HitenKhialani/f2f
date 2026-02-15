@@ -99,6 +99,8 @@ class CropBatch(models.Model):
     quantity = models.DecimalField(max_digits=12, decimal_places=2)
     harvest_date = models.DateField()
     product_batch_id = models.CharField(max_length=100, unique=True, blank=True)
+    public_batch_id = models.CharField(max_length=100, unique=True, blank=True, null=True)
+    qr_code_image = models.ImageField(upload_to="qr_codes/", blank=True, null=True)
     qr_code_data = models.TextField(blank=True)
     organic_certificate = models.FileField(
         upload_to="certificates/", blank=True, null=True
@@ -114,6 +116,10 @@ class CropBatch(models.Model):
             import datetime
 
             self.product_batch_id = f"BATCH-{datetime.datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
+        
+        if not self.public_batch_id:
+            import uuid
+            self.public_batch_id = str(uuid.uuid4())
         
         # Auto-set owner to farmer's user if not set
         if not self.current_owner and self.farmer:

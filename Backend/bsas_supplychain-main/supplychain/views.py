@@ -156,7 +156,38 @@ class RetailListingViewSet(viewsets.ModelViewSet):
             if retailer_profile.role != models.StakeholderRole.RETAILER:
                 from rest_framework.exceptions import ValidationError
                 raise ValidationError("Only retailers can create listings")
-            serializer.save(retailer=retailer_profile)
+            
+            # Save the listing
+            listing = serializer.save(retailer=retailer_profile)
+            
+            try:
+                # Update batch status to LISTED
+                batch = listing.batch
+                batch.status = models.BatchStatus.LISTED
+                batch.save()
+                
+                # Generate QR Code
+                from .utils import generate_batch_qr
+                generate_batch_qr(batch)
+                
+                # Log event
+                from .event_logger import log_batch_event
+                log_batch_event(
+                    batch=batch,
+                    event_type=models.BatchEventType.LISTED,
+                    user=self.request.user,
+                    metadata={
+                        "retailer": retailer_profile.organization,
+                        "price": str(listing.total_price)
+                    }
+                )
+            except Exception as e:
+                import traceback
+                print(f"ERROR in RetailListingViewSet.perform_create: {str(e)}")
+                # We don't want to crash the whole view if logging/QR fails,
+                # but we should log it for debugging.
+                # traceback.print_exc()
+            
         except models.StakeholderProfile.DoesNotExist:
             from rest_framework.exceptions import ValidationError
             raise ValidationError("Retailer profile not found")

@@ -72,12 +72,14 @@ class CropBatchSerializer(serializers.ModelSerializer):
             "organic_certificate",
             "quality_test_report",
             "product_batch_id",
+            "public_batch_id",
+            "qr_code_image",
             "qr_code_data",
             "created_at",
             "is_child_batch",
             "parent_batch",
         ]
-        read_only_fields = ["farmer", "product_batch_id", "qr_code_data", "created_at", "current_owner", "is_child_batch", "parent_batch"]
+        read_only_fields = ["farmer", "product_batch_id", "public_batch_id", "qr_code_image", "qr_code_data", "created_at", "current_owner", "is_child_batch", "parent_batch"]
 
 
 

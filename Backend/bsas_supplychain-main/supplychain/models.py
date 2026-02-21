@@ -71,6 +71,7 @@ class BatchStatus(models.TextChoices):
     SOLD = "SOLD", "Sold"
     TRANSPORT_REJECTED = "TRANSPORT_REJECTED", "Transport Rejected"
     SUSPENDED = "SUSPENDED", "Suspended"
+    FULLY_SPLIT = "FULLY_SPLIT", "Fully Split"
 
 
 class CropBatch(models.Model):
@@ -149,6 +150,7 @@ class BatchEventType(models.TextChoices):
     SOLD = "SOLD", "Sold to Consumer"
     TRANSPORT_REJECTED = "TRANSPORT_REJECTED", "Transport Rejected"
     SUSPENDED = "SUSPENDED", "Batch Suspended"
+    FULLY_SPLIT = "FULLY_SPLIT", "Batch Fully Split"
 
 
 class BatchEvent(models.Model):

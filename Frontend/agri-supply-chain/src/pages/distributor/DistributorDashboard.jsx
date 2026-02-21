@@ -32,7 +32,7 @@ const DistributorDashboard = () => {
   const [selectedRetailer, setSelectedRetailer] = useState('');
   const [splitData, setSplitData] = useState({
     splits: [
-      { label: '', quantity: '', retailer: '' }
+      { label: '', quantity: '' }
     ]
   });
 
@@ -74,13 +74,13 @@ const DistributorDashboard = () => {
     setShowSplitModal(true);
     // Initialize with one empty split
     setSplitData({
-      splits: [{ label: '', quantity: '', retailer: '' }]
+      splits: [{ label: '', quantity: '' }]
     });
   };
 
   const handleAddSplit = () => {
     setSplitData({
-      splits: [...splitData.splits, { label: '', quantity: '', retailer: '' }]
+      splits: [...splitData.splits, { label: '', quantity: '' }]
     });
   };
 
@@ -98,37 +98,35 @@ const DistributorDashboard = () => {
   };
 
   const handleSubmitSplit = async () => {
-    // Validate total quantity doesn't exceed parent batch
+    // Validate total quantity matches parent batch exactly (Bulk Split requirement)
     const totalQuantity = splitData.splits.reduce((sum, split) => sum + (parseFloat(split.quantity) || 0), 0);
     const parentQuantity = parseFloat(selectedBatch.quantity);
 
-    if (totalQuantity > parentQuantity) {
-      alert(`Total split quantity (${totalQuantity} kg) cannot exceed parent batch quantity (${parentQuantity} kg)`);
+    if (Math.abs(totalQuantity - parentQuantity) > 0.001) {
+      alert(`Total split quantity (${totalQuantity} kg) must exactly match parent batch quantity (${parentQuantity} kg)`);
       return;
     }
 
     // Validate all fields are filled
     for (let i = 0; i < splitData.splits.length; i++) {
       const split = splitData.splits[i];
-      if (!split.label || !split.quantity || !split.retailer) {
+      if (!split.label || !split.quantity) {
         alert(`Please fill all fields for split ${i + 1}`);
         return;
       }
     }
 
     try {
-      // Create batch splits with child batches
-      for (const split of splitData.splits) {
-        await batchSplitAPI.create({
-          parent_batch: selectedBatch.id,
-          split_label: split.label,
-          quantity: parseFloat(split.quantity),
-          destination_retailer: parseInt(split.retailer),
+      // Use the new atomic bulk split API
+      await batchAPI.bulkSplit(selectedBatch.id, {
+        splits: splitData.splits.map(s => ({
+          label: s.label,
+          quantity: parseFloat(s.quantity),
           notes: `Split from ${selectedBatch.product_batch_id}`
-        });
-      }
+        }))
+      });
 
-      alert(`${splitData.splits.length} child batches created successfully!`);
+      alert(`Batch ${selectedBatch.product_batch_id} split into ${splitData.splits.length} child batches successfully!`);
       setShowSplitModal(false);
       setSelectedBatch(null);
       fetchData();
@@ -177,22 +175,35 @@ const DistributorDashboard = () => {
   };
 
   const getFilteredContent = () => {
-    switch (activeTab) {
-      case 'incoming':
-        return batches.filter(b => b.status === 'DELIVERED_TO_DISTRIBUTOR');
-      case 'inventory':
-        return batches.filter(b => b.status === 'STORED');
-      case 'outgoing':
-        // Show actual transport requests for outgoing tab
-        return transportRequests.filter(tr =>
-          tr.status === 'PENDING' ||
-          tr.status === 'ACCEPTED' ||
-          tr.status === 'IN_TRANSIT' ||
-          tr.status === 'IN_TRANSIT_TO_RETAILER'
-        ).filter(tr => tr.from_party_details?.user_details?.username === user?.username);
-      default:
-        return [];
+    const filterFn = (b) => {
+      switch (activeTab) {
+        case 'incoming':
+          return b.status === 'DELIVERED_TO_DISTRIBUTOR';
+        case 'inventory':
+          return b.status === 'STORED' || b.status === 'FULLY_SPLIT';
+        default:
+          return false;
+      }
+    };
+
+    if (activeTab === 'outgoing') {
+      return transportRequests.filter(tr =>
+        tr.status === 'PENDING' ||
+        tr.status === 'ACCEPTED' ||
+        tr.status === 'IN_TRANSIT' ||
+        tr.status === 'IN_TRANSIT_TO_RETAILER'
+      ).filter(tr => tr.from_party_details?.user_details?.username === user?.username);
     }
+
+    // For inventory, we want to show a hierarchy
+    const inventoryBatches = batches.filter(filterFn);
+
+    // Sort so parents come before children
+    return inventoryBatches.sort((a, b) => {
+      if (a.id === b.parent_batch) return -1;
+      if (b.id === a.parent_batch) return 1;
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
   };
 
   const filteredItems = getFilteredContent();
@@ -270,11 +281,14 @@ const DistributorDashboard = () => {
                   </tr>
                 ) : (
                   filteredItems.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item.id} className={item.is_child_batch ? "bg-gray-50" : ""}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {activeTab === 'outgoing'
-                          ? `TR-${item.id}`
-                          : item.product_batch_id}
+                        <div className="flex items-center">
+                          {item.is_child_batch && <ArrowRight className="w-3 h-3 mr-2 text-gray-400" />}
+                          {activeTab === 'outgoing'
+                            ? `TR-${item.id}`
+                            : item.product_batch_id}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {activeTab === 'outgoing'
@@ -290,7 +304,8 @@ const DistributorDashboard = () => {
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${item.status === 'PENDING' ? 'bg-gray-100 text-gray-700' :
                           item.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-700' :
                             item.status === 'SUSPENDED' ? 'bg-red-100 text-red-700' :
-                              'bg-green-100 text-green-700'
+                              item.status === 'FULLY_SPLIT' ? 'bg-purple-100 text-purple-700' :
+                                'bg-green-100 text-green-700'
                           }`}>
                           {item.status?.replace(/_/g, ' ')}
                         </span>
@@ -344,6 +359,9 @@ const DistributorDashboard = () => {
                               Suspend
                             </button>
                           </>
+                        )}
+                        {item.status === 'FULLY_SPLIT' && (
+                          <span className="text-gray-400 italic text-xs">Parent batch (inactive)</span>
                         )}
                         {activeTab === 'outgoing' && (
                           <span className="text-gray-500 italic">Tracking Transport</span>
@@ -423,9 +441,14 @@ const DistributorDashboard = () => {
                 <p className="text-sm text-blue-800">
                   <strong>Parent Batch:</strong> {selectedBatch.crop_type} - {selectedBatch.quantity} kg
                 </p>
-                <p className="text-sm text-blue-800 mt-1">
-                  <strong>Total Quantity to Split:</strong> {selectedBatch.quantity} kg
-                </p>
+                <div className="flex justify-between mt-2 pt-2 border-t border-blue-100">
+                  <p className="text-sm font-semibold text-blue-900">
+                    Remaining: {(parseFloat(selectedBatch.quantity) - splitData.splits.reduce((sum, s) => sum + (parseFloat(s.quantity) || 0), 0)).toFixed(2)} kg
+                  </p>
+                  <p className="text-sm font-semibold text-blue-900">
+                    Total: {splitData.splits.reduce((sum, s) => sum + (parseFloat(s.quantity) || 0), 0).toFixed(2)} / {selectedBatch.quantity} kg
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -443,7 +466,7 @@ const DistributorDashboard = () => {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Label *
@@ -470,24 +493,6 @@ const DistributorDashboard = () => {
                           placeholder="e.g., 200"
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Destination Retailer *
-                        </label>
-                        <select
-                          value={split.retailer}
-                          onChange={(e) => handleSplitChange(index, 'retailer', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                        >
-                          <option value="">Select Retailer</option>
-                          {retailers.map(retailer => (
-                            <option key={retailer.id} value={retailer.id}>
-                              {retailer.organization || retailer.user_details?.username}
-                            </option>
-                          ))}
-                        </select>
                       </div>
                     </div>
                   </div>

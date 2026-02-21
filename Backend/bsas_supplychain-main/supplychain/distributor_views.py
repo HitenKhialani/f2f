@@ -31,10 +31,10 @@ class StoreBatchView(APIView):
         
         # Suspend guard
         if batch.status == BatchStatus.SUSPENDED:
-            return Response(
-                {"success": False, "message": "This batch has been suspended and cannot proceed further."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'success': False, 'message': 'This batch has been suspended and cannot proceed further.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if batch.status == BatchStatus.FULLY_SPLIT:
+            return Response({'success': False, 'message': 'This batch has been fully split and is no longer active.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Verify user is distributor
         try:
@@ -121,10 +121,10 @@ class RequestTransportToRetailerView(APIView):
         
         # Suspend guard
         if batch.status == BatchStatus.SUSPENDED:
-            return Response(
-                {"success": False, "message": "This batch has been suspended and cannot proceed further."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'success': False, 'message': 'This batch has been suspended and cannot proceed further.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if batch.status == BatchStatus.FULLY_SPLIT:
+            return Response({'success': False, 'message': 'This batch has been fully split and is no longer active.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Get retailer
         try:

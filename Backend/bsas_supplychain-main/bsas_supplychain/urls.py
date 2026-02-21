@@ -23,6 +23,7 @@ from supplychain.consumer_views import BatchTraceView
 from supplychain.distributor_views import StoreBatchView, RequestTransportToRetailerView
 from supplychain.retailer_views import MarkBatchSoldView
 from supplychain.suspend_views import SuspendBatchView
+from supplychain.bulk_split_views import BulkSplitBatchView
 
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet, basename="user")
@@ -67,6 +68,8 @@ urlpatterns = [
     path("api/retailer/batch/<int:batch_id>/mark-sold/", MarkBatchSoldView.as_view(), name="retailer-mark-sold"),
     # Suspend Batch endpoint
     path("api/batch/<int:batch_id>/suspend/", SuspendBatchView.as_view(), name="suspend-batch"),
+    # Bulk Split Batch endpoint
+    path("api/batch/<int:batch_id>/bulk-split/", BulkSplitBatchView.as_view(), name="bulk-split-batch"),
 ]
 
 if settings.DEBUG:

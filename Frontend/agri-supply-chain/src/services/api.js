@@ -64,6 +64,7 @@ export const batchAPI = {
   create: (data) => api.post('/crop-batches/', data),
   get: (id) => api.get(`/crop-batches/${id}/`),
   update: (id, data) => api.patch(`/crop-batches/${id}/`, data),
+  suspend: (id) => api.post(`/batch/${id}/suspend/`),
 };
 
 // Transport APIs

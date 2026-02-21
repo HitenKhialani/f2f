@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 
 from . import models, serializers
 from .event_logger import log_batch_event
-from .models import BatchEventType
+from .models import BatchEventType, BatchStatus
 
 User = get_user_model()
 
@@ -121,6 +121,12 @@ class BatchSplitViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Get the parent batch
         parent_batch = serializer.validated_data['parent_batch']
+        
+        # Suspend guard
+        if parent_batch.status == BatchStatus.SUSPENDED:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("This batch has been suspended and cannot proceed further.")
+        
         split_label = serializer.validated_data.get('split_label', '')
         quantity = serializer.validated_data.get('quantity', 0)
         destination_retailer = serializer.validated_data.get('destination_retailer')
@@ -156,6 +162,12 @@ class RetailListingViewSet(viewsets.ModelViewSet):
             if retailer_profile.role != models.StakeholderRole.RETAILER:
                 from rest_framework.exceptions import ValidationError
                 raise ValidationError("Only retailers can create listings")
+            
+            # Suspend guard
+            batch = serializer.validated_data.get('batch')
+            if batch and batch.status == BatchStatus.SUSPENDED:
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError("This batch has been suspended and cannot proceed further.")
             
             # Save the listing
             listing = serializer.save(retailer=retailer_profile)

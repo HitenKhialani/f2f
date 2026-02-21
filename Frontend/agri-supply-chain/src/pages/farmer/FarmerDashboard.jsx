@@ -51,10 +51,10 @@ const FarmerDashboard = () => {
 
       // Calculate stats
       const total = originalBatches?.length || 0;
-      const active = total; // All batches are active by default
-      const sold = 0; // Sold field doesn't exist yet
+      const active = originalBatches.filter(b => b.status !== 'SUSPENDED').length;
+      const suspended = originalBatches.filter(b => b.status === 'SUSPENDED').length;
 
-      setStats({ total, active, sold });
+      setStats({ total, active, suspended });
     } catch (error) {
       console.error('Error fetching batches:', error);
     } finally {
@@ -94,6 +94,18 @@ const FarmerDashboard = () => {
     }
   };
 
+  const handleSuspendBatch = async (batchId) => {
+    if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
+    try {
+      await batchAPI.suspend(batchId);
+      alert('Batch suspended successfully.');
+      fetchBatches();
+    } catch (error) {
+      console.error('Error suspending batch:', error);
+      alert(error.response?.data?.message || 'Failed to suspend batch');
+    }
+  };
+
   const handleCreateBatch = async (e) => {
     e.preventDefault();
     try {
@@ -130,10 +142,19 @@ const FarmerDashboard = () => {
     );
   });
 
-  const getStatusBadge = () => {
+  const getStatusBadge = (batchStatus) => {
+    const statusColors = {
+      CREATED: 'bg-blue-100 text-blue-700',
+      TRANSPORT_REQUESTED: 'bg-yellow-100 text-yellow-700',
+      TRANSPORT_REJECTED: 'bg-orange-100 text-orange-700',
+      IN_TRANSIT_TO_DISTRIBUTOR: 'bg-purple-100 text-purple-700',
+      DELIVERED_TO_DISTRIBUTOR: 'bg-green-100 text-green-700',
+      SUSPENDED: 'bg-red-100 text-red-700',
+    };
+    const colorClass = statusColors[batchStatus] || 'bg-gray-100 text-gray-700';
     return (
-      <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
-        Active
+      <span className={`px-2 py-1 text-xs font-medium rounded-full ${colorClass}`}>
+        {batchStatus?.replace(/_/g, ' ') || 'CREATED'}
       </span>
     );
   };
@@ -360,16 +381,13 @@ const FarmerDashboard = () => {
                         {batch.farm_location || 'N/A'}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${batch.status === 'CREATED' ? 'bg-blue-100 text-blue-700' :
-                          batch.status === 'TRANSPORT_REQUESTED' ? 'bg-yellow-100 text-yellow-700' :
-                            batch.status === 'IN_TRANSIT' ? 'bg-purple-100 text-purple-700' :
-                              'bg-green-100 text-green-700'
-                          }`}>
-                          {batch.status?.replace(/_/g, ' ') || 'CREATED'}
-                        </span>
+                        {getStatusBadge(batch.status)}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
+                          {batch.status === 'SUSPENDED' && (
+                            <span className="text-xs text-red-600 font-medium">Suspended</span>
+                          )}
                           {batch.status === 'CREATED' && (
                             <button
                               onClick={() => {
@@ -380,6 +398,15 @@ const FarmerDashboard = () => {
                               title="Request Transport"
                             >
                               Request Transport
+                            </button>
+                          )}
+                          {['CREATED', 'TRANSPORT_REQUESTED', 'TRANSPORT_REJECTED'].includes(batch.status) && (
+                            <button
+                              onClick={() => handleSuspendBatch(batch.id)}
+                              className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                              title="Suspend Batch"
+                            >
+                              Suspend
                             </button>
                           )}
                           <button

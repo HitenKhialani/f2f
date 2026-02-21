@@ -101,12 +101,12 @@ const DistributorDashboard = () => {
     // Validate total quantity doesn't exceed parent batch
     const totalQuantity = splitData.splits.reduce((sum, split) => sum + (parseFloat(split.quantity) || 0), 0);
     const parentQuantity = parseFloat(selectedBatch.quantity);
-    
+
     if (totalQuantity > parentQuantity) {
       alert(`Total split quantity (${totalQuantity} kg) cannot exceed parent batch quantity (${parentQuantity} kg)`);
       return;
     }
-    
+
     // Validate all fields are filled
     for (let i = 0; i < splitData.splits.length; i++) {
       const split = splitData.splits[i];
@@ -115,7 +115,7 @@ const DistributorDashboard = () => {
         return;
       }
     }
-    
+
     try {
       // Create batch splits with child batches
       for (const split of splitData.splits) {
@@ -127,7 +127,7 @@ const DistributorDashboard = () => {
           notes: `Split from ${selectedBatch.product_batch_id}`
         });
       }
-      
+
       alert(`${splitData.splits.length} child batches created successfully!`);
       setShowSplitModal(false);
       setSelectedBatch(null);
@@ -157,10 +157,22 @@ const DistributorDashboard = () => {
     } catch (error) {
       console.error('Error requesting transport:', error);
       console.error('Error response:', error.response);
-      const errorMessage = error.response?.data?.message || 
-                           error.response?.data?.detail || 
-                           'Failed to request transport';
+      const errorMessage = error.response?.data?.message ||
+        error.response?.data?.detail ||
+        'Failed to request transport';
       alert(`Transport Error ${error.response?.status || 'Unknown'}: ${errorMessage}`);
+    }
+  };
+
+  const handleSuspendBatch = async (batchId) => {
+    if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
+    try {
+      await batchAPI.suspend(batchId);
+      alert('Batch suspended successfully.');
+      fetchData();
+    } catch (error) {
+      console.error('Error suspending batch:', error);
+      alert(error.response?.data?.message || 'Failed to suspend batch');
     }
   };
 
@@ -277,19 +289,29 @@ const DistributorDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${item.status === 'PENDING' ? 'bg-gray-100 text-gray-700' :
                           item.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-700' :
-                            'bg-green-100 text-green-700'
+                            item.status === 'SUSPENDED' ? 'bg-red-100 text-red-700' :
+                              'bg-green-100 text-green-700'
                           }`}>
                           {item.status?.replace(/_/g, ' ')}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {activeTab === 'incoming' && item.status === 'DELIVERED_TO_DISTRIBUTOR' && (
-                          <button
-                            onClick={() => handleStoreBatch(item.id)}
-                            className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 mr-2"
-                          >
-                            Store Batch
-                          </button>
+                          <>
+                            <button
+                              onClick={() => handleStoreBatch(item.id)}
+                              className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 mr-2"
+                            >
+                              Store Batch
+                            </button>
+                            <button
+                              onClick={() => handleSuspendBatch(item.id)}
+                              className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                              title="Suspend Batch"
+                            >
+                              Suspend
+                            </button>
+                          </>
                         )}
                         {activeTab === 'inventory' && item.status === 'STORED' && (
                           <>
@@ -310,9 +332,16 @@ const DistributorDashboard = () => {
                             </button>
                             <button
                               onClick={() => navigate(`/distributor/inspection/${item.id}`)}
-                              className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                              className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700 mr-2"
                             >
                               Inspect
+                            </button>
+                            <button
+                              onClick={() => handleSuspendBatch(item.id)}
+                              className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                              title="Suspend Batch"
+                            >
+                              Suspend
                             </button>
                           </>
                         )}
@@ -382,14 +411,14 @@ const DistributorDashboard = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Split Batch: {selectedBatch.product_batch_id}</h3>
-                <button 
+                <button
                   onClick={() => setShowSplitModal(false)}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
-              
+
               <div className="mb-4 p-4 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-800">
                   <strong>Parent Batch:</strong> {selectedBatch.crop_type} - {selectedBatch.quantity} kg
@@ -398,7 +427,7 @@ const DistributorDashboard = () => {
                   <strong>Total Quantity to Split:</strong> {selectedBatch.quantity} kg
                 </p>
               </div>
-              
+
               <div className="space-y-4">
                 {splitData.splits.map((split, index) => (
                   <div key={index} className="border border-gray-200 rounded-lg p-4">
@@ -413,7 +442,7 @@ const DistributorDashboard = () => {
                         </button>
                       )}
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -427,7 +456,7 @@ const DistributorDashboard = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Quantity (kg) *
@@ -442,7 +471,7 @@ const DistributorDashboard = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Destination Retailer *
@@ -464,7 +493,7 @@ const DistributorDashboard = () => {
                   </div>
                 ))}
               </div>
-              
+
               <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
                 <button
                   onClick={handleAddSplit}
@@ -473,7 +502,7 @@ const DistributorDashboard = () => {
                   <Plus className="w-4 h-4 mr-1" />
                   Add Another Split
                 </button>
-                
+
                 <div className="flex space-x-3">
                   <button
                     onClick={() => setShowSplitModal(false)}

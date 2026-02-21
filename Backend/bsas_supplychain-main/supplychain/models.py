@@ -70,6 +70,7 @@ class BatchStatus(models.TextChoices):
     LISTED = "LISTED", "Listed for Sale"
     SOLD = "SOLD", "Sold"
     TRANSPORT_REJECTED = "TRANSPORT_REJECTED", "Transport Rejected"
+    SUSPENDED = "SUSPENDED", "Suspended"
 
 
 class CropBatch(models.Model):
@@ -147,6 +148,7 @@ class BatchEventType(models.TextChoices):
     LISTED = "LISTED", "Listed for Retail"
     SOLD = "SOLD", "Sold to Consumer"
     TRANSPORT_REJECTED = "TRANSPORT_REJECTED", "Transport Rejected"
+    SUSPENDED = "SUSPENDED", "Batch Suspended"
 
 
 class BatchEvent(models.Model):

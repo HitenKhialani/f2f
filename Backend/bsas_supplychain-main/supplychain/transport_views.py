@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from . import models, serializers
 from .batch_validators import BatchStatusTransitionValidator
 from .event_logger import log_batch_event
-from .models import BatchEventType
+from .models import BatchEventType, BatchStatus
 
 
 class TransportRequestCreateView(APIView):
@@ -28,6 +28,13 @@ class TransportRequestCreateView(APIView):
         
         # Get batch and validate ownership
         batch = get_object_or_404(models.CropBatch, id=batch_id)
+        
+        # Suspend guard
+        if batch.status == BatchStatus.SUSPENDED:
+            return Response(
+                {"success": False, "message": "This batch has been suspended and cannot proceed further."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         # Verify user is the farmer who owns this batch
         try:
@@ -102,6 +109,13 @@ class TransportAcceptView(APIView):
         transport_request = get_object_or_404(models.TransportRequest, id=pk)
         batch = transport_request.batch
         
+        # Suspend guard
+        if batch.status == BatchStatus.SUSPENDED:
+            return Response(
+                {"success": False, "message": "This batch has been suspended and cannot proceed further."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         # Verify user is a transporter
         try:
             user_profile = request.user.stakeholderprofile
@@ -173,6 +187,13 @@ class TransportDeliverView(APIView):
     def post(self, request, pk):
         transport_request = get_object_or_404(models.TransportRequest, id=pk)
         batch = transport_request.batch
+        
+        # Suspend guard
+        if batch.status == BatchStatus.SUSPENDED:
+            return Response(
+                {"success": False, "message": "This batch has been suspended and cannot proceed further."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         # Verify user is the assigned transporter
         try:

@@ -29,6 +29,13 @@ class StoreBatchView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         
+        # Suspend guard
+        if batch.status == BatchStatus.SUSPENDED:
+            return Response(
+                {"success": False, "message": "This batch has been suspended and cannot proceed further."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         # Verify user is distributor
         try:
             distributor_profile = request.user.stakeholderprofile
@@ -110,6 +117,13 @@ class RequestTransportToRetailerView(APIView):
             return Response(
                 {"success": False, "message": "Batch not found"},
                 status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Suspend guard
+        if batch.status == BatchStatus.SUSPENDED:
+            return Response(
+                {"success": False, "message": "This batch has been suspended and cannot proceed further."},
+                status=status.HTTP_400_BAD_REQUEST
             )
         
         # Get retailer

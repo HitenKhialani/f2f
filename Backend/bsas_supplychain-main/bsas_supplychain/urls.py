@@ -22,6 +22,7 @@ from supplychain.transport_views import (
 from supplychain.consumer_views import BatchTraceView
 from supplychain.distributor_views import StoreBatchView, RequestTransportToRetailerView
 from supplychain.retailer_views import MarkBatchSoldView
+from supplychain.suspend_views import SuspendBatchView
 
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet, basename="user")
@@ -64,6 +65,8 @@ urlpatterns = [
     path("api/distributor/transport/request-to-retailer/", RequestTransportToRetailerView.as_view(), name="distributor-request-transport-retailer"),
     # Retailer endpoints
     path("api/retailer/batch/<int:batch_id>/mark-sold/", MarkBatchSoldView.as_view(), name="retailer-mark-sold"),
+    # Suspend Batch endpoint
+    path("api/batch/<int:batch_id>/suspend/", SuspendBatchView.as_view(), name="suspend-batch"),
 ]
 
 if settings.DEBUG:

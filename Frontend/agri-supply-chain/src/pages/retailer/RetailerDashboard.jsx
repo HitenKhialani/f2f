@@ -53,6 +53,18 @@ const RetailerDashboard = () => {
     }
   };
 
+  const handleSuspendBatch = async (batchId) => {
+    if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
+    try {
+      await batchAPI.suspend(batchId);
+      alert('Batch suspended successfully.');
+      fetchData();
+    } catch (error) {
+      console.error('Error suspending batch:', error);
+      alert(error.response?.data?.message || 'Failed to suspend batch');
+    }
+  };
+
   const getFilteredContent = () => {
     switch (activeTab) {
       case 'incoming':
@@ -201,7 +213,8 @@ const RetailerDashboard = () => {
                           activeTab === 'listed' ? 'bg-blue-100 text-blue-700' :
                             item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
                               item.status === 'LISTED' ? 'bg-blue-100 text-blue-700' :
-                                'bg-yellow-100 text-yellow-700'
+                                item.status === 'SUSPENDED' ? 'bg-red-100 text-red-700' :
+                                  'bg-yellow-100 text-yellow-700'
                           }`}>
                           {activeTab === 'listed' ? 'LISTED FOR SALE' :
                             activeTab === 'sold' ? 'SOLD' :
@@ -213,14 +226,16 @@ const RetailerDashboard = () => {
                           <span className="text-gray-500 italic">Incoming Delivery</span>
                         )}
                         {activeTab === 'received' && item.status === 'DELIVERED_TO_RETAILER' && (
-                          <button
-                            onClick={() => navigate('/retailer/listing/new')}
-                            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-                          >
-                            Create Listing
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => navigate('/retailer/listing/new')}
+                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                            >
+                              Create Listing
+                            </button>
+                          </div>
                         )}
-                        {activeTab === 'listed' && item.status === 'LISTED' && (
+                        {activeTab === 'listed' && item.batch_details?.status === 'LISTED' && (
                           <div className="flex gap-2">
                             <button
                               onClick={() => window.open(`/trace/${item.batch_details?.public_batch_id}`, '_blank')}
@@ -229,10 +244,17 @@ const RetailerDashboard = () => {
                               View Trace
                             </button>
                             <button
-                              onClick={() => handleMarkSold(item.id)}
+                              onClick={() => handleMarkSold(item.batch || item.batch_details?.id)}
                               className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
                             >
                               Mark as Sold
+                            </button>
+                            <button
+                              onClick={() => handleSuspendBatch(item.batch || item.batch_details?.id)}
+                              className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                              title="Suspend Batch"
+                            >
+                              Suspend
                             </button>
                           </div>
                         )}

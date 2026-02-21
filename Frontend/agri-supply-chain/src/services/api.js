@@ -119,7 +119,7 @@ export const distributorAPI = {
 
 // Retailer APIs
 export const retailerAPI = {
-  markSold: (batchId) => api.post(`/retailer/batch/${batchId}/mark-sold/`),
+  markSold: (batchId, soldQuantity) => api.post(`/retailer/batch/${batchId}/mark-sold/`, { sold_quantity: soldQuantity }),
 };
 
 // Dashboard APIs
@@ -127,6 +127,7 @@ export const dashboardAPI = {
   getFarmerDashboard: () => api.get('/dashboard/farmer/'),
   getTransporterAnalytics: () => api.get('/dashboard/transporter/'),
   getDistributorAnalytics: () => api.get('/dashboard/distributor/'),
+  getRetailerAnalytics: () => api.get('/dashboard/retailer/'),
 };
 
 export default api;

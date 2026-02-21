@@ -1,319 +1,254 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Store,
-  Plus,
+  Truck,
   Package,
   ShoppingCart,
+  IndianRupee,
   CheckCircle,
-  Truck
+  Loader2,
+  TrendingUp,
+  Activity,
+  AlertCircle,
+  Store
 } from 'lucide-react';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend
+} from 'recharts';
 import MainLayout from '../../components/layout/MainLayout';
-import { batchAPI, transportAPI, retailerAPI, retailAPI } from '../../services/api';
+import { dashboardAPI } from '../../services/api';
+
+const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EF4444', '#06B6D4', '#EC4899'];
+
+const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
+  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm text-gray-500 mb-1">{title}</p>
+        <p className="text-3xl font-bold text-gray-900">{value}</p>
+        {subtext && <p className="text-xs text-gray-400 mt-1">{subtext}</p>}
+      </div>
+      <div className={`${color} p-3 rounded-xl`}>
+        <Icon className="w-6 h-6 text-white" />
+      </div>
+    </div>
+  </div>
+);
 
 const RetailerDashboard = () => {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('incoming');
-  const [batches, setBatches] = useState([]);
-  const [transportRequests, setTransportRequests] = useState([]);
-  const [listings, setListings] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchData();
+    fetchDashboardData();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchDashboardData = async () => {
     try {
-      // Fetch each resource individually to prevent one failure from blocking others
-      const fetchResults = await Promise.allSettled([
-        batchAPI.list(),
-        transportAPI.list(),
-        retailAPI.list(),
-      ]);
-
-      // Process results with safety checks and pagination support
-      if (fetchResults[0].status === 'fulfilled') {
-        const data = fetchResults[0].value.data;
-        setBatches(Array.isArray(data) ? data : data.results || []);
-      } else {
-        console.error('Failed to fetch batches:', fetchResults[0].reason);
-      }
-
-      if (fetchResults[1].status === 'fulfilled') {
-        const data = fetchResults[1].value.data;
-        // console.log('Transport Requests fetched:', data); // Debugging
-        setTransportRequests(Array.isArray(data) ? data : data.results || []);
-      } else {
-        console.error('Failed to fetch transport requests:', fetchResults[1].reason);
-      }
-
-      if (fetchResults[2].status === 'fulfilled') {
-        const data = fetchResults[2].value.data;
-        setListings(Array.isArray(data) ? data : data.results || []);
-      } else {
-        console.error('Failed to fetch listings:', fetchResults[2].reason);
-      }
-    } catch (error) {
-      console.error('Unexpected error in fetchData:', error);
+      setLoading(true);
+      const response = await dashboardAPI.getRetailerAnalytics();
+      setAnalytics(response.data);
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError(err.response?.data?.error || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMarkSold = async (batchId) => {
-    if (!confirm('Mark this batch as sold?')) return;
+  // Prepare chart data
+  const inventoryChartData = analytics?.inventory_distribution
+    ? Object.entries(analytics.inventory_distribution).map(([crop, data]) => ({
+        name: crop,
+        value: data.value,
+        count: data.count
+      }))
+    : [];
 
-    try {
-      await retailerAPI.markSold(batchId);
-      alert('Batch marked as sold successfully');
-      fetchData();
-    } catch (error) {
-      console.error('Error marking batch as sold:', error);
-      alert(error.response?.data?.message || 'Failed to mark batch as sold');
-    }
+  const monthlySalesData = analytics?.monthly_sales?.months?.map((month, index) => ({
+    month,
+    revenue: analytics.monthly_sales.revenue[index] || 0
+  })) || [];
+
+  const formatCurrency = (value) => {
+    return `₹${value.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
   };
 
-  const handleSuspendBatch = async (batchId) => {
-    if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
-    try {
-      await batchAPI.suspend(batchId);
-      alert('Batch suspended successfully.');
-      fetchData();
-    } catch (error) {
-      console.error('Error suspending batch:', error);
-      alert(error.response?.data?.message || 'Failed to suspend batch');
-    }
-  };
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        </div>
+      </MainLayout>
+    );
+  }
 
-  const handleConfirmArrival = async (requestId) => {
-    try {
-      await transportAPI.confirmArrivalRequest(requestId);
-      alert('Arrival confirmed. The transporter can now mark the delivery as complete.');
-      fetchData();
-    } catch (error) {
-      console.error('Error confirming arrival:', error);
-      alert(error.response?.data?.message || 'Failed to confirm arrival');
-    }
-  };
+  if (error) {
+    return (
+      <MainLayout>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
+          <p className="text-red-600">{error}</p>
+          <button
+            onClick={fetchDashboardData}
+            className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          >
+            Retry
+          </button>
+        </div>
+      </MainLayout>
+    );
+  }
 
-  const getFilteredContent = () => {
-    switch (activeTab) {
-      case 'incoming':
-        // Show transport requests where status is not DELIVERED
-        return transportRequests.filter(tr => tr && tr.status !== 'DELIVERED');
-      case 'received':
-        // Show batches delivered to retailer but not yet listed
-        return batches.filter(b => b && b.status === 'DELIVERED_TO_RETAILER');
-      case 'listed':
-        // Show retail listings
-        return listings.filter(l => l && l.is_for_sale === true);
-      case 'sold':
-        // Show retail listings that are sold
-        return listings.filter(l => l && l.is_for_sale === false);
-      default:
-        return [];
-    }
-  };
-
-  const filteredItems = getFilteredContent();
+  const metrics = analytics?.metrics || {};
 
   return (
     <MainLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Retailer Dashboard</h1>
-            <p className="text-gray-600">Manage inventory and sales</p>
-          </div>
-          <button
-            onClick={() => navigate('/retailer/listing/new')}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            New Listing
-          </button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Retailer Dashboard</h1>
+          <p className="text-gray-600">Analyze inventory and sales performance</p>
         </div>
 
-        {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab('incoming')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'incoming'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <Truck className="w-4 h-4 inline mr-2" />
-              Incoming Transport
-            </button>
-            <button
-              onClick={() => setActiveTab('received')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'received'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <Package className="w-4 h-4 inline mr-2" />
-              Received
-            </button>
-            <button
-              onClick={() => setActiveTab('listed')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'listed'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <ShoppingCart className="w-4 h-4 inline mr-2" />
-              Listed
-            </button>
-            <button
-              onClick={() => setActiveTab('sold')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'sold'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <CheckCircle className="w-4 h-4 inline mr-2" />
-              Sold
-            </button>
-          </nav>
+        {/* Metric Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <MetricCard
+            title="Incoming Shipments"
+            value={metrics.incoming_shipments || 0}
+            icon={Truck}
+            color="bg-amber-500"
+            subtext="Awaiting confirmation"
+          />
+          <MetricCard
+            title="Inventory Value"
+            value={formatCurrency(metrics.inventory_value || 0)}
+            icon={Package}
+            color="bg-blue-500"
+            subtext="Active listings worth"
+          />
+          <MetricCard
+            title="Total Listings"
+            value={metrics.active_listings || 0}
+            icon={ShoppingCart}
+            color="bg-purple-500"
+            subtext="Active for sale"
+          />
+          <MetricCard
+            title="Total Sales Revenue"
+            value={formatCurrency(metrics.total_sales_revenue || 0)}
+            icon={IndianRupee}
+            color="bg-green-600"
+            subtext="Earnings to date"
+          />
+          <MetricCard
+            title="Units Sold"
+            value={metrics.units_sold || 0}
+            icon={CheckCircle}
+            color="bg-emerald-500"
+            subtext="Completed sales"
+          />
         </div>
 
-        {/* Batches Table */}
-        <div className="card">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {activeTab === 'incoming' ? 'Transport ID' : 'Batch ID'}
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Crop Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    {activeTab === 'incoming' ? 'Source' : 'Details'}
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">Loading...</td>
-                  </tr>
-                ) : filteredItems.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">No items found</td>
-                  </tr>
-                ) : (
-                  filteredItems.map((item) => (
-                    <tr key={item.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {activeTab === 'incoming'
-                          ? `TR-${item.id}`
-                          : item.batch_details?.product_batch_id || item.product_batch_id || `LISTING-${item.id}`}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {activeTab === 'incoming'
-                          ? item.batch_details?.crop_type
-                          : item.batch_details?.crop_type || item.crop_type || item.batch?.crop_type || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {activeTab === 'incoming'
-                          ? item.from_party_details?.organization || item.from_party_details?.user_details?.username
-                          : activeTab === 'listed' || activeTab === 'sold'
-                            ? (
-                              <div className="flex flex-col">
-                                <span className="font-bold text-primary">₹{item.total_price || 0}</span>
-                                {item.batch_details?.qr_code_image && (
-                                  <img
-                                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${item.batch_details.qr_code_image}`}
-                                    alt="QR Code"
-                                    className="w-16 h-16 mt-1 border rounded p-1 bg-white cursor-pointer"
-                                    onClick={() => window.open(`/trace/${item.batch_details.public_batch_id}`, '_blank')}
-                                  />
-                                )}
-                              </div>
-                            )
-                            : `${item.quantity} kg`}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${activeTab === 'sold' ? 'bg-green-100 text-green-700' :
-                          activeTab === 'listed' ? 'bg-blue-100 text-blue-700' :
-                            item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
-                              item.status === 'LISTED' ? 'bg-blue-100 text-blue-700' :
-                                item.status.includes('IN_TRANSIT') ? 'bg-amber-100 text-amber-700' :
-                                  item.status === 'ARRIVED_AT_RETAILER' || item.status === 'ARRIVED' ? 'bg-indigo-100 text-indigo-700' :
-                                    item.status === 'ARRIVAL_CONFIRMED_BY_RETAILER' || item.status === 'ARRIVAL_CONFIRMED' ? 'bg-purple-100 text-purple-700' :
-                                      item.status === 'SUSPENDED' ? 'bg-red-100 text-red-700' :
-                                        'bg-yellow-100 text-yellow-700'
-                          }`}>
-                          {activeTab === 'listed' ? 'LISTED FOR SALE' :
-                            activeTab === 'sold' ? 'SOLD' :
-                              item.status?.replace(/_/g, ' ')}
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Inventory Distribution Chart */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Inventory Distribution</h3>
+            {inventoryChartData.length > 0 ? (
+              <div className="h-64 relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={inventoryChartData}
+                      cx="35%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {inventoryChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [formatCurrency(value), 'Value']} />
+                    <Legend 
+                      verticalAlign="middle" 
+                      align="right"
+                      layout="vertical"
+                      formatter={(value, entry) => (
+                        <span className="text-sm text-gray-600">
+                          {value} ({entry.payload.count} items)
                         </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {activeTab === 'incoming' && (
-                          <div className="flex gap-2">
-                            {(item.status === 'ARRIVED_AT_RETAILER' || item.status === 'ARRIVED') && (
-                              <button
-                                onClick={() => handleConfirmArrival(item.id)}
-                                className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
-                              >
-                                Confirm Arrival
-                              </button>
-                            )}
-                            {(item.status === 'ARRIVAL_CONFIRMED' || item.status.includes('IN_TRANSIT')) && (
-                              <span className="text-xs text-gray-500 italic">Tracking Transport</span>
-                            )}
-                          </div>
-                        )}
-                        {activeTab === 'received' && item.status === 'DELIVERED_TO_RETAILER' && (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => navigate('/retailer/listing/new')}
-                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-                            >
-                              Create Listing
-                            </button>
-                          </div>
-                        )}
-                        {activeTab === 'listed' && item.batch_details?.status === 'LISTED' && (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => window.open(`/trace/${item.batch_details?.public_batch_id}`, '_blank')}
-                              className="px-3 py-1 bg-primary text-white text-xs rounded hover:bg-primary/90"
-                            >
-                              View Trace
-                            </button>
-                            <button
-                              onClick={() => handleMarkSold(item.batch || item.batch_details?.id)}
-                              className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
-                            >
-                              Mark as Sold
-                            </button>
-                            <button
-                              onClick={() => handleSuspendBatch(item.batch || item.batch_details?.id)}
-                              className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
-                              title="Suspend Batch"
-                            >
-                              Suspend
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                      )}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center text-gray-400">
+                <div className="text-center">
+                  <Store className="w-12 h-12 mx-auto mb-2" />
+                  <p>No inventory data available</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Monthly Sales Chart */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Sales</h3>
+            {monthlySalesData.length > 0 ? (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlySalesData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis 
+                      dataKey="month" 
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => `₹${value >= 1000 ? (value/1000) + 'k' : value}`}
+                    />
+                    <Tooltip formatter={(value) => [formatCurrency(value), 'Revenue']} />
+                    <Bar dataKey="revenue" name="Sales Revenue" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center text-gray-400">
+                <div className="text-center">
+                  <TrendingUp className="w-12 h-12 mx-auto mb-2" />
+                  <p>No sales data available</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Empty State */}
+        {!metrics.active_listings && !metrics.units_sold && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+            <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Welcome to Your Dashboard</h3>
+            <p className="text-gray-600 max-w-md mx-auto">
+              Your dashboard will populate once you start receiving batches, creating listings, and making sales.
+            </p>
+          </div>
+        )}
       </div>
     </MainLayout>
   );

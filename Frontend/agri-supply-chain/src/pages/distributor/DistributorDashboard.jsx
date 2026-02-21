@@ -169,12 +169,12 @@ const DistributorDashboard = () => {
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Inventory Breakdown</h3>
             {inventoryChartData.length > 0 ? (
-              <div className="h-64">
+              <div className="h-64 relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={inventoryChartData}
-                      cx="40%"
+                      cx="35%"
                       cy="50%"
                       innerRadius={60}
                       outerRadius={100}
@@ -198,12 +198,6 @@ const DistributorDashboard = () => {
                     />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="text-center -mt-32 mb-20 ml-[-80px]">
-                  <p className="text-2xl font-bold text-gray-900">
-                    {formatWeight(metrics.inventory_quantity || 0)}
-                  </p>
-                  <p className="text-sm text-gray-500">Total</p>
-                </div>
               </div>
             ) : (
               <div className="h-64 flex items-center justify-center text-gray-400">

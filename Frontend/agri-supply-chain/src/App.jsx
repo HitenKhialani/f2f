@@ -35,6 +35,10 @@ import DistributorShipments from './pages/transporter/DistributorShipments';
 import InTransit from './pages/transporter/InTransit';
 import Completed from './pages/transporter/Completed';
 import RetailerDashboard from './pages/retailer/RetailerDashboard';
+import IncomingTransport from './pages/retailer/IncomingTransport';
+import Received from './pages/retailer/Received';
+import Listed from './pages/retailer/Listed';
+import Sold from './pages/retailer/Sold';
 import NewListingPage from './pages/retailer/NewListingPage';
 import ConsumerDashboard from './pages/consumer/ConsumerDashboard';
 import ProfilePage from './pages/ProfilePage';
@@ -227,6 +231,38 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['RETAILER']}>
               <RetailerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/retailer/incoming"
+          element={
+            <ProtectedRoute allowedRoles={['RETAILER']}>
+              <IncomingTransport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/retailer/received"
+          element={
+            <ProtectedRoute allowedRoles={['RETAILER']}>
+              <Received />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/retailer/listed"
+          element={
+            <ProtectedRoute allowedRoles={['RETAILER']}>
+              <Listed />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/retailer/sold"
+          element={
+            <ProtectedRoute allowedRoles={['RETAILER']}>
+              <Sold />
             </ProtectedRoute>
           }
         />

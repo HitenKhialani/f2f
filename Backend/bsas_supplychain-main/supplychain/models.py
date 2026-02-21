@@ -309,15 +309,24 @@ class RetailListing(models.Model):
         on_delete=models.PROTECT,
         related_name="listings",
     )
+    # Quantity fields for proper inventory tracking
+    total_quantity = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    remaining_quantity = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    units_sold = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    # Pricing fields
     farmer_base_price = models.DecimalField(max_digits=12, decimal_places=2)
     transport_fees = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     distributor_margin = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     retailer_margin = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    selling_price_per_unit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    # Revenue tracking
+    total_revenue_generated = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     is_for_sale = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property
     def total_price(self) -> float:
+        """Total price per unit (selling price)"""
         return float(
             self.farmer_base_price
             + self.transport_fees
@@ -325,7 +334,23 @@ class RetailListing(models.Model):
             + self.retailer_margin
         )
 
-    def __str__(self) -> str:
+    @property
+    def is_sold_out(self) -> bool:
+        """Check if all inventory is sold"""
+        return self.remaining_quantity <= 0 and self.units_sold > 0
+
+    def save(self, *args, **kwargs):
+        # Auto-set selling_price_per_unit from total_price if not set
+        if self.selling_price_per_unit == 0:
+            self.selling_price_per_unit = self.total_price
+        # Auto-set quantities from batch if not set
+        if self.total_quantity == 0 and self.batch:
+            self.total_quantity = self.batch.quantity
+        if self.remaining_quantity == 0 and self.total_quantity > 0:
+            self.remaining_quantity = self.total_quantity
+        super().save(*args, **kwargs)
+
+    def __str__(self):
         return f"{self.batch.product_batch_id} at {self.retailer.organization}"
 
 

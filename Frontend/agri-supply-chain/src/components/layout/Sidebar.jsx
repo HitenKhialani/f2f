@@ -15,7 +15,9 @@ import {
   Package,
   Navigation,
   CheckCircle,
-  Boxes
+  Boxes,
+  PackageCheck,
+  PlusCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -55,7 +57,11 @@ const Sidebar = () => {
       ],
       RETAILER: [
         { path: '/retailer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/retailer/listing/new', icon: <ShoppingCart className="w-5 h-5" />, label: 'New Listing' },
+        { path: '/retailer/incoming', icon: <Truck className="w-5 h-5" />, label: 'Incoming Transport' },
+        { path: '/retailer/received', icon: <PackageCheck className="w-5 h-5" />, label: 'Received' },
+        { path: '/retailer/listed', icon: <ShoppingCart className="w-5 h-5" />, label: 'Listed' },
+        { path: '/retailer/sold', icon: <CheckCircle className="w-5 h-5" />, label: 'Sold' },
+        { path: '/retailer/listing/new', icon: <PlusCircle className="w-5 h-5" />, label: 'New Listing' },
       ],
       CONSUMER: [
         { path: '/consumer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },

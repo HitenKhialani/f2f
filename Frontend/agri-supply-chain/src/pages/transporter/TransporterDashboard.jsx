@@ -1,143 +1,145 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import {
   Truck,
-  Search,
-  Filter,
   Package,
-  Clock,
+  Navigation,
   CheckCircle,
-  MapPin,
-  Navigation
+  Loader2,
+  IndianRupee,
+  TrendingUp,
+  Activity,
+  Calendar
 } from 'lucide-react';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  LineChart,
+  Line
+} from 'recharts';
 import MainLayout from '../../components/layout/MainLayout';
-import { transportAPI } from '../../services/api';
+import { dashboardAPI } from '../../services/api';
+
+const COLORS = {
+  accepted: '#8B5CF6',      // Violet
+  inTransit: '#06B6D4',     // Cyan
+  arrived: '#F59E0B',       // Amber
+  delivered: '#10B981',     // Emerald
+  completed: '#10B981',     // Emerald (same as delivered)
+};
+
+const StatusBadge = ({ status }) => {
+  const styles = {
+    PENDING: 'bg-gray-100 text-gray-700',
+    ACCEPTED: 'bg-violet-100 text-violet-700',
+    IN_TRANSIT: 'bg-cyan-100 text-cyan-700',
+    IN_TRANSIT_TO_RETAILER: 'bg-cyan-100 text-cyan-700',
+    ARRIVED: 'bg-amber-100 text-amber-700',
+    ARRIVAL_CONFIRMED: 'bg-indigo-100 text-indigo-700',
+    DELIVERED: 'bg-emerald-100 text-emerald-700',
+    REJECTED: 'bg-red-100 text-red-700',
+  };
+  return (
+    <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status] || 'bg-gray-100 text-gray-700'}`}>
+      {status?.replace(/_/g, ' ')}
+    </span>
+  );
+};
+
+const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
+  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm text-gray-500 mb-1">{title}</p>
+        <p className="text-3xl font-bold text-gray-900">{value}</p>
+        {subtext && <p className="text-xs text-gray-400 mt-1">{subtext}</p>}
+      </div>
+      <div className={`${color} p-3 rounded-xl`}>
+        <Icon className="w-6 h-6 text-white" />
+      </div>
+    </div>
+  </div>
+);
 
 const TransporterDashboard = () => {
-  const [activeTab, setActiveTab] = useState('farmer');
-  const [requests, setRequests] = useState([]);
-  const [stats, setStats] = useState({
-    farmerShipments: 0,
-    distributorShipments: 0,
-    inTransit: 0,
-    completed: 0,
-  });
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showAcceptModal, setShowAcceptModal] = useState(false);
-  const [transportFee, setTransportFee] = useState('0.00');
-  const [activeRequest, setActiveRequest] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchRequests();
+    fetchDashboardData();
   }, []);
 
-  const fetchRequests = async () => {
+  const fetchDashboardData = async () => {
     try {
-      const response = await transportAPI.list();
-      console.log('Transport requests raw data:', response.data);
-      setRequests(response.data);
-
-      // Calculate stats
-      const farmerRequests = response.data.filter(r =>
-        r.status === 'PENDING' &&
-        r.from_party_details?.role === 'farmer'
-      );
-
-      const distributorRequests = response.data.filter(r => {
-        const isPending = r.status === 'PENDING';
-        const isFromDistributor = r.from_party_details?.role === 'distributor';
-        console.log(`Request ${r.id}: status=${r.status}, from_role=${r.from_party_details?.role}, isPending=${isPending}, isFromDistributor=${isFromDistributor}`);
-        return isPending && isFromDistributor;
-      });
-
-      const inTransitRequests = response.data.filter(r =>
-        r.status === 'ACCEPTED' || r.status === 'IN_TRANSIT' || r.status === 'IN_TRANSIT_TO_RETAILER'
-      );
-
-      const completedRequests = response.data.filter(r => r.status === 'DELIVERED');
-
-      console.log('Filtered requests:', { farmerRequests, distributorRequests, inTransitRequests, completedRequests });
-
-      setStats({
-        farmerShipments: farmerRequests.length,
-        distributorShipments: distributorRequests.length,
-        inTransit: inTransitRequests.length,
-        completed: completedRequests.length,
-      });
-    } catch (error) {
-      console.error('Error fetching transport requests:', error);
+      setLoading(true);
+      // Fetch analytics data
+      const analyticsRes = await dashboardAPI.getTransporterAnalytics();
+      setAnalytics(analyticsRes.data);
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError(err.response?.data?.error || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStatusUpdate = async (id, newStatus, extraData = {}) => {
-    try {
-      if (newStatus === 'ACCEPTED') {
-        const transportFeeVal = parseFloat(extraData.transporter_fee_per_unit || 0);
-        await transportAPI.acceptRequest(id, { transporter_fee_per_unit: transportFeeVal });
-        setShowAcceptModal(false);
-        setActiveRequest(null);
-        setTransportFee('0.00');
-      } else if (newStatus === 'ARRIVED') {
-        await transportAPI.arriveRequest(id);
-      } else if (newStatus === 'DELIVERED') {
-        await transportAPI.deliverRequest(id);
-      } else if (newStatus === 'REJECTED') {
-        await transportAPI.rejectRequest(id);
-      } else {
-        await transportAPI.update(id, { status: newStatus });
-      }
-      fetchRequests();
-    } catch (error) {
-      console.error('Error updating status:', error);
-      alert(error.response?.data?.message || 'Failed to update status');
+  // Prepare chart data
+  const statusChartData = analytics ? [
+    { name: 'Accepted', value: analytics.status_distribution?.Accepted || 0, color: COLORS.accepted },
+    { name: 'In Transit', value: analytics.status_distribution?.['In Transit'] || 0, color: COLORS.inTransit },
+    { name: 'Arrived', value: analytics.status_distribution?.Arrived || 0, color: COLORS.arrived },
+    { name: 'Completed', value: analytics.status_distribution?.Completed || 0, color: COLORS.completed },
+  ].filter(item => item.value > 0) : [];
+
+  const earningsChartData = analytics ? [
+    { name: 'Farmer Deliveries', earnings: analytics.earnings_overview?.farmer_earnings || 0 },
+    { name: 'Distributor Deliveries', earnings: analytics.earnings_overview?.distributor_earnings || 0 },
+    { name: 'Total Earnings', earnings: analytics.earnings_overview?.total_earnings || 0 },
+  ] : [];
+
+  const formatCurrency = (value) => {
+    if (value >= 1000) {
+      return `₹${(value / 1000).toFixed(1)}k`;
     }
+    return `₹${value.toFixed(0)}`;
   };
 
-  const getFilteredRequests = () => {
-    switch (activeTab) {
-      case 'farmer':
-        return requests.filter(r =>
-          r.status === 'PENDING' &&
-          r.from_party_details?.role === 'farmer'
-        );
-      case 'distributor':
-        return requests.filter(r =>
-          r.status === 'PENDING' &&
-          r.from_party_details?.role === 'distributor'
-        );
-      case 'in-transit':
-        return requests.filter(r =>
-          r.status === 'ACCEPTED' ||
-          r.status === 'IN_TRANSIT' ||
-          r.status === 'IN_TRANSIT_TO_RETAILER' ||
-          r.status === 'ARRIVED' ||
-          r.status === 'ARRIVAL_CONFIRMED'
-        );
-      case 'completed':
-        return requests.filter(r => r.status === 'DELIVERED');
-      default:
-        return [];
-    }
-  };
-
-  const filteredRequests = getFilteredRequests();
-
-  const getStatusBadge = (status) => {
-    const styles = {
-      PENDING: 'bg-gray-100 text-gray-700',
-      ACCEPTED: 'bg-blue-100 text-blue-700',
-      IN_TRANSIT: 'bg-amber-100 text-amber-700',
-      DELIVERED: 'bg-green-100 text-green-700',
-      REJECTED: 'bg-red-100 text-red-700',
-    };
+  if (loading) {
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
-        {status?.replace(/_/g, ' ')}
-      </span>
+      <MainLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </MainLayout>
     );
-  };
+  }
+
+  if (error) {
+    return (
+      <MainLayout>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <p className="text-red-600">{error}</p>
+          <button
+            onClick={fetchDashboardData}
+            className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+          >
+            Retry
+          </button>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const metrics = analytics?.metrics || {};
 
   return (
     <MainLayout>
@@ -150,285 +152,156 @@ const TransporterDashboard = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-6">
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Farmer Shipments</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.farmerShipments}</p>
+        {/* Metric Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <MetricCard
+            title="Farmer Shipments"
+            value={metrics.farmer_shipments || 0}
+            icon={Package}
+            color="bg-blue-500"
+            subtext="From farms"
+          />
+          <MetricCard
+            title="Distributor Shipments"
+            value={metrics.distributor_shipments || 0}
+            icon={Truck}
+            color="bg-purple-500"
+            subtext="From distributors"
+          />
+          <MetricCard
+            title="In Transit"
+            value={metrics.in_transit || 0}
+            icon={Navigation}
+            color="bg-amber-500"
+            subtext="Active deliveries"
+          />
+          <MetricCard
+            title="Completed"
+            value={metrics.completed || 0}
+            icon={CheckCircle}
+            color="bg-emerald-500"
+            subtext="Finished jobs"
+          />
+          <MetricCard
+            title="Total Earnings"
+            value={formatCurrency(metrics.total_earnings || 0)}
+            icon={IndianRupee}
+            color="bg-green-600"
+            subtext="Revenue earned"
+          />
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Status Distribution Chart */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Deliveries by Status</h3>
+            {statusChartData.length > 0 ? (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={statusChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {statusChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" height={36} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="text-center -mt-32 mb-20">
+                  <p className="text-3xl font-bold text-gray-900">{analytics?.total_deliveries || 0}</p>
+                  <p className="text-sm text-gray-500">Total</p>
+                </div>
               </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Package className="w-6 h-6 text-blue-600" />
+            ) : (
+              <div className="h-64 flex items-center justify-center text-gray-400">
+                <div className="text-center">
+                  <Activity className="w-12 h-12 mx-auto mb-2" />
+                  <p>No delivery data available</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Distributor Shipments</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.distributorShipments}</p>
+          {/* Earnings Overview Chart */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Earnings Overview</h3>
+            {earningsChartData.some(d => d.earnings > 0) ? (
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={earningsChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      tick={{ fontSize: 12 }}
+                      interval={0}
+                      angle={-15}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis 
+                      tickFormatter={(value) => `₹${value >= 1000 ? (value/1000) + 'k' : value}`}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <Tooltip 
+                      formatter={(value) => [`₹${value.toLocaleString()}`, 'Earnings']}
+                      labelStyle={{ color: '#374151' }}
+                    />
+                    <Bar dataKey="earnings" fill="#10B981" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <Truck className="w-6 h-6 text-purple-600" />
+            ) : (
+              <div className="h-64 flex items-center justify-center text-gray-400">
+                <div className="text-center">
+                  <TrendingUp className="w-12 h-12 mx-auto mb-2" />
+                  <p>No earnings data available</p>
+                </div>
               </div>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">In Transit</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.inTransit}</p>
-              </div>
-              <div className="bg-amber-100 p-3 rounded-lg">
-                <Navigation className="w-6 h-6 text-amber-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Completed</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            <button
-              onClick={() => setActiveTab('farmer')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'farmer'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <Package className="w-4 h-4 inline mr-2" />
-              Farmer Shipments
-            </button>
-            <button
-              onClick={() => setActiveTab('distributor')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'distributor'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <Truck className="w-4 h-4 inline mr-2" />
-              Distributor Shipments
-            </button>
-            <button
-              onClick={() => setActiveTab('in-transit')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'in-transit'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <Navigation className="w-4 h-4 inline mr-2" />
-              In Transit
-            </button>
-            <button
-              onClick={() => setActiveTab('completed')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'completed'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <CheckCircle className="w-4 h-4 inline mr-2" />
-              Completed
-            </button>
-          </nav>
-        </div>
-
-        {/* Transport Table */}
-        <div className="card overflow-hidden">
-          <div className="p-6 border-b border-gray-100 text-lg font-semibold text-gray-900">
-            Transport Requests
+        {/* Monthly Trend Chart (Optional) */}
+        {analytics?.monthly_trend && Object.keys(analytics.monthly_trend).length > 0 && (
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Shipment Activity Trend</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={Object.entries(analytics.monthly_trend).map(([month, count]) => ({ month, count }))}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Line 
+                    type="monotone" 
+                    dataKey="count" 
+                    stroke="#059669" 
+                    strokeWidth={2}
+                    dot={{ fill: '#059669', r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Batch ID</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Crop / Quantity</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Source (Farmer)</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Destination</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {loading ? (
-                  <tr>
-                    <td colSpan="6" className="text-center py-8 text-gray-500">
-                      Loading...
-                    </td>
-                  </tr>
-                ) : filteredRequests.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="text-center py-8 text-gray-500">
-                      <Truck className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-                      <p>No {activeTab.replace('-', ' ')} requests</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredRequests.map((request) => (
-                    <tr key={request.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <span className="font-mono text-sm text-gray-900">
-                          {request.batch_details?.product_batch_id || 'N/A'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900">
-                          {request.batch_details?.crop_type || 'N/A'}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {request.batch_details?.quantity || '-'} kg
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4 text-gray-400" />
-                          <div>
-                            <div>{request.from_party_details?.organization || request.from_party_details?.user_details?.username}</div>
-                            <div className="text-xs text-gray-500">{request.from_party_details?.address}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
-                        <div className="flex items-center gap-1">
-                          <Navigation className="w-4 h-4 text-gray-400" />
-                          <div>
-                            <div>{request.to_party_details?.organization || request.to_party_details?.user_details?.username}</div>
-                            <div className="text-xs text-gray-500">{request.to_party_details?.address}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${request.status === 'PENDING' ? 'bg-gray-100 text-gray-700' :
-                          request.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-700' :
-                            request.status.includes('IN_TRANSIT') ? 'bg-amber-100 text-amber-700' :
-                              request.status === 'ARRIVED' ? 'bg-indigo-100 text-indigo-700' :
-                                request.status === 'ARRIVAL_CONFIRMED' ? 'bg-purple-100 text-purple-700' :
-                                  request.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
-                                    'bg-red-100 text-red-700'
-                          }`}>
-                          {request.status?.replace(/_/g, ' ')}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-2">
-                          {request.status === 'PENDING' && (
-                            <>
-                              <button
-                                onClick={() => {
-                                  setActiveRequest(request);
-                                  setShowAcceptModal(true);
-                                }}
-                                className="px-3 py-1 bg-primary text-white text-xs rounded hover:bg-primary/90"
-                              >
-                                Accept
-                              </button>
-                              <button
-                                onClick={() => handleStatusUpdate(request.id, 'REJECTED')}
-                                className="px-3 py-1 border border-red-200 text-red-600 text-xs rounded hover:bg-red-50"
-                              >
-                                Reject
-                              </button>
-                            </>
-                          )}
-                          {(request.status === 'ACCEPTED' || request.status.includes('IN_TRANSIT')) && (
-                            <button
-                              onClick={() => handleStatusUpdate(request.id, 'ARRIVED')}
-                              className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
-                            >
-                              Mark Arrived
-                            </button>
-                          )}
-                          {request.status === 'ARRIVED' && (
-                            <span className="text-xs text-gray-500 italic">Waiting for receiver confirmation</span>
-                          )}
-                          {request.status === 'ARRIVAL_CONFIRMED' && (
-                            <button
-                              onClick={() => handleStatusUpdate(request.id, 'DELIVERED')}
-                              className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
-                            >
-                              Mark Delivered
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        )}
       </div>
-
-      {/* Accept Transport Modal */}
-      {showAcceptModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold mb-2">Accept Transport Request</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Batch: <span className="font-mono">{activeRequest?.batch_details?.product_batch_id}</span>
-            </p>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Transport Fee per Unit (₹)
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-2 text-gray-500">₹</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={transportFee}
-                  onChange={(e) => setTransportFee(e.target.value)}
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                  placeholder="0.00"
-                />
-              </div>
-              <p className="text-xs text-gray-500 mt-2 italic">
-                This fee will be added to the total transport costs of the batch.
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowAcceptModal(false);
-                  setActiveRequest(null);
-                  setTransportFee('0.00');
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleStatusUpdate(activeRequest.id, 'ACCEPTED', { transporter_fee_per_unit: transportFee })}
-                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
-              >
-                Accept & Confirm Fee
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </MainLayout>
   );
 };
 
 export default TransporterDashboard;
+
+

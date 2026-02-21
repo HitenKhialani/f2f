@@ -11,7 +11,11 @@ import {
   FileCheck,
   Users,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Package,
+  Navigation,
+  CheckCircle,
+  Boxes
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -34,12 +38,17 @@ const Sidebar = () => {
       ],
       FARMER: [
         { path: '/farmer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
+        { path: '/farmer/batches', icon: <Boxes className="w-5 h-5" />, label: 'My Batches' },
       ],
       DISTRIBUTOR: [
         { path: '/distributor/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
       ],
       TRANSPORTER: [
         { path: '/transporter/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
+        { path: '/transporter/farmer-shipments', icon: <Package className="w-5 h-5" />, label: 'Farmer Shipments' },
+        { path: '/transporter/distributor-shipments', icon: <Truck className="w-5 h-5" />, label: 'Distributor Shipments' },
+        { path: '/transporter/in-transit', icon: <Navigation className="w-5 h-5" />, label: 'In Transit' },
+        { path: '/transporter/completed', icon: <CheckCircle className="w-5 h-5" />, label: 'Completed' },
       ],
       RETAILER: [
         { path: '/retailer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },

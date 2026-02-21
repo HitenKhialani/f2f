@@ -125,6 +125,7 @@ export const retailerAPI = {
 // Dashboard APIs
 export const dashboardAPI = {
   getFarmerDashboard: () => api.get('/dashboard/farmer/'),
+  getTransporterAnalytics: () => api.get('/dashboard/transporter/'),
 };
 
 export default api;

@@ -23,9 +23,14 @@ import KYCManagement from './pages/admin/KYCManagement';
 import UserManagement from './pages/admin/UserManagement';
 // Role Dashboards
 import FarmerDashboard from './pages/farmer/FarmerDashboard';
+import FarmerBatches from './pages/farmer/FarmerBatches';
 import DistributorDashboard from './pages/distributor/DistributorDashboard';
 import InspectionPage from './pages/distributor/InspectionPage';
 import TransporterDashboard from './pages/transporter/TransporterDashboard';
+import FarmerShipments from './pages/transporter/FarmerShipments';
+import DistributorShipments from './pages/transporter/DistributorShipments';
+import InTransit from './pages/transporter/InTransit';
+import Completed from './pages/transporter/Completed';
 import RetailerDashboard from './pages/retailer/RetailerDashboard';
 import NewListingPage from './pages/retailer/NewListingPage';
 import ConsumerDashboard from './pages/consumer/ConsumerDashboard';
@@ -120,6 +125,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/farmer/batches"
+          element={
+            <ProtectedRoute allowedRoles={['FARMER']}>
+              <FarmerBatches />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Distributor Routes */}
         <Route
@@ -145,6 +158,38 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['TRANSPORTER']}>
               <TransporterDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transporter/farmer-shipments"
+          element={
+            <ProtectedRoute allowedRoles={['TRANSPORTER']}>
+              <FarmerShipments />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transporter/distributor-shipments"
+          element={
+            <ProtectedRoute allowedRoles={['TRANSPORTER']}>
+              <DistributorShipments />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transporter/in-transit"
+          element={
+            <ProtectedRoute allowedRoles={['TRANSPORTER']}>
+              <InTransit />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transporter/completed"
+          element={
+            <ProtectedRoute allowedRoles={['TRANSPORTER']}>
+              <Completed />
             </ProtectedRoute>
           }
         />

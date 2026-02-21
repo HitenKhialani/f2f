@@ -42,6 +42,9 @@ const Sidebar = () => {
       ],
       DISTRIBUTOR: [
         { path: '/distributor/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
+        { path: '/distributor/incoming', icon: <Package className="w-5 h-5" />, label: 'Incoming' },
+        { path: '/distributor/inventory', icon: <Boxes className="w-5 h-5" />, label: 'Inventory' },
+        { path: '/distributor/outgoing', icon: <Truck className="w-5 h-5" />, label: 'Outgoing' },
       ],
       TRANSPORTER: [
         { path: '/transporter/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },

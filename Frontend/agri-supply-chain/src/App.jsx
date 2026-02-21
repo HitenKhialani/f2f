@@ -25,6 +25,9 @@ import UserManagement from './pages/admin/UserManagement';
 import FarmerDashboard from './pages/farmer/FarmerDashboard';
 import FarmerBatches from './pages/farmer/FarmerBatches';
 import DistributorDashboard from './pages/distributor/DistributorDashboard';
+import Incoming from './pages/distributor/Incoming';
+import Inventory from './pages/distributor/Inventory';
+import Outgoing from './pages/distributor/Outgoing';
 import InspectionPage from './pages/distributor/InspectionPage';
 import TransporterDashboard from './pages/transporter/TransporterDashboard';
 import FarmerShipments from './pages/transporter/FarmerShipments';
@@ -140,6 +143,30 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['DISTRIBUTOR']}>
               <DistributorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/distributor/incoming"
+          element={
+            <ProtectedRoute allowedRoles={['DISTRIBUTOR']}>
+              <Incoming />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/distributor/inventory"
+          element={
+            <ProtectedRoute allowedRoles={['DISTRIBUTOR']}>
+              <Inventory />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/distributor/outgoing"
+          element={
+            <ProtectedRoute allowedRoles={['DISTRIBUTOR']}>
+              <Outgoing />
             </ProtectedRoute>
           }
         />

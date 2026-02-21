@@ -33,28 +33,28 @@ const TransporterDashboard = () => {
       const response = await transportAPI.list();
       console.log('Transport requests raw data:', response.data);
       setRequests(response.data);
-      
+
       // Calculate stats
-      const farmerRequests = response.data.filter(r => 
-        r.status === 'PENDING' && 
+      const farmerRequests = response.data.filter(r =>
+        r.status === 'PENDING' &&
         r.from_party_details?.role === 'farmer'
       );
-      
+
       const distributorRequests = response.data.filter(r => {
         const isPending = r.status === 'PENDING';
         const isFromDistributor = r.from_party_details?.role === 'distributor';
         console.log(`Request ${r.id}: status=${r.status}, from_role=${r.from_party_details?.role}, isPending=${isPending}, isFromDistributor=${isFromDistributor}`);
         return isPending && isFromDistributor;
       });
-      
-      const inTransitRequests = response.data.filter(r => 
+
+      const inTransitRequests = response.data.filter(r =>
         r.status === 'ACCEPTED' || r.status === 'IN_TRANSIT' || r.status === 'IN_TRANSIT_TO_RETAILER'
       );
-      
+
       const completedRequests = response.data.filter(r => r.status === 'DELIVERED');
-      
+
       console.log('Filtered requests:', { farmerRequests, distributorRequests, inTransitRequests, completedRequests });
-      
+
       setStats({
         farmerShipments: farmerRequests.length,
         distributorShipments: distributorRequests.length,
@@ -72,6 +72,8 @@ const TransporterDashboard = () => {
     try {
       if (newStatus === 'ACCEPTED') {
         await transportAPI.acceptRequest(id);
+      } else if (newStatus === 'ARRIVED') {
+        await transportAPI.arriveRequest(id);
       } else if (newStatus === 'DELIVERED') {
         await transportAPI.deliverRequest(id);
       } else if (newStatus === 'REJECTED') {
@@ -87,25 +89,24 @@ const TransporterDashboard = () => {
   };
 
   const getFilteredRequests = () => {
-    switch(activeTab) {
+    switch (activeTab) {
       case 'farmer':
-        return requests.filter(r => 
-          r.status === 'PENDING' && 
+        return requests.filter(r =>
+          r.status === 'PENDING' &&
           r.from_party_details?.role === 'farmer'
         );
       case 'distributor':
-        // Temporary: show all requests to debug
-        console.log('All requests for debugging:', requests);
-        return requests.filter(r => {
-          const result = r.from_party_details?.role === 'distributor';
-          console.log(`Filtering request ${r.id}: role=${r.from_party_details?.role}, matches=${result}`);
-          return result;
-        });
+        return requests.filter(r =>
+          r.status === 'PENDING' &&
+          r.from_party_details?.role === 'distributor'
+        );
       case 'in-transit':
-        return requests.filter(r => 
-          r.status === 'ACCEPTED' || 
-          r.status === 'IN_TRANSIT' || 
-          r.status === 'IN_TRANSIT_TO_RETAILER'
+        return requests.filter(r =>
+          r.status === 'ACCEPTED' ||
+          r.status === 'IN_TRANSIT' ||
+          r.status === 'IN_TRANSIT_TO_RETAILER' ||
+          r.status === 'ARRIVED' ||
+          r.status === 'ARRIVAL_CONFIRMED'
         );
       case 'completed':
         return requests.filter(r => r.status === 'DELIVERED');
@@ -306,7 +307,16 @@ const TransporterDashboard = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {getStatusBadge(request.status)}
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${request.status === 'PENDING' ? 'bg-gray-100 text-gray-700' :
+                            request.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-700' :
+                              request.status.includes('IN_TRANSIT') ? 'bg-amber-100 text-amber-700' :
+                                request.status === 'ARRIVED' ? 'bg-indigo-100 text-indigo-700' :
+                                  request.status === 'ARRIVAL_CONFIRMED' ? 'bg-purple-100 text-purple-700' :
+                                    request.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
+                                      'bg-red-100 text-red-700'
+                          }`}>
+                          {request.status?.replace(/_/g, ' ')}
+                        </span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-2">
@@ -327,6 +337,17 @@ const TransporterDashboard = () => {
                             </>
                           )}
                           {(request.status === 'ACCEPTED' || request.status.includes('IN_TRANSIT')) && (
+                            <button
+                              onClick={() => handleStatusUpdate(request.id, 'ARRIVED')}
+                              className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
+                            >
+                              Mark Arrived
+                            </button>
+                          )}
+                          {request.status === 'ARRIVED' && (
+                            <span className="text-xs text-gray-500 italic">Waiting for receiver confirmation</span>
+                          )}
+                          {request.status === 'ARRIVAL_CONFIRMED' && (
                             <button
                               onClick={() => handleStatusUpdate(request.id, 'DELIVERED')}
                               className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"

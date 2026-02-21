@@ -77,6 +77,8 @@ export const transportAPI = {
   // New transport workflow endpoints
   createRequest: (data) => api.post('/transport/request/', data),
   acceptRequest: (id) => api.post(`/transport/${id}/accept/`),
+  arriveRequest: (id) => api.post(`/transport/${id}/arrive/`),
+  confirmArrivalRequest: (id) => api.post(`/transport/${id}/confirm-arrival/`),
   deliverRequest: (id) => api.post(`/transport/${id}/deliver/`),
   rejectRequest: (id) => api.post(`/transport/${id}/reject/`),
 };

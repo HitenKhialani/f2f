@@ -16,6 +16,8 @@ from supplychain.auth_views import LoginView, LogoutView, MeView, RegisterView
 from supplychain.transport_views import (
     TransportRequestCreateView,
     TransportAcceptView,
+    TransportArriveView,
+    TransportConfirmArrivalView,
     TransportDeliverView,
     TransportRejectView,
 )
@@ -56,8 +58,10 @@ urlpatterns = [
     path("api/admin/users/<int:pk>/", UserDetailView.as_view(), name="admin-user-detail"),
     # Transport workflow endpoints
     path("api/transport/request/", TransportRequestCreateView.as_view(), name="transport-request"),
-    path("api/transport/<int:pk>/accept/", TransportAcceptView.as_view(), name="transport-accept"),
-    path("api/transport/<int:pk>/deliver/", TransportDeliverView.as_view(), name="transport-deliver"),
+    path('api/transport/<int:pk>/accept/', TransportAcceptView.as_view(), name='transport-accept'),
+    path('api/transport/<int:pk>/arrive/', TransportArriveView.as_view(), name='transport-arrive'),
+    path('api/transport/<int:pk>/confirm-arrival/', TransportConfirmArrivalView.as_view(), name='transport-confirm-arrival'),
+    path('api/transport/<int:pk>/deliver/', TransportDeliverView.as_view(), name='transport-deliver'),
     path("api/transport/<int:pk>/reject/", TransportRejectView.as_view(), name="transport-reject"),
     # Consumer endpoints
     path("api/public/trace/<str:public_id>/", BatchTraceView.as_view(), name="consumer-trace"),

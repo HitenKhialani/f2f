@@ -162,6 +162,17 @@ const DistributorDashboard = () => {
     }
   };
 
+  const handleConfirmArrival = async (requestId) => {
+    try {
+      await transportAPI.confirmArrivalRequest(requestId);
+      alert('Arrival confirmed. The transporter can now mark the delivery as complete.');
+      fetchData();
+    } catch (error) {
+      console.error('Error confirming arrival:', error);
+      alert(error.response?.data?.message || 'Failed to confirm arrival');
+    }
+  };
+
   const handleSuspendBatch = async (batchId) => {
     if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
     try {
@@ -175,35 +186,39 @@ const DistributorDashboard = () => {
   };
 
   const getFilteredContent = () => {
-    const filterFn = (b) => {
-      switch (activeTab) {
-        case 'incoming':
-          return b.status === 'DELIVERED_TO_DISTRIBUTOR';
-        case 'inventory':
-          return b.status === 'STORED' || b.status === 'FULLY_SPLIT';
-        default:
-          return false;
-      }
-    };
+    if (activeTab === 'incoming') {
+      // Show transport requests incoming to distributor
+      const incomingRequests = transportRequests.filter(tr =>
+        tr.to_party_details?.user_details?.username === user?.username &&
+        tr.status !== 'DELIVERED' && tr.status !== 'REJECTED' && tr.status !== 'PENDING'
+      );
+
+      // Show batches already delivered but not yet stored
+      const deliveredBatches = batches.filter(b => b.status === 'DELIVERED_TO_DISTRIBUTOR');
+
+      return [...incomingRequests, ...deliveredBatches];
+    }
+
+    if (activeTab === 'inventory') {
+      const inventoryBatches = batches.filter(b => b.status === 'STORED' || b.status === 'FULLY_SPLIT');
+      return inventoryBatches.sort((a, b) => {
+        if (a.id === b.parent_batch) return -1;
+        if (b.id === a.parent_batch) return 1;
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+    }
 
     if (activeTab === 'outgoing') {
       return transportRequests.filter(tr =>
         tr.status === 'PENDING' ||
         tr.status === 'ACCEPTED' ||
-        tr.status === 'IN_TRANSIT' ||
-        tr.status === 'IN_TRANSIT_TO_RETAILER'
+        tr.status.includes('IN_TRANSIT') ||
+        tr.status === 'ARRIVED' ||
+        tr.status === 'ARRIVAL_CONFIRMED'
       ).filter(tr => tr.from_party_details?.user_details?.username === user?.username);
     }
 
-    // For inventory, we want to show a hierarchy
-    const inventoryBatches = batches.filter(filterFn);
-
-    // Sort so parents come before children
-    return inventoryBatches.sort((a, b) => {
-      if (a.id === b.parent_batch) return -1;
-      if (b.id === a.parent_batch) return 1;
-      return new Date(b.created_at) - new Date(a.created_at);
-    });
+    return [];
   };
 
   const filteredItems = getFilteredContent();
@@ -285,48 +300,64 @@ const DistributorDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         <div className="flex items-center">
                           {item.is_child_batch && <ArrowRight className="w-3 h-3 mr-2 text-gray-400" />}
-                          {activeTab === 'outgoing'
-                            ? `TR-${item.id}`
-                            : item.product_batch_id}
+                          {item.batch_details
+                            ? `TR-${item.id} (${item.batch_details.product_batch_id})`
+                            : (item.product_batch_id || `TR-${item.id}`)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {activeTab === 'outgoing'
-                          ? item.batch_details?.crop_type
-                          : item.crop_type}
+                        {item.batch_details?.crop_type || item.crop_type}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {activeTab === 'outgoing'
+                        {activeTab === 'outgoing' || (activeTab === 'incoming' && item.batch_details)
                           ? item.to_party_details?.organization || item.to_party_details?.user_details?.username
                           : `${item.quantity} kg`}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${item.status === 'PENDING' ? 'bg-gray-100 text-gray-700' :
                           item.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-700' :
-                            item.status === 'SUSPENDED' ? 'bg-red-100 text-red-700' :
-                              item.status === 'FULLY_SPLIT' ? 'bg-purple-100 text-purple-700' :
-                                'bg-green-100 text-green-700'
+                            item.status.includes('IN_TRANSIT') ? 'bg-amber-100 text-amber-700' :
+                              item.status === 'ARRIVED_AT_DISTRIBUTOR' || item.status === 'ARRIVED' ? 'bg-indigo-100 text-indigo-700' :
+                                item.status === 'ARRIVAL_CONFIRMED_BY_DISTRIBUTOR' || item.status === 'ARRIVAL_CONFIRMED' ? 'bg-purple-100 text-purple-700' :
+                                  item.status === 'SUSPENDED' ? 'bg-red-100 text-red-700' :
+                                    item.status === 'FULLY_SPLIT' ? 'bg-purple-100 text-purple-700' :
+                                      'bg-green-100 text-green-700'
                           }`}>
                           {item.status?.replace(/_/g, ' ')}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {activeTab === 'incoming' && item.status === 'DELIVERED_TO_DISTRIBUTOR' && (
-                          <>
-                            <button
-                              onClick={() => handleStoreBatch(item.id)}
-                              className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 mr-2"
-                            >
-                              Store Batch
-                            </button>
-                            <button
-                              onClick={() => handleSuspendBatch(item.id)}
-                              className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
-                              title="Suspend Batch"
-                            >
-                              Suspend
-                            </button>
-                          </>
+                        {activeTab === 'incoming' && (
+                          <div className="flex gap-2">
+                            {(item.status === 'ARRIVED_AT_DISTRIBUTOR' || item.status === 'ARRIVED') && (
+                              <button
+                                onClick={() => handleConfirmArrival(item.id)}
+                                className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
+                              >
+                                Confirm Arrival
+                              </button>
+                            )}
+                            {item.status === 'DELIVERED_TO_DISTRIBUTOR' && (
+                              <button
+                                onClick={() => handleStoreBatch(item.id)}
+                                className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                              >
+                                Store Batch
+                              </button>
+                            )}
+                            {(item.status === 'ARRIVED' || item.status === 'ARRIVAL_CONFIRMED' || item.status.includes('IN_TRANSIT')) && (
+                              <span className="text-xs text-gray-500 italic">Tracking Transport</span>
+                            )}
+                            {item.status === 'DELIVERED_TO_DISTRIBUTOR' && (
+                              <button
+                                onClick={() => handleSuspendBatch(item.id)}
+                                className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 ml-2"
+                                title="Suspend Batch"
+                              >
+                                Suspend
+                              </button>
+                            )}
+                          </div>
                         )}
                         {activeTab === 'inventory' && item.status === 'STORED' && (
                           <>

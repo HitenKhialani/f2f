@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
+from django.utils import timezone
 from . import models, serializers
 from .batch_validators import BatchStatusTransitionValidator
 from .event_logger import log_batch_event
@@ -204,7 +205,6 @@ class TransportDeliverView(APIView):
                     status=status.HTTP_403_FORBIDDEN
                 )
         except AttributeError:
-            # Handle case where transporter is not yet assigned
             return Response(
                 {"success": False, "message": "Transport request not assigned to a transporter"},
                 status=status.HTTP_400_BAD_REQUEST
@@ -215,28 +215,38 @@ class TransportDeliverView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        
-        # Validation is handled by the delivery logic below which sets correct status based on destination
-        
-        # Update transport request
-        transport_request.status = 'DELIVERED'
-        transport_request.save()
-        
-        # Update batch status and owner based on destination
+        # Determine correct next status based on destination
         to_party_role = transport_request.to_party.role
-        
         if to_party_role == models.StakeholderRole.DISTRIBUTOR:
-            batch.status = models.BatchStatus.DELIVERED_TO_DISTRIBUTOR
+            next_status = models.BatchStatus.DELIVERED_TO_DISTRIBUTOR
             event_type = BatchEventType.DELIVERED_TO_DISTRIBUTOR
         elif to_party_role == models.StakeholderRole.RETAILER:
-            batch.status = models.BatchStatus.DELIVERED_TO_RETAILER
+            next_status = models.BatchStatus.DELIVERED_TO_RETAILER
             event_type = BatchEventType.DELIVERED_TO_RETAILER
         else:
             return Response(
                 {"success": False, "message": "Invalid destination role"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        # Validate status transition
+        can_transition, error_msg = BatchStatusTransitionValidator.can_transition(
+            batch, request.user, next_status
+        )
         
+        if not can_transition:
+            return Response(
+                {"success": False, "message": error_msg},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Update transport request
+        transport_request.status = 'DELIVERED'
+        transport_request.delivered_at = timezone.now()
+        transport_request.save()
+        
+        # Update batch status and owner
+        batch.status = next_status
         batch.current_owner = transport_request.to_party.user
         batch.save()
         
@@ -248,7 +258,7 @@ class TransportDeliverView(APIView):
             to_user=transport_request.to_party.user,
             event_type=event_type,
             user_performing_action=request.user,
-            reason=f"Delivery to {to_party_role}"
+            reason=f"Delivery to {to_party_role} confirmed by transporter after receiver arrival confirmation"
         )
         
         return Response({
@@ -257,6 +267,116 @@ class TransportDeliverView(APIView):
             "batch_status": batch.status,
             "new_owner": batch.current_owner.username
         }, status=status.HTTP_200_OK)
+
+
+class TransportArriveView(APIView):
+    """
+    Transporter marks shipment as arrived at destination.
+    Transitions status to ARRIVED.
+    """
+    def post(self, request, pk):
+        transport_request = get_object_or_404(models.TransportRequest, id=pk)
+        batch = transport_request.batch
+        
+        # Suspend guard
+        if batch.status == BatchStatus.SUSPENDED:
+            return Response(
+                {"success": False, "message": "This batch has been suspended"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Verify user is assigned transporter
+        if transport_request.transporter != request.user.stakeholderprofile:
+            return Response(
+                {"success": False, "message": "Only the assigned transporter can mark arrival"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        # Determine next batch status
+        to_party_role = transport_request.to_party.role
+        if to_party_role == models.StakeholderRole.DISTRIBUTOR:
+            next_status = models.BatchStatus.ARRIVED_AT_DISTRIBUTOR
+            event_type = BatchEventType.ARRIVED_AT_DISTRIBUTOR
+        elif to_party_role == models.StakeholderRole.RETAILER:
+            next_status = models.BatchStatus.ARRIVED_AT_RETAILER
+            event_type = BatchEventType.ARRIVED_AT_RETAILER
+        else:
+            return Response({"success": False, "message": "Invalid destination"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Validate transition
+        can, err = BatchStatusTransitionValidator.can_transition(batch, request.user, next_status)
+        if not can:
+            return Response({"success": False, "message": err}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Update
+        transport_request.status = 'ARRIVED'
+        transport_request.save()
+        
+        batch.status = next_status
+        batch.save()
+        
+        log_batch_event(batch=batch, event_type=event_type, user=request.user)
+        
+        return Response({
+            "success": True, 
+            "message": "Arrival marked", 
+            "batch_status": batch.status
+        })
+
+
+class TransportConfirmArrivalView(APIView):
+    """
+    Receiver confirms shipment arrival.
+    Transitions status to ARRIVAL_CONFIRMED.
+    """
+    def post(self, request, pk):
+        transport_request = get_object_or_404(models.TransportRequest, id=pk)
+        batch = transport_request.batch
+        
+        # Suspend guard
+        if batch.status == BatchStatus.SUSPENDED:
+            return Response(
+                {"success": False, "message": "This batch has been suspended"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Verify user is receiver
+        if transport_request.to_party != request.user.stakeholderprofile:
+            return Response(
+                {"success": False, "message": "Only the receiver can confirm arrival"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        # Determine next batch status
+        to_party_role = transport_request.to_party.role
+        if to_party_role == models.StakeholderRole.DISTRIBUTOR:
+            next_status = models.BatchStatus.ARRIVAL_CONFIRMED_BY_DISTRIBUTOR
+            event_type = BatchEventType.ARRIVAL_CONFIRMED_BY_DISTRIBUTOR
+        elif to_party_role == models.StakeholderRole.RETAILER:
+            next_status = models.BatchStatus.ARRIVAL_CONFIRMED_BY_RETAILER
+            event_type = BatchEventType.ARRIVAL_CONFIRMED_BY_RETAILER
+        else:
+            return Response({"success": False, "message": "Invalid destination"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Validate transition
+        can, err = BatchStatusTransitionValidator.can_transition(batch, request.user, next_status)
+        if not can:
+            return Response({"success": False, "message": err}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Update
+        transport_request.status = 'ARRIVAL_CONFIRMED'
+        transport_request.save()
+        
+        batch.status = next_status
+        batch.save()
+        
+        log_batch_event(batch=batch, event_type=event_type, user=request.user)
+        
+        return Response({
+            "success": True, 
+            "message": "Arrival confirmed by receiver", 
+            "batch_status": batch.status
+        })
 
 
 class TransportRejectView(APIView):

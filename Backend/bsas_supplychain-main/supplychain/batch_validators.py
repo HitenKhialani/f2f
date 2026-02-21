@@ -18,6 +18,12 @@ class BatchStatusTransitionValidator:
             StakeholderRole.TRANSPORTER: [BatchStatus.IN_TRANSIT_TO_DISTRIBUTOR],
         },
         BatchStatus.IN_TRANSIT_TO_DISTRIBUTOR: {
+            StakeholderRole.TRANSPORTER: [BatchStatus.ARRIVED_AT_DISTRIBUTOR],
+        },
+        BatchStatus.ARRIVED_AT_DISTRIBUTOR: {
+            StakeholderRole.DISTRIBUTOR: [BatchStatus.ARRIVAL_CONFIRMED_BY_DISTRIBUTOR],
+        },
+        BatchStatus.ARRIVAL_CONFIRMED_BY_DISTRIBUTOR: {
             StakeholderRole.TRANSPORTER: [BatchStatus.DELIVERED_TO_DISTRIBUTOR],
         },
         BatchStatus.DELIVERED_TO_DISTRIBUTOR: {
@@ -30,6 +36,12 @@ class BatchStatusTransitionValidator:
             StakeholderRole.TRANSPORTER: [BatchStatus.IN_TRANSIT_TO_RETAILER],
         },
         BatchStatus.IN_TRANSIT_TO_RETAILER: {
+            StakeholderRole.TRANSPORTER: [BatchStatus.ARRIVED_AT_RETAILER],
+        },
+        BatchStatus.ARRIVED_AT_RETAILER: {
+            StakeholderRole.RETAILER: [BatchStatus.ARRIVAL_CONFIRMED_BY_RETAILER],
+        },
+        BatchStatus.ARRIVAL_CONFIRMED_BY_RETAILER: {
             StakeholderRole.TRANSPORTER: [BatchStatus.DELIVERED_TO_RETAILER],
         },
         BatchStatus.DELIVERED_TO_RETAILER: {

@@ -65,6 +65,17 @@ const RetailerDashboard = () => {
     }
   };
 
+  const handleConfirmArrival = async (requestId) => {
+    try {
+      await transportAPI.confirmArrivalRequest(requestId);
+      alert('Arrival confirmed. The transporter can now mark the delivery as complete.');
+      fetchData();
+    } catch (error) {
+      console.error('Error confirming arrival:', error);
+      alert(error.response?.data?.message || 'Failed to confirm arrival');
+    }
+  };
+
   const getFilteredContent = () => {
     switch (activeTab) {
       case 'incoming':
@@ -210,11 +221,14 @@ const RetailerDashboard = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${activeTab === 'sold' ? 'bg-green-100 text-green-700' :
-                          activeTab === 'listed' ? 'bg-blue-100 text-blue-700' :
-                            item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
-                              item.status === 'LISTED' ? 'bg-blue-100 text-blue-700' :
-                                item.status === 'SUSPENDED' ? 'bg-red-100 text-red-700' :
-                                  'bg-yellow-100 text-yellow-700'
+                            activeTab === 'listed' ? 'bg-blue-100 text-blue-700' :
+                              item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
+                                item.status === 'LISTED' ? 'bg-blue-100 text-blue-700' :
+                                  item.status.includes('IN_TRANSIT') ? 'bg-amber-100 text-amber-700' :
+                                    item.status === 'ARRIVED_AT_RETAILER' || item.status === 'ARRIVED' ? 'bg-indigo-100 text-indigo-700' :
+                                      item.status === 'ARRIVAL_CONFIRMED_BY_RETAILER' || item.status === 'ARRIVAL_CONFIRMED' ? 'bg-purple-100 text-purple-700' :
+                                        item.status === 'SUSPENDED' ? 'bg-red-100 text-red-700' :
+                                          'bg-yellow-100 text-yellow-700'
                           }`}>
                           {activeTab === 'listed' ? 'LISTED FOR SALE' :
                             activeTab === 'sold' ? 'SOLD' :
@@ -223,7 +237,19 @@ const RetailerDashboard = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {activeTab === 'incoming' && (
-                          <span className="text-gray-500 italic">Incoming Delivery</span>
+                          <div className="flex gap-2">
+                            {(item.status === 'ARRIVED_AT_RETAILER' || item.status === 'ARRIVED') && (
+                              <button
+                                onClick={() => handleConfirmArrival(item.id)}
+                                className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
+                              >
+                                Confirm Arrival
+                              </button>
+                            )}
+                            {(item.status === 'ARRIVAL_CONFIRMED' || item.status.includes('IN_TRANSIT')) && (
+                              <span className="text-xs text-gray-500 italic">Tracking Transport</span>
+                            )}
+                          </div>
                         )}
                         {activeTab === 'received' && item.status === 'DELIVERED_TO_RETAILER' && (
                           <div className="flex gap-2">

@@ -220,7 +220,7 @@ const RetailerDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {activeTab === 'incoming'
                           ? item.batch_details?.crop_type
-                          : item.crop_type || item.batch?.crop_type || '-'}
+                          : item.batch_details?.crop_type || item.crop_type || item.batch?.crop_type || '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {activeTab === 'incoming'

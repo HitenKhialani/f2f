@@ -26,6 +26,7 @@ from supplychain.distributor_views import StoreBatchView, RequestTransportToReta
 from supplychain.retailer_views import MarkBatchSoldView
 from supplychain.suspend_views import SuspendBatchView
 from supplychain.bulk_split_views import BulkSplitBatchView
+from supplychain.farmer_dashboard_views import FarmerDashboardView
 
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet, basename="user")
@@ -74,6 +75,8 @@ urlpatterns = [
     path("api/batch/<int:batch_id>/suspend/", SuspendBatchView.as_view(), name="suspend-batch"),
     # Bulk Split Batch endpoint
     path("api/batch/<int:batch_id>/bulk-split/", BulkSplitBatchView.as_view(), name="bulk-split-batch"),
+    # Farmer Dashboard endpoint
+    path("api/dashboard/farmer/", FarmerDashboardView.as_view(), name="farmer-dashboard"),
 ]
 
 if settings.DEBUG:

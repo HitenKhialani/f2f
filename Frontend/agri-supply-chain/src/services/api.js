@@ -122,4 +122,9 @@ export const retailerAPI = {
   markSold: (batchId) => api.post(`/retailer/batch/${batchId}/mark-sold/`),
 };
 
+// Dashboard APIs
+export const dashboardAPI = {
+  getFarmerDashboard: () => api.get('/dashboard/farmer/'),
+};
+
 export default api;

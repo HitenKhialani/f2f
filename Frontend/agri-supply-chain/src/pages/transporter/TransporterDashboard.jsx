@@ -289,10 +289,10 @@ const TransporterDashboard = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="font-medium text-gray-900">
-                          {request.batch_details?.crop_type}
+                          {request.batch_details?.crop_type || 'N/A'}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {request.batch_details?.quantity} kg
+                          {request.batch_details?.quantity || '-'} kg
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">

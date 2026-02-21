@@ -24,17 +24,39 @@ const RetailerDashboard = () => {
   }, []);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
-      const [batchesRes, transportRes, listingsRes] = await Promise.all([
+      // Fetch each resource individually to prevent one failure from blocking others
+      const fetchResults = await Promise.allSettled([
         batchAPI.list(),
         transportAPI.list(),
         retailAPI.list(),
       ]);
-      setBatches(batchesRes.data);
-      setTransportRequests(transportRes.data);
-      setListings(listingsRes.data);
+
+      // Process results with safety checks and pagination support
+      if (fetchResults[0].status === 'fulfilled') {
+        const data = fetchResults[0].value.data;
+        setBatches(Array.isArray(data) ? data : data.results || []);
+      } else {
+        console.error('Failed to fetch batches:', fetchResults[0].reason);
+      }
+
+      if (fetchResults[1].status === 'fulfilled') {
+        const data = fetchResults[1].value.data;
+        // console.log('Transport Requests fetched:', data); // Debugging
+        setTransportRequests(Array.isArray(data) ? data : data.results || []);
+      } else {
+        console.error('Failed to fetch transport requests:', fetchResults[1].reason);
+      }
+
+      if (fetchResults[2].status === 'fulfilled') {
+        const data = fetchResults[2].value.data;
+        setListings(Array.isArray(data) ? data : data.results || []);
+      } else {
+        console.error('Failed to fetch listings:', fetchResults[2].reason);
+      }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Unexpected error in fetchData:', error);
     } finally {
       setLoading(false);
     }
@@ -80,16 +102,16 @@ const RetailerDashboard = () => {
     switch (activeTab) {
       case 'incoming':
         // Show transport requests where status is not DELIVERED
-        return transportRequests.filter(tr => tr.status !== 'DELIVERED');
+        return transportRequests.filter(tr => tr && tr.status !== 'DELIVERED');
       case 'received':
         // Show batches delivered to retailer but not yet listed
-        return batches.filter(b => b.status === 'DELIVERED_TO_RETAILER');
+        return batches.filter(b => b && b.status === 'DELIVERED_TO_RETAILER');
       case 'listed':
         // Show retail listings
-        return listings.filter(l => l.is_for_sale === true);
+        return listings.filter(l => l && l.is_for_sale === true);
       case 'sold':
         // Show retail listings that are sold
-        return listings.filter(l => l.is_for_sale === false);
+        return listings.filter(l => l && l.is_for_sale === false);
       default:
         return [];
     }
@@ -221,14 +243,14 @@ const RetailerDashboard = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${activeTab === 'sold' ? 'bg-green-100 text-green-700' :
-                            activeTab === 'listed' ? 'bg-blue-100 text-blue-700' :
-                              item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
-                                item.status === 'LISTED' ? 'bg-blue-100 text-blue-700' :
-                                  item.status.includes('IN_TRANSIT') ? 'bg-amber-100 text-amber-700' :
-                                    item.status === 'ARRIVED_AT_RETAILER' || item.status === 'ARRIVED' ? 'bg-indigo-100 text-indigo-700' :
-                                      item.status === 'ARRIVAL_CONFIRMED_BY_RETAILER' || item.status === 'ARRIVAL_CONFIRMED' ? 'bg-purple-100 text-purple-700' :
-                                        item.status === 'SUSPENDED' ? 'bg-red-100 text-red-700' :
-                                          'bg-yellow-100 text-yellow-700'
+                          activeTab === 'listed' ? 'bg-blue-100 text-blue-700' :
+                            item.status === 'SOLD' ? 'bg-green-100 text-green-700' :
+                              item.status === 'LISTED' ? 'bg-blue-100 text-blue-700' :
+                                item.status.includes('IN_TRANSIT') ? 'bg-amber-100 text-amber-700' :
+                                  item.status === 'ARRIVED_AT_RETAILER' || item.status === 'ARRIVED' ? 'bg-indigo-100 text-indigo-700' :
+                                    item.status === 'ARRIVAL_CONFIRMED_BY_RETAILER' || item.status === 'ARRIVAL_CONFIRMED' ? 'bg-purple-100 text-purple-700' :
+                                      item.status === 'SUSPENDED' ? 'bg-red-100 text-red-700' :
+                                        'bg-yellow-100 text-yellow-700'
                           }`}>
                           {activeTab === 'listed' ? 'LISTED FOR SALE' :
                             activeTab === 'sold' ? 'SOLD' :

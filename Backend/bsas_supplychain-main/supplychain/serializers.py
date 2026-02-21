@@ -78,8 +78,23 @@ class CropBatchSerializer(serializers.ModelSerializer):
             "created_at",
             "is_child_batch",
             "parent_batch",
+            "farmer_base_price_per_unit",
+            "distributor_margin_per_unit",
+            "total_transport_fees",
         ]
         read_only_fields = ["farmer", "product_batch_id", "public_batch_id", "qr_code_image", "qr_code_data", "created_at", "current_owner", "is_child_batch", "parent_batch"]
+
+    total_transport_fees = serializers.SerializerMethodField()
+
+    def get_total_transport_fees(self, obj):
+        fees = 0
+        current = obj
+        while current:
+            transports = models.TransportRequest.objects.filter(batch=current, status='DELIVERED')
+            for tr in transports:
+                fees += float(tr.transporter_fee_per_unit)
+            current = current.parent_batch
+        return fees
 
 
 
@@ -108,6 +123,7 @@ class TransportRequestSerializer(serializers.ModelSerializer):
             "pickup_at",
             "delivered_at",
             "delivery_proof",
+            "transporter_fee_per_unit",
         ]
 
 
@@ -153,7 +169,13 @@ class RetailListingSerializer(serializers.ModelSerializer):
             "is_for_sale",
             "created_at",
         ]
-        read_only_fields = ["created_at", "retailer"]
+        read_only_fields = [
+            "created_at", 
+            "retailer", 
+            "farmer_base_price", 
+            "transport_fees", 
+            "distributor_margin"
+        ]
     
     def get_total_price(self, obj):
         return float(obj.total_price)

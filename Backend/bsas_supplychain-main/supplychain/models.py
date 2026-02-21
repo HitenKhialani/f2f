@@ -114,6 +114,11 @@ class CropBatch(models.Model):
     quality_test_report = models.FileField(
         upload_to="reports/", blank=True, null=True
     )
+    
+    # Linear Pricing Fields
+    farmer_base_price_per_unit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    distributor_margin_per_unit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -230,6 +235,10 @@ class TransportRequest(models.Model):
     delivery_proof = models.FileField(
         upload_to="delivery_proofs/", blank=True, null=True
     )
+    
+    # Linear Pricing Fields
+    transporter_fee_per_unit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:

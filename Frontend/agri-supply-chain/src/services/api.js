@@ -76,7 +76,7 @@ export const transportAPI = {
   update: (id, data) => api.patch(`/transport-requests/${id}/`, data),
   // New transport workflow endpoints
   createRequest: (data) => api.post('/transport/request/', data),
-  acceptRequest: (id) => api.post(`/transport/${id}/accept/`),
+  acceptRequest: (id, data) => api.post(`/transport/${id}/accept/`, data),
   arriveRequest: (id) => api.post(`/transport/${id}/arrive/`),
   confirmArrivalRequest: (id) => api.post(`/transport/${id}/confirm-arrival/`),
   deliverRequest: (id) => api.post(`/transport/${id}/deliver/`),
@@ -113,7 +113,7 @@ export const consumerAPI = {
 
 // Distributor APIs
 export const distributorAPI = {
-  storeBatch: (batchId) => api.post(`/distributor/batch/${batchId}/store/`),
+  storeBatch: (batchId, data) => api.post(`/distributor/batch/${batchId}/store/`, data),
   requestTransportToRetailer: (data) => api.post('/distributor/transport/request-to-retailer/', data),
 };
 

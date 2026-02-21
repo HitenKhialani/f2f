@@ -1,0 +1,10 @@
+User: retailer01
+Queryset count: 8
+TR-2 status: DELIVERED, To: retailer01
+TR-4 status: DELIVERED, To: retailer01
+TR-5 status: DELIVERED, To: retailer01
+TR-6 status: DELIVERED, To: retailer01
+TR-7 status: ARRIVED, To: retailer01
+TR-9 status: DELIVERED, To: retailer01
+TR-12 status: PENDING, To: retailer01
+TR-14 status: ARRIVED, To: retailer01

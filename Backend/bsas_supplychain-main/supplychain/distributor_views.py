@@ -73,7 +73,14 @@ class StoreBatchView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Update status
+        # Update status and margin
+        print(f"DEBUG: StoreBatchView request.data={request.data}")
+        margin = request.data.get('distributor_margin_per_unit', 0)
+        try:
+            batch.distributor_margin_per_unit = float(margin)
+        except (ValueError, TypeError):
+            batch.distributor_margin_per_unit = 0
+            
         batch.status = BatchStatus.STORED
         batch.save()
         

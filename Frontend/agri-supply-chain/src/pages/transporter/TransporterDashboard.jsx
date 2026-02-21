@@ -23,6 +23,9 @@ const TransporterDashboard = () => {
     completed: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [showAcceptModal, setShowAcceptModal] = useState(false);
+  const [transportFee, setTransportFee] = useState('0.00');
+  const [activeRequest, setActiveRequest] = useState(null);
 
   useEffect(() => {
     fetchRequests();
@@ -68,10 +71,14 @@ const TransporterDashboard = () => {
     }
   };
 
-  const handleStatusUpdate = async (id, newStatus) => {
+  const handleStatusUpdate = async (id, newStatus, extraData = {}) => {
     try {
       if (newStatus === 'ACCEPTED') {
-        await transportAPI.acceptRequest(id);
+        const transportFeeVal = parseFloat(extraData.transporter_fee_per_unit || 0);
+        await transportAPI.acceptRequest(id, { transporter_fee_per_unit: transportFeeVal });
+        setShowAcceptModal(false);
+        setActiveRequest(null);
+        setTransportFee('0.00');
       } else if (newStatus === 'ARRIVED') {
         await transportAPI.arriveRequest(id);
       } else if (newStatus === 'DELIVERED') {
@@ -308,12 +315,12 @@ const TransporterDashboard = () => {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${request.status === 'PENDING' ? 'bg-gray-100 text-gray-700' :
-                            request.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-700' :
-                              request.status.includes('IN_TRANSIT') ? 'bg-amber-100 text-amber-700' :
-                                request.status === 'ARRIVED' ? 'bg-indigo-100 text-indigo-700' :
-                                  request.status === 'ARRIVAL_CONFIRMED' ? 'bg-purple-100 text-purple-700' :
-                                    request.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
-                                      'bg-red-100 text-red-700'
+                          request.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-700' :
+                            request.status.includes('IN_TRANSIT') ? 'bg-amber-100 text-amber-700' :
+                              request.status === 'ARRIVED' ? 'bg-indigo-100 text-indigo-700' :
+                                request.status === 'ARRIVAL_CONFIRMED' ? 'bg-purple-100 text-purple-700' :
+                                  request.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
+                                    'bg-red-100 text-red-700'
                           }`}>
                           {request.status?.replace(/_/g, ' ')}
                         </span>
@@ -323,7 +330,10 @@ const TransporterDashboard = () => {
                           {request.status === 'PENDING' && (
                             <>
                               <button
-                                onClick={() => handleStatusUpdate(request.id, 'ACCEPTED')}
+                                onClick={() => {
+                                  setActiveRequest(request);
+                                  setShowAcceptModal(true);
+                                }}
                                 className="px-3 py-1 bg-primary text-white text-xs rounded hover:bg-primary/90"
                               >
                                 Accept
@@ -365,6 +375,58 @@ const TransporterDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Accept Transport Modal */}
+      {showAcceptModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold mb-2">Accept Transport Request</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Batch: <span className="font-mono">{activeRequest?.batch_details?.product_batch_id}</span>
+            </p>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Transport Fee per Unit (₹)
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-2 text-gray-500">₹</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={transportFee}
+                  onChange={(e) => setTransportFee(e.target.value)}
+                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                  placeholder="0.00"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2 italic">
+                This fee will be added to the total transport costs of the batch.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowAcceptModal(false);
+                  setActiveRequest(null);
+                  setTransportFee('0.00');
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleStatusUpdate(activeRequest.id, 'ACCEPTED', { transporter_fee_per_unit: transportFee })}
+                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+              >
+                Accept & Confirm Fee
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 };

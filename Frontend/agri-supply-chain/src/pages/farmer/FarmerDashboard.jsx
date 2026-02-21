@@ -35,6 +35,7 @@ const FarmerDashboard = () => {
     quantity: '',
     harvest_date: '',
     farm_location: '',
+    farmer_base_price_per_unit: '',
   });
 
   useEffect(() => {
@@ -110,12 +111,12 @@ const FarmerDashboard = () => {
     e.preventDefault();
     try {
       // Create payload matching the serializer fields
-      // farm_location is not in the CreateBatchSerializer/Model yet, so we exclude it to prevent 400 errors
       const payload = {
         crop_type: formData.crop_type,
         quantity: formData.quantity,
         harvest_date: formData.harvest_date,
-        // farm_location: formData.farm_location // Excluded until backend model update
+        farm_location: formData.farm_location,
+        farmer_base_price_per_unit: formData.farmer_base_price_per_unit
       };
 
       await batchAPI.create(payload);
@@ -125,6 +126,7 @@ const FarmerDashboard = () => {
         quantity: '',
         harvest_date: '',
         farm_location: '',
+        farmer_base_price_per_unit: '',
       });
 
       fetchBatches();
@@ -256,6 +258,19 @@ const FarmerDashboard = () => {
                       onChange={(e) => setFormData({ ...formData, farm_location: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       placeholder="Village, District, State"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Base Price per Unit (₹) *</label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      step="0.01"
+                      value={formData.farmer_base_price_per_unit}
+                      onChange={(e) => setFormData({ ...formData, farmer_base_price_per_unit: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      placeholder="e.g., 25.50"
                     />
                   </div>
                 </div>

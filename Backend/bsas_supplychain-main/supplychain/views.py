@@ -144,7 +144,9 @@ class BatchSplitViewSet(viewsets.ModelViewSet):
             status=models.BatchStatus.STORED,
             harvest_date=parent_batch.harvest_date,
             is_child_batch=True,
-            parent_batch=parent_batch
+            parent_batch=parent_batch,
+            farmer_base_price_per_unit=parent_batch.farmer_base_price_per_unit,
+            distributor_margin_per_unit=parent_batch.distributor_margin_per_unit
         )
         
         # Create the batch split record linking parent to child
@@ -154,7 +156,6 @@ class BatchSplitViewSet(viewsets.ModelViewSet):
 class RetailListingViewSet(viewsets.ModelViewSet):
     queryset = models.RetailListing.objects.select_related("batch", "retailer").all()
     serializer_class = serializers.RetailListingSerializer
-    
     def perform_create(self, serializer):
         # Get the retailer's profile from the current user
         try:
@@ -163,14 +164,48 @@ class RetailListingViewSet(viewsets.ModelViewSet):
                 from rest_framework.exceptions import ValidationError
                 raise ValidationError("Only retailers can create listings")
             
-            # Suspend guard
+            # Calculate pricing components from upstream
             batch = serializer.validated_data.get('batch')
-            if batch and batch.status == BatchStatus.SUSPENDED:
-                from rest_framework.exceptions import ValidationError
+            if not batch:
+                 raise ValidationError("Batch is required")
+            
+            # Suspend guard
+            if batch.status == BatchStatus.SUSPENDED:
                 raise ValidationError("This batch has been suspended and cannot proceed further.")
             
-            # Save the listing
-            listing = serializer.save(retailer=retailer_profile)
+            # 1. Farmer Base Price
+            farmer_base_price = batch.farmer_base_price_per_unit
+            
+            # 2. Distributor Margin
+            distributor_margin = batch.distributor_margin_per_unit
+            
+            # 3. Transport Fees (Cumulative over batch lineage)
+            transport_fees = 0
+            current_lookup_batch = batch
+            while current_lookup_batch:
+                # Get all completed transport requests for this batch
+                batch_transports = models.TransportRequest.objects.filter(
+                    batch=current_lookup_batch,
+                    status='DELIVERED'
+                )
+                for tr in batch_transports:
+                    transport_fees += tr.transporter_fee_per_unit
+                
+                # If this is a child batch, traverse to parent to catch earlier transport legs
+                current_lookup_batch = current_lookup_batch.parent_batch
+            
+            # 4. Retailer Margin
+            # retailer_margin is handled via serializer data
+            retailer_margin = serializer.validated_data.get('retailer_margin', 0)
+            
+            # Save the listing with frozen upstream prices
+            listing = serializer.save(
+                retailer=retailer_profile,
+                farmer_base_price=farmer_base_price,
+                transport_fees=transport_fees,
+                distributor_margin=distributor_margin,
+                retailer_margin=retailer_margin
+            )
             
             try:
                 # Update batch status to LISTED

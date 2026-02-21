@@ -30,6 +30,8 @@ const DistributorDashboard = () => {
   const [showSplitModal, setShowSplitModal] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [selectedRetailer, setSelectedRetailer] = useState('');
+  const [showStoreModal, setShowStoreModal] = useState(false);
+  const [storeMargin, setStoreMargin] = useState('0.00');
   const [splitData, setSplitData] = useState({
     splits: [
       { label: '', quantity: '' }
@@ -58,10 +60,18 @@ const DistributorDashboard = () => {
     }
   };
 
-  const handleStoreBatch = async (batchId) => {
+  const handleStoreBatch = async () => {
     try {
-      await distributorAPI.storeBatch(batchId);
+      const distributorMargin = parseFloat(storeMargin);
+      if (isNaN(distributorMargin)) {
+        alert('Please enter a valid numeric margin');
+        return;
+      }
+      await distributorAPI.storeBatch(selectedBatch.id, { distributor_margin_per_unit: distributorMargin });
       alert('Batch stored successfully');
+      setShowStoreModal(false);
+      setSelectedBatch(null);
+      setStoreMargin('0.00');
       fetchData();
     } catch (error) {
       console.error('Error storing batch:', error);
@@ -339,7 +349,10 @@ const DistributorDashboard = () => {
                             )}
                             {item.status === 'DELIVERED_TO_DISTRIBUTOR' && (
                               <button
-                                onClick={() => handleStoreBatch(item.id)}
+                                onClick={() => {
+                                  setSelectedBatch(item);
+                                  setShowStoreModal(true);
+                                }}
                                 className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
                               >
                                 Store Batch
@@ -446,6 +459,55 @@ const DistributorDashboard = () => {
                   className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
                 >
                   Send Request
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Store Batch Modal */}
+        {showStoreModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-lg font-semibold mb-4">Store Batch: {selectedBatch?.product_batch_id}</h3>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Storage Margin per Unit (₹)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2 text-gray-500">₹</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={storeMargin}
+                    onChange={(e) => setStoreMargin(e.target.value)}
+                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="0.00"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-2 italic">
+                  This margin will be added to the final retail price.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowStoreModal(false);
+                    setSelectedBatch(null);
+                    setStoreMargin('0.00');
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleStoreBatch}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  Store Batch
                 </button>
               </div>
             </div>

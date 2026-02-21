@@ -1,0 +1,20 @@
+=== User and Profile for retailer01 ===
+User ID: 5, Username: retailer01
+Profile ID: 5, Role: retailer, Org: 'retail 01 '
+
+=== Transport Request 14 Details ===
+TR ID: 14, Status: ARRIVED
+To Party Profile ID: 5
+To Party User ID: 5
+To Party Username: retailer01
+
+=== Query Test ===
+Query found 8 requests for profile 5
+- TR 2 status DELIVERED
+- TR 4 status DELIVERED
+- TR 5 status DELIVERED
+- TR 6 status DELIVERED
+- TR 7 status ARRIVED
+- TR 9 status DELIVERED
+- TR 12 status PENDING
+- TR 14 status ARRIVED

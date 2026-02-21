@@ -154,7 +154,14 @@ class TransportAcceptView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Update transport request
+        # Update transport request with fee
+        print(f"DEBUG: TransportAcceptView request.data={request.data}")
+        fee = request.data.get('transporter_fee_per_unit', 0)
+        try:
+            transport_request.transporter_fee_per_unit = float(fee)
+        except (ValueError, TypeError):
+            transport_request.transporter_fee_per_unit = 0
+            
         transport_request.transporter = user_profile
         transport_request.status = 'ACCEPTED'
         transport_request.save()

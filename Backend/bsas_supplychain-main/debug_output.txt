@@ -1,0 +1,22 @@
+=== Stakeholder Profiles ===
+ID: 1, User: farmer01, Role: farmer, Org: farm 01
+ID: 2, User: hit01, Role: admin, Org: System Admin
+ID: 3, User: distributor01, Role: distributor, Org: dist comp
+ID: 4, User: transporter01, Role: transporter, Org: transport comp
+ID: 5, User: retailer01, Role: retailer, Org: retail 01 
+ID: 6, User: consumer01, Role: consumer, Org: 
+ID: 7, User: dist_test1, Role: distributor, Org: Test Dist
+ID: 8, User: farmer_test1, Role: farmer, Org: 
+
+=== Transport Requests (Arrived) ===
+ID: 14, Batch: BATCH-20260221-18043748, From: dist comp, To: retail 01 , Status: ARRIVED
+
+=== Transport Requests for retailer01 ===
+ID: 2, Batch: BATCH-2A314271, From: dist comp, Status: DELIVERED
+ID: 4, Batch: BATCH-2F9B0F0B, From: dist comp, Status: DELIVERED
+ID: 5, Batch: BATCH-6C7A0232, From: dist comp, Status: DELIVERED
+ID: 6, Batch: BATCH-D8BCDA02, From: dist comp, Status: DELIVERED
+ID: 7, Batch: BATCH-20260221-6D0D44C7, From: dist comp, Status: PENDING
+ID: 9, Batch: BATCH-20260221-B744F3A6, From: dist comp, Status: DELIVERED
+ID: 12, Batch: BATCH-20260221-652813C8, From: dist comp, Status: PENDING
+ID: 14, Batch: BATCH-20260221-18043748, From: dist comp, Status: ARRIVED

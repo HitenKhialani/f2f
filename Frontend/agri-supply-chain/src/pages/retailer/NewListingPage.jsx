@@ -13,9 +13,9 @@ const NewListingPage = () => {
     const [submitting, setSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         batch: '',
-        farmer_base_price: '',
-        transport_fees: '',
-        distributor_margin: '',
+        farmer_base_price: 0,
+        transport_fees: 0,
+        distributor_margin: 0,
         retailer_margin: '',
     });
 
@@ -38,13 +38,37 @@ const NewListingPage = () => {
         }
     };
 
+    const handleBatchChange = (e) => {
+        const batchId = e.target.value;
+        const selected = batches.find(b => b.id.toString() === batchId.toString());
+
+        if (selected) {
+            setFormData({
+                ...formData,
+                batch: batchId,
+                farmer_base_price: Number(selected.farmer_base_price_per_unit) || 0,
+                transport_fees: Number(selected.total_transport_fees) || 0,
+                distributor_margin: Number(selected.distributor_margin_per_unit) || 0,
+            });
+        } else {
+            setFormData({
+                ...formData,
+                batch: '',
+                farmer_base_price: 0,
+                transport_fees: 0,
+                distributor_margin: 0,
+            });
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
 
         try {
             await retailAPI.create({
-                ...formData,
+                batch: formData.batch,
+                retailer_margin: formData.retailer_margin,
                 is_for_sale: true,
             });
             alert('Listing created successfully!');
@@ -102,7 +126,7 @@ const NewListingPage = () => {
                             </label>
                             <select
                                 value={formData.batch}
-                                onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
+                                onChange={handleBatchChange}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                                 required
                             >
@@ -121,65 +145,52 @@ const NewListingPage = () => {
                         </div>
 
                         {/* Price Breakdown */}
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Farmer Base Price (₹) <span className="text-red-500">*</span>
+                        <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
+                                    Farmer Base Price (₹)
                                 </label>
-                                <input
-                                    type="number"
-                                    value={formData.farmer_base_price}
-                                    onChange={(e) => setFormData({ ...formData, farmer_base_price: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                                    placeholder="0.00"
-                                    step="0.01"
-                                    required
-                                />
+                                <div className="text-lg font-bold text-gray-700">
+                                    ₹{Number(formData.farmer_base_price || 0).toFixed(2)}
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-1">Locked (Set by Farmer)</p>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Transport Fees (₹) <span className="text-red-500">*</span>
+                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
+                                    Total Transport Fees (₹)
                                 </label>
-                                <input
-                                    type="number"
-                                    value={formData.transport_fees}
-                                    onChange={(e) => setFormData({ ...formData, transport_fees: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                                    placeholder="0.00"
-                                    step="0.01"
-                                    required
-                                />
+                                <div className="text-lg font-bold text-gray-700">
+                                    ₹{Number(formData.transport_fees || 0).toFixed(2)}
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-1">Locked (Accumulated from all legs)</p>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Distributor Margin (₹) <span className="text-red-500">*</span>
+                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
+                                    Distributor Margin (₹)
                                 </label>
-                                <input
-                                    type="number"
-                                    value={formData.distributor_margin}
-                                    onChange={(e) => setFormData({ ...formData, distributor_margin: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                                    placeholder="0.00"
-                                    step="0.01"
-                                    required
-                                />
+                                <div className="text-lg font-bold text-gray-700">
+                                    ₹{Number(formData.distributor_margin || 0).toFixed(2)}
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-1">Locked (Set by Distributor)</p>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Retailer Margin (₹) <span className="text-red-500">*</span>
+                            <div className="bg-white p-3 rounded-lg border-2 border-primary/30 ring-1 ring-primary/10 shadow-sm">
+                                <label className="block text-xs font-bold text-primary uppercase mb-1">
+                                    Your Retailer Margin (₹) *
                                 </label>
                                 <input
                                     type="number"
                                     value={formData.retailer_margin}
                                     onChange={(e) => setFormData({ ...formData, retailer_margin: e.target.value })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                                    className="w-full px-2 py-1 text-lg font-bold text-gray-900 border-none focus:ring-0 focus:outline-none bg-transparent"
                                     placeholder="0.00"
                                     step="0.01"
                                     required
+                                    min="0"
                                 />
+                                <p className="text-[10px] text-primary/70 mt-1 font-medium italic">Adjust your margin here</p>
                             </div>
                         </div>
 

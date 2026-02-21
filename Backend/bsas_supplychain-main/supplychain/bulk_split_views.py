@@ -118,6 +118,8 @@ class BulkSplitBatchView(APIView):
                         crop_type=parent_batch.crop_type,
                         quantity=split_info['quantity'],
                         harvest_date=parent_batch.harvest_date,
+                        farmer_base_price_per_unit=parent_batch.farmer_base_price_per_unit,
+                        distributor_margin_per_unit=parent_batch.distributor_margin_per_unit,
                     )
                     
                     # Create split record

@@ -60,6 +60,7 @@ const LandingPage = () => {
               <a href="#features" className="text-gray-600 hover:text-primary font-medium transition-colors">Features</a>
               <a href="#crops" className="text-gray-600 hover:text-primary font-medium transition-colors">Crops</a>
               <a href="#stats" className="text-gray-600 hover:text-primary font-medium transition-colors">Impact</a>
+              <Link to="/consumer/portal" className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors">Browse Produce</Link>
             </div>
             <div className="flex items-center space-x-4">
               <Link to="/login" className="text-primary font-semibold hover:opacity-80 transition-opacity">
@@ -93,8 +94,8 @@ const LandingPage = () => {
                   Get Started
                   <ChevronRight className="inline-block w-5 h-5 ml-1" />
                 </Link>
-                <Link to="/consumer/trace" className="btn-secondary text-center text-lg px-8 py-4">
-                  Trace a Crop
+                <Link to="/consumer/portal" className="btn-secondary text-center text-lg px-8 py-4">
+                  Browse Produce
                 </Link>
               </div>
               <div className="pt-8 border-t border-gray-200">
@@ -182,8 +183,8 @@ const LandingPage = () => {
             <Link to="/role-selection" className="bg-white text-primary px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors text-lg">
               Register Now
             </Link>
-            <Link to="/consumer/trace" className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-colors text-lg">
-              Trace a Crop
+            <Link to="/consumer/portal" className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-colors text-lg">
+              Browse Produce
             </Link>
           </div>
         </div>

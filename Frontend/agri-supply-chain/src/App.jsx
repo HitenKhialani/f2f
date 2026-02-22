@@ -10,6 +10,7 @@ import LandingPage from './pages/public/LandingPage';
 import RoleSelection from './pages/public/RoleSelection';
 import LoginPage from './pages/public/LoginPage';
 import ConsumerTrace from './pages/public/ConsumerTrace';
+import ConsumerPortal from './pages/public/ConsumerPortal';
 
 // Auth Pages
 import RegistrationPage from './pages/auth/RegistrationPage';
@@ -103,6 +104,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/role-selection" element={<PublicRoute><RoleSelection /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/consumer/portal" element={<ConsumerPortal />} />
         <Route path="/consumer/trace" element={<ConsumerTrace />} />
         <Route path="/trace/:publicId" element={<ConsumerTrace />} />
 

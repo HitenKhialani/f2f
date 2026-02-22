@@ -147,6 +147,9 @@ pip install -r requirements.txt
 # Apply database migrations
 python manage.py migrate
 
+# Apply seed data
+python manage.py seed_data
+
 # (Optional) Create a superuser for Django admin
 python manage.py createsuperuser
 ```

@@ -96,22 +96,205 @@ class TransportRequestViewSet(viewsets.ModelViewSet):
         ).distinct()
 
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+
+
 class InspectionReportViewSet(viewsets.ModelViewSet):
-    queryset = models.InspectionReport.objects.select_related("batch", "distributor").all()
+    queryset = models.InspectionReport.objects.select_related(
+        "batch", "created_by", "distributor"
+    ).all()
     serializer_class = serializers.InspectionReportSerializer
     permission_classes = [IsAuthenticated]
-    
-    def perform_create(self, serializer):
-        # Verify user is distributor
+    http_method_names = ['get', 'post', 'head', 'options']  # Disable PUT, PATCH, DELETE
+
+    def get_queryset(self):
+        user = self.request.user
         try:
-            distributor_profile = self.request.user.stakeholderprofile
-            if distributor_profile.role != models.StakeholderRole.DISTRIBUTOR:
-                raise ValidationError("Only distributors can create inspection reports")
+            profile = user.stakeholderprofile
+        except models.StakeholderProfile.DoesNotExist:
+            return models.InspectionReport.objects.none()
+
+        if profile.role == models.StakeholderRole.ADMIN:
+            return models.InspectionReport.objects.all()
+
+        # Users see inspections for batches they are related to
+        return models.InspectionReport.objects.filter(
+            Q(batch__farmer=profile) |
+            Q(batch__transport_requests__transporter=profile) |
+            Q(batch__transport_requests__from_party=profile) |
+            Q(batch__transport_requests__to_party=profile) |
+            Q(batch__current_owner=user) |
+            Q(created_by=user)
+        ).distinct()
+
+    def _get_user_stage(self, profile):
+        """Map stakeholder role to inspection stage."""
+        stage_map = {
+            models.StakeholderRole.FARMER: models.InspectionStage.FARMER,
+            models.StakeholderRole.TRANSPORTER: models.InspectionStage.TRANSPORTER,
+            models.StakeholderRole.DISTRIBUTOR: models.InspectionStage.DISTRIBUTOR,
+            models.StakeholderRole.RETAILER: models.InspectionStage.RETAILER,
+        }
+        return stage_map.get(profile.role)
+
+    def _can_inspect_at_stage(self, profile, batch, stage):
+        """Check if user can inspect at the given stage based on batch status and user role."""
+        role = profile.role
+        batch_status = batch.status
+
+        if role == models.StakeholderRole.FARMER and stage == models.InspectionStage.FARMER:
+            # Farmer can inspect their own batches at CREATED status
+            return batch.farmer == profile and batch_status == models.BatchStatus.CREATED
+
+        if role == models.StakeholderRole.TRANSPORTER and stage == models.InspectionStage.TRANSPORTER:
+            # Transporter can inspect during transport
+            assigned_transports = models.TransportRequest.objects.filter(
+                batch=batch,
+                transporter=profile,
+                status__in=['ACCEPTED', 'IN_TRANSIT', 'ARRIVED']
+            )
+            return assigned_transports.exists()
+
+        if role == models.StakeholderRole.DISTRIBUTOR and stage == models.InspectionStage.DISTRIBUTOR:
+            # Distributor can inspect after receiving batch
+            return (
+                batch_status in [
+                    models.BatchStatus.ARRIVED_AT_DISTRIBUTOR,
+                    models.BatchStatus.ARRIVAL_CONFIRMED_BY_DISTRIBUTOR,
+                    models.BatchStatus.DELIVERED_TO_DISTRIBUTOR,
+                    models.BatchStatus.STORED,
+                ] and
+                models.TransportRequest.objects.filter(
+                    batch=batch,
+                    to_party=profile,
+                    status='DELIVERED'
+                ).exists()
+            )
+
+        if role == models.StakeholderRole.RETAILER and stage == models.InspectionStage.RETAILER:
+            # Retailer can inspect after receiving batch
+            return (
+                batch_status in [
+                    models.BatchStatus.ARRIVED_AT_RETAILER,
+                    models.BatchStatus.ARRIVAL_CONFIRMED_BY_RETAILER,
+                    models.BatchStatus.DELIVERED_TO_RETAILER,
+                    models.BatchStatus.LISTED,
+                ] and
+                models.TransportRequest.objects.filter(
+                    batch=batch,
+                    to_party=profile,
+                    status='DELIVERED'
+                ).exists()
+            )
+
+        return False
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        try:
+            profile = user.stakeholderprofile
         except models.StakeholderProfile.DoesNotExist:
             raise ValidationError("User profile not found")
-        
-        # Save with distributor
-        serializer.save(distributor=distributor_profile)
+
+        # Get stage from request data or derive from role
+        stage = self.request.data.get('stage')
+        if not stage:
+            stage = self._get_user_stage(profile)
+            if not stage:
+                raise ValidationError("Cannot determine inspection stage for your role")
+
+        # Verify the user's role matches the stage
+        expected_stage = self._get_user_stage(profile)
+        if stage != expected_stage:
+            raise ValidationError(f"As a {profile.role}, you can only create inspections for stage: {expected_stage}")
+
+        # Get the batch
+        batch_id = self.request.data.get('batch')
+        if not batch_id:
+            raise ValidationError("Batch ID is required")
+
+        try:
+            batch = models.CropBatch.objects.get(id=batch_id)
+        except models.CropBatch.DoesNotExist:
+            raise ValidationError("Batch not found")
+
+        # Check authorization for this stage and batch
+        if not self._can_inspect_at_stage(profile, batch, stage):
+            raise ValidationError(
+                f"You are not authorized to perform inspection at '{stage}' stage for this batch"
+            )
+
+        # Set passed field based on result
+        result = self.request.data.get('result', models.InspectionResult.PASS)
+        passed = result == models.InspectionResult.PASS
+
+        # Save inspection report
+        inspection = serializer.save(
+            created_by=user,
+            distributor=profile if profile.role == models.StakeholderRole.DISTRIBUTOR else None,
+            stage=stage,
+            passed=passed
+        )
+
+        # Log the inspection event
+        event_type = (
+            models.BatchEventType.INSPECTION_PASSED
+            if passed
+            else models.BatchEventType.INSPECTION_FAILED
+        )
+        log_batch_event(
+            batch=batch,
+            event_type=event_type,
+            user=user,
+            metadata={
+                'stage': stage,
+                'result': result,
+                'inspection_id': inspection.id,
+            }
+        )
+
+        return inspection
+
+    @action(detail=False, methods=['get'], url_path='batch/(?P<batch_id>[^/.]+)')
+    def batch_timeline(self, request, batch_id=None):
+        """
+        Get inspection timeline for a specific batch.
+        Ordered by created_at ascending for QR consumer timeline display.
+        Accepts both database id and product_batch_id.
+        """
+        try:
+            # Try to get batch by database id first, then by product_batch_id
+            try:
+                batch = models.CropBatch.objects.get(id=batch_id)
+            except (models.CropBatch.DoesNotExist, ValueError):
+                # If id lookup fails, try product_batch_id
+                batch = models.CropBatch.objects.get(product_batch_id=batch_id)
+        except models.CropBatch.DoesNotExist:
+            return Response(
+                {"error": "Batch not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Get all inspections for this batch, ordered by timestamp
+        inspections = models.InspectionReport.objects.filter(
+            batch=batch
+        ).order_by('created_at')
+
+        # Serialize with limited fields for public timeline
+        data = []
+        for inspection in inspections:
+            data.append({
+                "stage": inspection.stage,
+                "result": inspection.result,
+                "inspection_notes": inspection.inspection_notes,
+                "created_by": inspection.created_by.username if inspection.created_by else None,
+                "created_at": inspection.created_at.isoformat(),
+                "report_file": inspection.report_file.url if inspection.report_file else None,
+            })
+
+        return Response(data)
 
 
 class BatchSplitViewSet(viewsets.ModelViewSet):

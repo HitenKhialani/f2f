@@ -88,6 +88,7 @@ export const inspectionAPI = {
   list: () => api.get('/inspection-reports/'),
   create: (data) => api.post('/inspection-reports/', data),
   get: (id) => api.get(`/inspection-reports/${id}/`),
+  getBatchTimeline: (batchId) => api.get(`/inspection-reports/batch/${batchId}/`),
 };
 
 // Retail APIs

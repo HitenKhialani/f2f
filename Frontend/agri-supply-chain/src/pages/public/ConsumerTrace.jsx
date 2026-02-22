@@ -11,7 +11,8 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
-import { consumerAPI } from '../../services/api';
+import { consumerAPI, inspectionAPI } from '../../services/api';
+import { InspectionTimeline } from '../../components/inspection';
 
 const ConsumerTrace = () => {
   const { publicId } = useParams();
@@ -20,6 +21,8 @@ const ConsumerTrace = () => {
   const [searchResult, setSearchResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [inspections, setInspections] = useState([]);
+  const [loadingInspections, setLoadingInspections] = useState(false);
 
   useEffect(() => {
     if (publicId) {
@@ -30,15 +33,33 @@ const ConsumerTrace = () => {
   const performTrace = async (id) => {
     setLoading(true);
     setError(null);
+    setInspections([]);
     try {
       const response = await consumerAPI.traceBatch(id);
       setSearchResult(response.data);
+      // Fetch inspections for this batch
+      if (response.data?.batch_id) {
+        fetchInspections(response.data.batch_id);
+      }
     } catch (err) {
       console.error('Error tracing batch:', err);
       setError(err.response?.data?.message || 'Batch not found. Please verify the ID.');
       setSearchResult(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchInspections = async (batchId) => {
+    try {
+      setLoadingInspections(true);
+      const response = await inspectionAPI.getBatchTimeline(batchId);
+      setInspections(response.data);
+    } catch (err) {
+      console.log('No inspections available for this batch');
+      setInspections([]);
+    } finally {
+      setLoadingInspections(false);
     }
   };
 
@@ -296,6 +317,20 @@ const ConsumerTrace = () => {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* F. INSPECTION TIMELINE SECTION */}
+        <section className="bg-white p-10 rounded-3xl shadow-sm border border-gray-100">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+              <ClipboardCheck className="w-5 h-5 text-green-600" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900">Quality Inspections</h2>
+          </div>
+          <InspectionTimeline 
+            batchId={searchResult.batch_id}
+            inspections={inspections}
+          />
         </section>
 
         {/* E. VERIFICATION BADGE */}

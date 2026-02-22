@@ -8,10 +8,13 @@ import {
   AlertCircle,
   Search,
   Filter,
-  Store
+  Store,
+  ClipboardCheck,
+  Eye
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
-import { batchAPI, transportAPI, distributorAPI } from '../../services/api';
+import { batchAPI, transportAPI, distributorAPI, inspectionAPI } from '../../services/api';
+import { InspectionForm, InspectionTimeline } from '../../components/inspection';
 
 const Incoming = () => {
   const navigate = useNavigate();
@@ -23,6 +26,9 @@ const Incoming = () => {
   const [showStoreModal, setShowStoreModal] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [storeMargin, setStoreMargin] = useState('0.00');
+  const [showInspectionModal, setShowInspectionModal] = useState(false);
+  const [showInspectionTimeline, setShowInspectionTimeline] = useState(false);
+  const [batchInspections, setBatchInspections] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -37,6 +43,14 @@ const Incoming = () => {
       ]);
       setBatches(batchesRes.data);
       setTransportRequests(transportRes.data);
+      // Fetch inspections for incoming batches
+      const incomingBatchIds = [
+        ...transportRes.data
+          .filter(tr => tr.to_party_details?.role === 'distributor' && tr.batch)
+          .map(tr => tr.batch),
+        ...batchesRes.data.filter(b => b.status === 'DELIVERED_TO_DISTRIBUTOR').map(b => b.id)
+      ];
+      incomingBatchIds.forEach(id => fetchBatchInspections(id));
       setError(null);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -44,6 +58,23 @@ const Incoming = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchBatchInspections = async (batchId) => {
+    try {
+      const response = await inspectionAPI.getBatchTimeline(batchId);
+      setBatchInspections(prev => ({
+        ...prev,
+        [batchId]: response.data
+      }));
+    } catch (err) {
+      console.log(`No inspections for batch ${batchId}`);
+    }
+  };
+
+  const hasDistributorInspection = (batchId) => {
+    const inspections = batchInspections[batchId] || [];
+    return inspections.some(i => i.stage === 'distributor');
   };
 
   const handleConfirmArrival = async (requestId) => {
@@ -217,7 +248,7 @@ const Incoming = () => {
                         {getStatusBadge(item.status)}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                           {(item.status === 'ARRIVED_AT_DISTRIBUTOR' || item.status === 'ARRIVED') && (
                             <button
                               onClick={() => handleConfirmArrival(item.id)}
@@ -225,6 +256,30 @@ const Incoming = () => {
                             >
                               Confirm Arrival
                             </button>
+                          )}
+                          {/* Inspection button for distributor stage */}
+                          {(item.status === 'DELIVERED_TO_DISTRIBUTOR' || item.status === 'STORED') && 
+                           (item.batch || item.batch_details?.id) &&
+                           !hasDistributorInspection(item.batch || item.batch_details?.id) && (
+                            <button
+                              onClick={() => {
+                                setSelectedBatch(item);
+                                setShowInspectionModal(true);
+                              }}
+                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center gap-1"
+                              title="Inspect Batch"
+                            >
+                              <ClipboardCheck className="w-3 h-3" />
+                              Inspect
+                            </button>
+                          )}
+                          {(item.status === 'DELIVERED_TO_DISTRIBUTOR' || item.status === 'STORED') && 
+                           (item.batch || item.batch_details?.id) &&
+                           hasDistributorInspection(item.batch || item.batch_details?.id) && (
+                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded flex items-center gap-1">
+                              <ClipboardCheck className="w-3 h-3" />
+                              Inspected
+                            </span>
                           )}
                           {item.status === 'DELIVERED_TO_DISTRIBUTOR' && (
                             <>
@@ -249,6 +304,16 @@ const Incoming = () => {
                           {(item.status === 'ARRIVED' || item.status === 'ARRIVAL_CONFIRMED' || item.status?.includes('IN_TRANSIT')) && (
                             <span className="text-xs text-gray-500 italic">Tracking Transport</span>
                           )}
+                          <button
+                            onClick={() => {
+                              setSelectedBatch(item);
+                              setShowInspectionTimeline(true);
+                            }}
+                            className="p-1 text-gray-400 hover:text-blue-600"
+                            title="View Inspection Timeline"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -304,6 +369,54 @@ const Incoming = () => {
                   Store Batch
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+        {/* Inspection Form Modal */}
+        {showInspectionModal && selectedBatch && (
+          <InspectionForm
+            batch={selectedBatch.batch_details || selectedBatch}
+            stage="distributor"
+            onClose={() => {
+              setShowInspectionModal(false);
+              setSelectedBatch(null);
+            }}
+            onSuccess={() => {
+              const batchId = selectedBatch.batch || selectedBatch.batch_details?.id || selectedBatch.id;
+              if (batchId) {
+                fetchBatchInspections(batchId);
+              }
+              fetchData();
+            }}
+          />
+        )}
+
+        {/* Inspection Timeline Modal */}
+        {showInspectionTimeline && selectedBatch && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Inspection History</h2>
+                  <p className="text-sm text-gray-500">
+                    {(selectedBatch.batch_details?.product_batch_id || selectedBatch.product_batch_id || 'Unknown')} - 
+                    {(selectedBatch.batch_details?.crop_type || selectedBatch.crop_type || 'N/A')}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowInspectionTimeline(false);
+                    setSelectedBatch(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <span className="text-gray-500">✕</span>
+                </button>
+              </div>
+              <InspectionTimeline 
+                batchId={selectedBatch.batch || selectedBatch.batch_details?.id || selectedBatch.id}
+                inspections={batchInspections[selectedBatch.batch || selectedBatch.batch_details?.id || selectedBatch.id]}
+              />
             </div>
           </div>
         )}

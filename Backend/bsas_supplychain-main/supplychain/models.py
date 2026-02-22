@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class StakeholderRole(models.TextChoices):
@@ -255,22 +256,58 @@ class TransportLeg(models.Model):
     delivery_proof_reference = models.CharField(max_length=255, blank=True)
 
 
+class InspectionResult(models.TextChoices):
+    PASS = "PASS", "Pass"
+    WARNING = "WARNING", "Warning"
+    FAIL = "FAIL", "Fail"
+
+
+class InspectionStage(models.TextChoices):
+    FARMER = "farmer", "Farmer"
+    TRANSPORTER = "transporter", "Transporter"
+    DISTRIBUTOR = "distributor", "Distributor"
+    RETAILER = "retailer", "Retailer"
+
+
 class InspectionReport(models.Model):
     batch = models.ForeignKey(
         CropBatch, on_delete=models.CASCADE, related_name="inspection_reports"
     )
+    stage = models.CharField(
+        max_length=32, choices=InspectionStage.choices, default=InspectionStage.FARMER
+    )
+    inspection_notes = models.TextField(blank=True)
+    result = models.CharField(
+        max_length=32, choices=InspectionResult.choices, default=InspectionResult.PASS
+    )
+    report_file = models.FileField(upload_to="inspection_reports/", blank=True, null=True)
+    # Legacy field - kept for backward compatibility
+    storage_conditions = models.TextField(blank=True)
+    passed = models.BooleanField(default=False)
+    # New created_by field (replaces distributor field for general use)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="inspections_created",
+        null=True,
+        blank=True,
+    )
+    # Keep distributor field for backward compatibility
     distributor = models.ForeignKey(
         StakeholderProfile,
         on_delete=models.PROTECT,
         related_name="inspections_conducted",
+        null=True,
+        blank=True,
     )
-    report_file = models.FileField(upload_to="inspection_reports/", blank=True, null=True)
-    storage_conditions = models.TextField(blank=True)
-    passed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
     inspected_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self) -> str:
-        return f"Inspection {self.batch.product_batch_id}"
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Inspection {self.batch.product_batch_id} - {self.stage}"
 
 
 class BatchSplit(models.Model):

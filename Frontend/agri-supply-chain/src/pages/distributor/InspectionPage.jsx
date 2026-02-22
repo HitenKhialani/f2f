@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ClipboardCheck, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
+import { ClipboardCheck, ArrowLeft } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, inspectionAPI } from '../../services/api';
+import { InspectionForm, InspectionTimeline } from '../../components/inspection';
 
 const InspectionPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [batch, setBatch] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
-    const [formData, setFormData] = useState({
-        storage_conditions: '',
-        passed: true,
-        report_file: null,
-    });
+    const [inspections, setInspections] = useState([]);
+    const [hasInspectorInspection, setHasInspectorInspection] = useState(false);
 
     useEffect(() => {
         fetchBatch();
@@ -24,6 +21,8 @@ const InspectionPage = () => {
         try {
             const response = await batchAPI.get(id);
             setBatch(response.data);
+            // Fetch inspections for this batch
+            fetchInspections(id);
         } catch (error) {
             console.error('Error fetching batch:', error);
             alert('Failed to load batch details');
@@ -32,31 +31,16 @@ const InspectionPage = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setSubmitting(true);
-
+    const fetchInspections = async (batchId) => {
         try {
-            const formDataToSend = new FormData();
-            formDataToSend.append('batch', id);
-            formDataToSend.append('storage_conditions', formData.storage_conditions);
-            formDataToSend.append('passed', formData.passed);
-            if (formData.report_file) {
-                formDataToSend.append('report_file', formData.report_file);
-            }
-
-            await inspectionAPI.create(formDataToSend);
-            alert('Inspection report submitted successfully!');
-            navigate('/distributor/dashboard');
-        } catch (error) {
-            console.error('Error submitting inspection:', error);
-            console.error('Error response:', error.response);
-            const errorMessage = error.response?.data?.message || 
-                               error.response?.data?.detail || 
-                               'Failed to submit inspection';
-            alert(`Inspection Error ${error.response?.status || 'Unknown'}: ${errorMessage}`);
-        } finally {
-            setSubmitting(false);
+            const response = await inspectionAPI.getBatchTimeline(batchId);
+            setInspections(response.data);
+            // Check if distributor already inspected
+            const hasDistributor = response.data.some(i => i.stage === 'distributor');
+            setHasInspectorInspection(hasDistributor);
+        } catch (err) {
+            console.log('No inspections for this batch');
+            setInspections([]);
         }
     };
 
@@ -150,94 +134,48 @@ const InspectionPage = () => {
                     </div>
                 </div>
 
-                {/* Inspection Form */}
-                <div className="card p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Inspection Report</h2>
+                {/* Inspection History Timeline */}
+                <InspectionTimeline 
+                    batchId={id}
+                    inspections={inspections}
+                />
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Storage Conditions */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Storage Conditions
-                            </label>
-                            <textarea
-                                value={formData.storage_conditions}
-                                onChange={(e) => setFormData({ ...formData, storage_conditions: e.target.value })}
-                                rows={4}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                                placeholder="Describe the storage conditions, temperature, humidity, etc."
-                                required
-                            />
-                        </div>
+                {/* New Inspection Form - only show if not already inspected */}
+                {!hasInspectorInspection && (
+                    <div className="card p-6">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-4">Submit Inspection Report</h2>
+                        <InspectionForm
+                            batch={batch}
+                            stage="distributor"
+                            onClose={() => navigate('/distributor/dashboard')}
+                            onSuccess={() => {
+                                fetchInspections(id);
+                                setHasInspectorInspection(true);
+                            }}
+                            inline={true}
+                        />
+                    </div>
+                )}
 
-                        {/* Inspection Result */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">
-                                Inspection Result
-                            </label>
-                            <div className="flex gap-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, passed: true })}
-                                    className={`flex-1 p-4 border-2 rounded-lg flex items-center justify-center gap-3 transition-all ${formData.passed
-                                            ? 'border-green-500 bg-green-50'
-                                            : 'border-gray-200 hover:border-gray-300'
-                                        }`}
-                                >
-                                    <CheckCircle className={`w-6 h-6 ${formData.passed ? 'text-green-600' : 'text-gray-400'}`} />
-                                    <span className={`font-medium ${formData.passed ? 'text-green-700' : 'text-gray-600'}`}>
-                                        Passed
-                                    </span>
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, passed: false })}
-                                    className={`flex-1 p-4 border-2 rounded-lg flex items-center justify-center gap-3 transition-all ${!formData.passed
-                                            ? 'border-red-500 bg-red-50'
-                                            : 'border-gray-200 hover:border-gray-300'
-                                        }`}
-                                >
-                                    <XCircle className={`w-6 h-6 ${!formData.passed ? 'text-red-600' : 'text-gray-400'}`} />
-                                    <span className={`font-medium ${!formData.passed ? 'text-red-700' : 'text-gray-600'}`}>
-                                        Failed
-                                    </span>
-                                </button>
+                {hasInspectorInspection && (
+                    <div className="card p-6 bg-green-50 border-green-200">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <ClipboardCheck className="w-5 h-5 text-green-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-green-800">Inspection Complete</h3>
+                                <p className="text-green-600">You have already submitted an inspection for this batch.</p>
                             </div>
                         </div>
-
-                        {/* Report File */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Inspection Report (Optional)
-                            </label>
-                            <input
-                                type="file"
-                                onChange={(e) => setFormData({ ...formData, report_file: e.target.files[0] })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                                accept=".pdf,.doc,.docx"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">Accepted formats: PDF, DOC, DOCX</p>
-                        </div>
-
-                        {/* Submit Button */}
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => navigate('/distributor/dashboard')}
-                                className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={submitting}
-                                className="flex-1 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
-                            >
-                                {submitting ? 'Submitting...' : 'Submit Inspection'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                        <button
+                            onClick={() => navigate('/distributor/dashboard')}
+                            className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                        >
+                            Return to Dashboard
+                        </button>
+                    </div>
+                )}
             </div>
         </MainLayout>
     );

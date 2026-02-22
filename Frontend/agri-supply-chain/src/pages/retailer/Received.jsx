@@ -6,10 +6,13 @@ import {
   Search,
   AlertCircle,
   Plus,
-  ShoppingCart
+  ShoppingCart,
+  ClipboardCheck,
+  Eye
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
-import { batchAPI } from '../../services/api';
+import { batchAPI, inspectionAPI } from '../../services/api';
+import { InspectionForm, InspectionTimeline } from '../../components/inspection';
 
 const Received = () => {
   const navigate = useNavigate();
@@ -17,6 +20,10 @@ const Received = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showInspectionModal, setShowInspectionModal] = useState(false);
+  const [showInspectionTimeline, setShowInspectionTimeline] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState(null);
+  const [batchInspections, setBatchInspections] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -28,6 +35,14 @@ const Received = () => {
       const response = await batchAPI.list();
       const data = Array.isArray(response.data) ? response.data : response.data.results || [];
       setBatches(data);
+      // Fetch inspections for received batches
+      const receivedBatches = data.filter(b => 
+        b.status === 'DELIVERED_TO_RETAILER' || 
+        b.status === 'ARRIVED_AT_RETAILER' ||
+        b.status === 'ARRIVAL_CONFIRMED_BY_RETAILER' ||
+        b.status === 'LISTED'
+      );
+      receivedBatches.forEach(batch => fetchBatchInspections(batch.id));
       setError(null);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -35,6 +50,23 @@ const Received = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchBatchInspections = async (batchId) => {
+    try {
+      const response = await inspectionAPI.getBatchTimeline(batchId);
+      setBatchInspections(prev => ({
+        ...prev,
+        [batchId]: response.data
+      }));
+    } catch (err) {
+      console.log(`No inspections for batch ${batchId}`);
+    }
+  };
+
+  const hasRetailerInspection = (batchId) => {
+    const inspections = batchInspections[batchId] || [];
+    return inspections.some(i => i.stage === 'retailer');
   };
 
   // Filter received batches - delivered to retailer but not yet listed
@@ -154,13 +186,45 @@ const Received = () => {
                         {getStatusBadge(batch.status)}
                       </td>
                       <td className="px-6 py-4">
-                        <button
-                          onClick={() => navigate('/retailer/listing/new')}
-                          className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center gap-1"
-                        >
-                          <ShoppingCart className="w-3 h-3" />
-                          Create Listing
-                        </button>
+                        <div className="flex gap-2 flex-wrap">
+                          {/* Inspection button for retailer stage */}
+                          {!hasRetailerInspection(batch.id) && (
+                            <button
+                              onClick={() => {
+                                setSelectedBatch(batch);
+                                setShowInspectionModal(true);
+                              }}
+                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center gap-1"
+                              title="Inspect Batch"
+                            >
+                              <ClipboardCheck className="w-3 h-3" />
+                              Inspect
+                            </button>
+                          )}
+                          {hasRetailerInspection(batch.id) && (
+                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded flex items-center gap-1">
+                              <ClipboardCheck className="w-3 h-3" />
+                              Inspected
+                            </span>
+                          )}
+                          <button
+                            onClick={() => navigate('/retailer/listing/new')}
+                            className="px-3 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 flex items-center gap-1"
+                          >
+                            <ShoppingCart className="w-3 h-3" />
+                            Create Listing
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedBatch(batch);
+                              setShowInspectionTimeline(true);
+                            }}
+                            className="p-1 text-gray-400 hover:text-blue-600"
+                            title="View Inspection Timeline"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -169,6 +233,50 @@ const Received = () => {
             </table>
           </div>
         </div>
+        {/* Inspection Form Modal */}
+        {showInspectionModal && selectedBatch && (
+          <InspectionForm
+            batch={selectedBatch}
+            stage="retailer"
+            onClose={() => {
+              setShowInspectionModal(false);
+              setSelectedBatch(null);
+            }}
+            onSuccess={() => {
+              fetchBatchInspections(selectedBatch.id);
+              fetchData();
+            }}
+          />
+        )}
+
+        {/* Inspection Timeline Modal */}
+        {showInspectionTimeline && selectedBatch && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Inspection History</h2>
+                  <p className="text-sm text-gray-500">
+                    {selectedBatch.product_batch_id} - {selectedBatch.crop_type}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowInspectionTimeline(false);
+                    setSelectedBatch(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <span className="text-gray-500">✕</span>
+                </button>
+              </div>
+              <InspectionTimeline 
+                batchId={selectedBatch.id}
+                inspections={batchInspections[selectedBatch.id]}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </MainLayout>
   );

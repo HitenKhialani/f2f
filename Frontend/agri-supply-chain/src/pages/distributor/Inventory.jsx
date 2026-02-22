@@ -10,10 +10,12 @@ import {
   Eye,
   X,
   Plus,
-  Archive
+  Archive,
+  ClipboardCheck
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
-import { batchAPI, stakeholderAPI, distributorAPI, batchSplitAPI } from '../../services/api';
+import { batchAPI, stakeholderAPI, distributorAPI, batchSplitAPI, inspectionAPI } from '../../services/api';
+import { InspectionForm, InspectionTimeline } from '../../components/inspection';
 
 const Inventory = () => {
   const navigate = useNavigate();
@@ -24,11 +26,14 @@ const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showTransportModal, setShowTransportModal] = useState(false);
   const [showSplitModal, setShowSplitModal] = useState(false);
+  const [showInspectionModal, setShowInspectionModal] = useState(false);
+  const [showInspectionTimeline, setShowInspectionTimeline] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [selectedRetailer, setSelectedRetailer] = useState('');
   const [splitData, setSplitData] = useState({
     splits: [{ label: '', quantity: '' }]
   });
+  const [batchInspections, setBatchInspections] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -43,6 +48,9 @@ const Inventory = () => {
       ]);
       setBatches(batchesRes.data);
       setRetailers(retailersRes.data);
+      // Fetch inspections for stored batches
+      const storedBatches = batchesRes.data.filter(b => b.status === 'STORED');
+      storedBatches.forEach(batch => fetchBatchInspections(batch.id));
       setError(null);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -145,6 +153,23 @@ const Inventory = () => {
       console.error('Error suspending batch:', error);
       alert(error.response?.data?.message || 'Failed to suspend batch');
     }
+  };
+
+  const fetchBatchInspections = async (batchId) => {
+    try {
+      const response = await inspectionAPI.getBatchTimeline(batchId);
+      setBatchInspections(prev => ({
+        ...prev,
+        [batchId]: response.data
+      }));
+    } catch (err) {
+      console.log(`No inspections for batch ${batchId}`);
+    }
+  };
+
+  const hasDistributorInspection = (batchId) => {
+    const inspections = batchInspections[batchId] || [];
+    return inspections.some(i => i.stage === 'distributor');
   };
 
   // Filter inventory batches
@@ -284,12 +309,32 @@ const Inventory = () => {
                                 <Scissors className="w-3 h-3 inline mr-1" />
                                 Split
                               </button>
+                              {!hasDistributorInspection(batch.id) ? (
+                                <button
+                                  onClick={() => {
+                                    setSelectedBatch(batch);
+                                    setShowInspectionModal(true);
+                                  }}
+                                  className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                                >
+                                  <ClipboardCheck className="w-3 h-3 inline mr-1" />
+                                  Inspect
+                                </button>
+                              ) : (
+                                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded flex items-center gap-1">
+                                  <ClipboardCheck className="w-3 h-3" />
+                                  Inspected
+                                </span>
+                              )}
                               <button
-                                onClick={() => navigate(`/distributor/inspection/${batch.id}`)}
-                                className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                                onClick={() => {
+                                  setSelectedBatch(batch);
+                                  setShowInspectionTimeline(true);
+                                }}
+                                className="p-1 text-gray-400 hover:text-blue-600"
+                                title="View Inspection Timeline"
                               >
-                                <Eye className="w-3 h-3 inline mr-1" />
-                                Inspect
+                                <Eye className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => handleSuspendBatch(batch.id)}
@@ -460,6 +505,51 @@ const Inventory = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Inspection Form Modal */}
+        {showInspectionModal && selectedBatch && (
+          <InspectionForm
+            batch={selectedBatch}
+            stage="distributor"
+            onClose={() => {
+              setShowInspectionModal(false);
+              setSelectedBatch(null);
+            }}
+            onSuccess={() => {
+              fetchBatchInspections(selectedBatch.id);
+              fetchData();
+            }}
+          />
+        )}
+
+        {/* Inspection Timeline Modal */}
+        {showInspectionTimeline && selectedBatch && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Inspection History</h2>
+                  <p className="text-sm text-gray-500">
+                    {selectedBatch.product_batch_id} - {selectedBatch.crop_type}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowInspectionTimeline(false);
+                    setSelectedBatch(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <span className="text-gray-500">✕</span>
+                </button>
+              </div>
+              <InspectionTimeline 
+                batchId={selectedBatch.id}
+                inspections={batchInspections[selectedBatch.id]}
+              />
             </div>
           </div>
         )}

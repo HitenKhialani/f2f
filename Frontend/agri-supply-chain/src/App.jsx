@@ -28,7 +28,6 @@ import DistributorDashboard from './pages/distributor/DistributorDashboard';
 import Incoming from './pages/distributor/Incoming';
 import Inventory from './pages/distributor/Inventory';
 import Outgoing from './pages/distributor/Outgoing';
-import InspectionPage from './pages/distributor/InspectionPage';
 import TransporterDashboard from './pages/transporter/TransporterDashboard';
 import FarmerShipments from './pages/transporter/FarmerShipments';
 import DistributorShipments from './pages/transporter/DistributorShipments';
@@ -171,14 +170,6 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['DISTRIBUTOR']}>
               <Outgoing />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/distributor/inspection/:id"
-          element={
-            <ProtectedRoute allowedRoles={['DISTRIBUTOR']}>
-              <InspectionPage />
             </ProtectedRoute>
           }
         />

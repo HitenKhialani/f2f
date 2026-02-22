@@ -5,10 +5,12 @@ import {
   Search,
   Eye,
   AlertCircle,
-  Loader2
+  Loader2,
+  ClipboardCheck
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI } from '../../services/api';
+import { InspectionForm, InspectionTimeline } from '../../components/inspection';
 
 const FarmerBatches = () => {
   const [batches, setBatches] = useState([]);
@@ -17,9 +19,12 @@ const FarmerBatches = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showTransportModal, setShowTransportModal] = useState(false);
+  const [showInspectionModal, setShowInspectionModal] = useState(false);
+  const [showInspectionTimeline, setShowInspectionTimeline] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [distributors, setDistributors] = useState([]);
   const [selectedDistributor, setSelectedDistributor] = useState('');
+  const [batchInspections, setBatchInspections] = useState({});
   const [formData, setFormData] = useState({
     crop_type: '',
     quantity: '',
@@ -44,6 +49,8 @@ const FarmerBatches = () => {
         const data = response.data.data;
         if (data && data.recent_batches) {
           setBatches(data.recent_batches);
+          // Fetch inspections for each batch
+          data.recent_batches.forEach(batch => fetchBatchInspections(batch.id));
         } else {
           throw new Error('No batches data');
         }
@@ -52,6 +59,8 @@ const FarmerBatches = () => {
         const response = await batchAPI.list();
         const originalBatches = (response.data || []).filter(batch => !batch.is_child_batch);
         setBatches(originalBatches);
+        // Fetch inspections for each batch
+        originalBatches.forEach(batch => fetchBatchInspections(batch.id));
       }
     } catch (error) {
       console.error('Error fetching batches:', error);
@@ -59,6 +68,25 @@ const FarmerBatches = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchBatchInspections = async (batchId) => {
+    try {
+      const { inspectionAPI } = await import('../../services/api');
+      const response = await inspectionAPI.getBatchTimeline(batchId);
+      setBatchInspections(prev => ({
+        ...prev,
+        [batchId]: response.data
+      }));
+    } catch (err) {
+      // Silently fail - inspections are optional
+      console.log(`No inspections for batch ${batchId}`);
+    }
+  };
+
+  const hasFarmerInspection = (batchId) => {
+    const inspections = batchInspections[batchId] || [];
+    return inspections.some(i => i.stage === 'farmer');
   };
 
   const fetchDistributors = async () => {
@@ -275,9 +303,29 @@ const FarmerBatches = () => {
                         {getStatusBadge(batch.status)}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           {batch.status === 'SUSPENDED' && (
                             <span className="text-xs text-red-600 font-medium">Suspended</span>
+                          )}
+                          {/* Inspection button for farmer stage */}
+                          {batch.status === 'CREATED' && !hasFarmerInspection(batch.id) && (
+                            <button
+                              onClick={() => {
+                                setSelectedBatch(batch);
+                                setShowInspectionModal(true);
+                              }}
+                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center gap-1"
+                              title="Inspect Batch"
+                            >
+                              <ClipboardCheck className="w-3 h-3" />
+                              Inspect
+                            </button>
+                          )}
+                          {batch.status === 'CREATED' && hasFarmerInspection(batch.id) && (
+                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded flex items-center gap-1">
+                              <ClipboardCheck className="w-3 h-3" />
+                              Inspected
+                            </span>
                           )}
                           {batch.status === 'CREATED' && (
                             <button
@@ -301,8 +349,12 @@ const FarmerBatches = () => {
                             </button>
                           )}
                           <button
-                            className="p-1 text-gray-400 hover:text-gray-600"
-                            title="View Details"
+                            onClick={() => {
+                              setSelectedBatch(batch);
+                              setShowInspectionTimeline(true);
+                            }}
+                            className="p-1 text-gray-400 hover:text-blue-600"
+                            title="View Inspection Timeline"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -443,6 +495,48 @@ const FarmerBatches = () => {
                   Request Transport
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+        {/* Inspection Form Modal */}
+        {showInspectionModal && selectedBatch && (
+          <InspectionForm
+            batch={selectedBatch}
+            stage="farmer"
+            onClose={() => {
+              setShowInspectionModal(false);
+              setSelectedBatch(null);
+            }}
+            onSuccess={() => {
+              fetchBatchInspections(selectedBatch.id);
+              fetchBatches();
+            }}
+          />
+        )}
+
+        {/* Inspection Timeline Modal */}
+        {showInspectionTimeline && selectedBatch && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Inspection History</h2>
+                  <p className="text-sm text-gray-500">{selectedBatch.product_batch_id} - {selectedBatch.crop_type}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowInspectionTimeline(false);
+                    setSelectedBatch(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <span className="text-gray-500">✕</span>
+                </button>
+              </div>
+              <InspectionTimeline 
+                batchId={selectedBatch.id} 
+                inspections={batchInspections[selectedBatch.id]}
+              />
             </div>
           </div>
         )}

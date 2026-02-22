@@ -128,17 +128,30 @@ class TransportRequestSerializer(serializers.ModelSerializer):
 
 
 class InspectionReportSerializer(serializers.ModelSerializer):
+    created_by_username = serializers.CharField(source="created_by.username", read_only=True)
+    distributor_details = StakeholderProfileSerializer(source="distributor", read_only=True)
+    batch_details = CropBatchSerializer(source="batch", read_only=True)
+
     class Meta:
         model = models.InspectionReport
         fields = [
             "id",
             "batch",
+            "batch_details",
+            "stage",
+            "inspection_notes",
+            "result",
             "report_file",
             "storage_conditions",
             "passed",
+            "created_by",
+            "created_by_username",
+            "distributor",
+            "distributor_details",
+            "created_at",
             "inspected_at",
         ]
-        read_only_fields = ["inspected_at", "distributor"]
+        read_only_fields = ["created_at", "inspected_at", "created_by", "distributor"]
 
 
 class BatchSplitSerializer(serializers.ModelSerializer):

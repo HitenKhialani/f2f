@@ -133,7 +133,6 @@ class InspectionReportViewSet(viewsets.ModelViewSet):
         """Map stakeholder role to inspection stage."""
         stage_map = {
             models.StakeholderRole.FARMER: models.InspectionStage.FARMER,
-            models.StakeholderRole.TRANSPORTER: models.InspectionStage.TRANSPORTER,
             models.StakeholderRole.DISTRIBUTOR: models.InspectionStage.DISTRIBUTOR,
             models.StakeholderRole.RETAILER: models.InspectionStage.RETAILER,
         }
@@ -148,15 +147,6 @@ class InspectionReportViewSet(viewsets.ModelViewSet):
             # Farmer can inspect their own batches at CREATED status
             return batch.farmer == profile and batch_status == models.BatchStatus.CREATED
 
-        if role == models.StakeholderRole.TRANSPORTER and stage == models.InspectionStage.TRANSPORTER:
-            # Transporter can inspect during transport
-            assigned_transports = models.TransportRequest.objects.filter(
-                batch=batch,
-                transporter=profile,
-                status__in=['ACCEPTED', 'IN_TRANSIT', 'ARRIVED']
-            )
-            return assigned_transports.exists()
-
         if role == models.StakeholderRole.DISTRIBUTOR and stage == models.InspectionStage.DISTRIBUTOR:
             # Distributor can inspect after receiving batch
             return (
@@ -169,7 +159,7 @@ class InspectionReportViewSet(viewsets.ModelViewSet):
                 models.TransportRequest.objects.filter(
                     batch=batch,
                     to_party=profile,
-                    status='DELIVERED'
+                    status__in=['ARRIVAL_CONFIRMED', 'DELIVERED']
                 ).exists()
             )
 
@@ -185,7 +175,7 @@ class InspectionReportViewSet(viewsets.ModelViewSet):
                 models.TransportRequest.objects.filter(
                     batch=batch,
                     to_party=profile,
-                    status='DELIVERED'
+                    status__in=['ARRIVAL_CONFIRMED', 'DELIVERED']
                 ).exists()
             )
 

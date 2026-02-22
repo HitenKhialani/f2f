@@ -13,12 +13,10 @@ import {
   XCircle,
   Play,
   IndianRupee,
-  ClipboardCheck,
   Eye
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
-import { transportAPI, inspectionAPI } from '../../services/api';
-import { InspectionForm, InspectionTimeline } from '../../components/inspection';
+import { transportAPI } from '../../services/api';
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -111,10 +109,7 @@ const TransporterShipmentsList = ({
   const [showFeeModal, setShowFeeModal] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [transportFee, setTransportFee] = useState('');
-  const [showInspectionModal, setShowInspectionModal] = useState(false);
-  const [showInspectionTimeline, setShowInspectionTimeline] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
-  const [shipmentInspections, setShipmentInspections] = useState({});
 
   useEffect(() => {
     fetchRequests();
@@ -125,12 +120,6 @@ const TransporterShipmentsList = ({
       setLoading(true);
       const response = await transportAPI.list();
       setRequests(response.data);
-      // Fetch inspections for each shipment
-      response.data.forEach(request => {
-        if (request.batch) {
-          fetchShipmentInspections(request.batch);
-        }
-      });
       setError(null);
     } catch (err) {
       console.error('Error fetching transport requests:', err);
@@ -138,23 +127,6 @@ const TransporterShipmentsList = ({
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchShipmentInspections = async (batchId) => {
-    try {
-      const response = await inspectionAPI.getBatchTimeline(batchId);
-      setShipmentInspections(prev => ({
-        ...prev,
-        [batchId]: response.data
-      }));
-    } catch (err) {
-      console.log(`No inspections for batch ${batchId}`);
-    }
-  };
-
-  const hasTransporterInspection = (batchId) => {
-    const inspections = shipmentInspections[batchId] || [];
-    return inspections.some(i => i.stage === 'transporter');
   };
 
   // Filter requests based on filterFn prop
@@ -379,30 +351,6 @@ const TransporterShipmentsList = ({
                       {showActions && (
                         <td className="px-6 py-4">
                           <div className="flex flex-col gap-2">
-                            {/* Inspection button for transporter stage */}
-                            {['ACCEPTED', 'IN_TRANSIT', 'IN_TRANSIT_TO_RETAILER', 'ARRIVED'].includes(request.status) && 
-                             request.batch_details?.id &&
-                             !hasTransporterInspection(request.batch_details.id) && (
-                              <button
-                                onClick={() => {
-                                  setSelectedRequest(request);
-                                  setShowInspectionModal(true);
-                                }}
-                                className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
-                                title="Inspect Shipment"
-                              >
-                                <ClipboardCheck className="w-3 h-3" />
-                                Inspect
-                              </button>
-                            )}
-                            {['ACCEPTED', 'IN_TRANSIT', 'IN_TRANSIT_TO_RETAILER', 'ARRIVED', 'DELIVERED'].includes(request.status) && 
-                             request.batch_details?.id &&
-                             hasTransporterInspection(request.batch_details.id) && (
-                              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded flex items-center gap-1">
-                                <ClipboardCheck className="w-3 h-3" />
-                                Inspected
-                              </span>
-                            )}
                             <ActionButton
                               status={request.status}
                               onAccept={() => handleStatusUpdate(request.id, 'ACCEPTED')}
@@ -410,16 +358,6 @@ const TransporterShipmentsList = ({
                               onArrive={() => handleStatusUpdate(request.id, 'ARRIVED')}
                               onDeliver={() => handleStatusUpdate(request.id, 'DELIVERED')}
                             />
-                            <button
-                              onClick={() => {
-                                setSelectedRequest(request);
-                                setShowInspectionTimeline(true);
-                              }}
-                              className="p-1 text-gray-400 hover:text-blue-600 self-start"
-                              title="View Inspection Timeline"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
                           </div>
                         </td>
                       )}
@@ -481,53 +419,6 @@ const TransporterShipmentsList = ({
                   Accept & Continue
                 </button>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Inspection Form Modal */}
-        {showInspectionModal && selectedRequest?.batch_details && (
-          <InspectionForm
-            batch={selectedRequest.batch_details}
-            stage="transporter"
-            onClose={() => {
-              setShowInspectionModal(false);
-              setSelectedRequest(null);
-            }}
-            onSuccess={() => {
-              if (selectedRequest.batch_details?.id) {
-                fetchShipmentInspections(selectedRequest.batch_details.id);
-              }
-              fetchRequests();
-            }}
-          />
-        )}
-
-        {/* Inspection Timeline Modal */}
-        {showInspectionTimeline && selectedRequest?.batch_details && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">Inspection History</h2>
-                  <p className="text-sm text-gray-500">
-                    {selectedRequest.batch_details.product_batch_id} - {selectedRequest.batch_details.crop_type}
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    setShowInspectionTimeline(false);
-                    setSelectedRequest(null);
-                  }}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <span className="text-gray-500">✕</span>
-                </button>
-              </div>
-              <InspectionTimeline 
-                batchId={selectedRequest.batch_details.id}
-                inspections={shipmentInspections[selectedRequest.batch_details.id]}
-              />
             </div>
           </div>
         )}

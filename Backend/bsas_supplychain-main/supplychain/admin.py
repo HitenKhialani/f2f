@@ -68,3 +68,11 @@ class ConsumerScanAdmin(admin.ModelAdmin):
     list_display = ['id', 'listing', 'scanned_at']
     list_filter = ['scanned_at']
     search_fields = ['listing__batch__product_batch_id']
+
+
+@admin.register(models.BatchEvent)
+class BatchEventAdmin(admin.ModelAdmin):
+    list_display = ['id', 'batch', 'event_type', 'performed_by', 'timestamp']
+    list_filter = ['event_type', 'timestamp']
+    search_fields = ['batch__product_batch_id', 'performed_by__username']
+    readonly_fields = ['timestamp']

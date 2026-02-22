@@ -25,7 +25,9 @@ The system is currently Web2-stable and architected to support future Ethereum/S
 - **Admin Portal** – System stats, user list, KYC management, role assignment
 - **Immutable Event Log** – `BatchEvent` records every state transition with actor, timestamp, and metadata
 - **Ownership Tracking** – `current_owner` on `CropBatch` updated automatically at `DELIVERED_TO_DISTRIBUTOR` and `DELIVERED_TO_RETAILER`
-- **Suspend Batch Lifecycle** – Farmers, Distributors, and Retailers can freeze batches at specific stages. Suspended batches are blocked from all future actions and appear with a red status badge in dashboards.
+- **Bulk Split Batches** – Distributors can split batches into multiple child batches for different retailers
+- **Child Batch Tracking** – `is_child_batch` and `parent_batch` fields track split lineage
+- **Quantity-based Inventory** – Retail listings track total, remaining, and sold quantities with revenue calculation
 
 ---
 
@@ -34,6 +36,7 @@ The system is currently Web2-stable and architected to support future Ethereum/S
 ### Backend (Django REST Framework)
 - **Location**: `Backend/bsas_supplychain-main/`
 - **Pattern**: Monolithic Django project with a single `supplychain` app
+- **View Organization**: Role-specific view modules (`farmer_dashboard_views.py`, `distributor_views.py`, `retailer_views.py`, `transport_views.py`, `suspend_views.py`, `bulk_split_views.py`)
 - **Authentication**: JWT via `djangorestframework-simplejwt`; tokens stored in frontend `localStorage`
 - **CORS**: `django-cors-headers` configured to allow the Vite dev server
 - **Database**: SQLite (development); PostgreSQL-ready for production
@@ -211,11 +214,17 @@ Frontend available at: `http://localhost:5173`
 | POST | `/api/transport/request/` | Request transport |
 | POST | `/api/transport/<id>/accept/` | Transporter accepts request |
 | POST | `/api/transport/<id>/deliver/` | Transporter marks delivered |
+| POST | `/api/transport/<id>/arrive/` | Mark arrival at destination (transporter) |
+| POST | `/api/transport/<id>/confirm-arrival/` | Confirm arrival by receiving party |
 | POST | `/api/transport/<id>/reject/` | Transporter rejects request |
-| POST | `/api/distributor/batch/<id>/store/` | Distributor stores batch |
+| POST | `/api/batch/<id>/suspend/` | Suspend batch (role & status gated) |
+| POST | `/api/batch/<id>/bulk-split/` | Split batch into multiple child batches |
+| GET | `/api/dashboard/farmer/` | Farmer dashboard statistics |
+| GET | `/api/dashboard/transporter/` | Transporter dashboard data |
+| GET | `/api/dashboard/distributor/` | Distributor dashboard data |
+| GET | `/api/dashboard/retailer/` | Retailer dashboard data |
 | POST | `/api/distributor/transport/request-to-retailer/` | Distributor requests onward transport |
 | POST | `/api/retailer/batch/<id>/mark-sold/` | Retailer marks batch sold |
-| POST | `/api/batch/<id>/suspend/` | Suspend batch (role & status gated) |
 | GET/POST | `/api/retail-listings/` | Create retail listing (triggers QR) |
 | GET/POST | `/api/inspections/` | Create / list inspection reports |
 | GET | `/api/public/trace/<public_id>/` | Public batch trace (unauthenticated) |
@@ -234,7 +243,14 @@ Frontend available at: `http://localhost:5173`
 | Farmer | `/farmer/dashboard` | Batch list + transport request |
 | Transporter | `/transporter/dashboard` | Shipment tabs + actions |
 | Distributor | `/distributor/dashboard` | Incoming / Inventory / Outgoing |
-| Distributor | `/distributor/inspection/:id` | Optional inspection form |
+| Distributor | `/distributor/incoming` | Incoming transport batches |
+| Distributor | `/distributor/inventory` | Stored batches management |
+| Distributor | `/distributor/outgoing` | Outgoing transport requests |
+| Distributor | `/distributor/inspection/:id` | Inspection form for batch |
+| Retailer | `/retailer/received` | Received batches from distributor |
+| Retailer | `/retailer/incoming-transport` | Incoming transport tracking |
+| Retailer | `/retailer/listed` | Listed products for sale |
+| Retailer | `/retailer/sold` | Sold products history |
 | Retailer | `/retailer/dashboard` | Received / Listed / Sold |
 | Retailer | `/retailer/listing/new` | Create new retail listing |
 | Consumer | `/consumer` | QR / batch ID search |
@@ -256,10 +272,17 @@ f2f/
 │       ├── supplychain/             # Core app (models, views, serializers)
 │       │   ├── models.py            # CropBatch, BatchEvent, TransportRequest, etc.
 │       │   ├── views.py             # ViewSets and API logic
+│       │   ├── auth_views.py        # Authentication views
+│       │   ├── admin_views.py       # Admin dashboard and KYC management
 │       │   ├── transport_views.py   # Transport workflow views
 │       │   ├── distributor_views.py # Distributor workflow views
-│       │   ├── retailer_views.py    # Retailer-specific views (e.g., mark sold)
-│       │   ├── suspend_views.py     # **[NEW]** Batch suspension logic
+│       │   ├── distributor_dashboard_views.py # Distributor dashboard API
+│       │   ├── retailer_views.py    # Retailer-specific views
+│       │   ├── retailer_dashboard_views.py # Retailer dashboard API
+│       │   ├── farmer_dashboard_views.py   # Farmer dashboard API
+│       │   ├── transporter_dashboard_views.py # Transporter dashboard API
+│       │   ├── bulk_split_views.py  # Batch splitting logic
+│       │   ├── suspend_views.py     # Batch suspension logic
 │       │   ├── consumer_views.py    # Public trace endpoint
 │       │   ├── serializers.py       # DRF serializers
 │       │   ├── permissions.py       # Role-based permission classes

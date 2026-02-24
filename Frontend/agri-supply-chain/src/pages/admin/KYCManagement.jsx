@@ -212,11 +212,18 @@ const KYCManagement = () => {
                         </span>
                         {record.document_file ? (
                           <button
-                            onClick={() => setViewingDocument({
-                              url: record.document_file,
-                              type: record.document_type || getRoleDocumentType(record.profile_details?.role),
-                              user: record.profile_details?.user_details?.username
-                            })}
+                            onClick={() => {
+                              console.log('View Document clicked:', {
+                                document_file: record.document_file,
+                                type: typeof record.document_file,
+                                hasDataUri: record.document_file?.startsWith?.('data:')
+                              });
+                              setViewingDocument({
+                                url: record.document_file,
+                                type: record.document_type || getRoleDocumentType(record.profile_details?.role),
+                                user: record.profile_details?.user_details?.username
+                              });
+                            }}
                             className="flex items-center gap-1 text-emerald-600 hover:text-emerald-700 text-xs font-medium w-fit"
                           >
                             <Eye className="w-3 h-3" />
@@ -341,6 +348,13 @@ const KYCManagement = () => {
               </button>
             </div>
             
+            {/* Debug info */}
+            <div className="mb-4 p-2 bg-gray-100 rounded text-xs font-mono">
+              URL type: {typeof viewingDocument.url} | 
+              Starts with data: {viewingDocument.url?.startsWith?.('data:')?.toString()} | 
+              Length: {viewingDocument.url?.length}
+            </div>
+            
             <div className="border rounded-lg overflow-hidden bg-gray-50">
               {/* Check for image data URI or file extension */}
               {viewingDocument.url?.match(/data:image\/(jpeg|jpg|png|gif)/i) || viewingDocument.url?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
@@ -355,11 +369,31 @@ const KYCManagement = () => {
                   className="w-full h-[60vh]"
                   title={viewingDocument.type}
                 />
+              ) : viewingDocument.url?.startsWith?.('data:') ? (
+                // Generic data URI - try to display as image first, then iframe
+                <>
+                  <img
+                    src={viewingDocument.url}
+                    alt={viewingDocument.type}
+                    className="w-full max-h-[60vh] object-contain"
+                    onError={(e) => {
+                      // If image fails, try iframe
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'block';
+                    }}
+                  />
+                  <iframe
+                    src={viewingDocument.url}
+                    className="w-full h-[60vh] hidden"
+                    title={viewingDocument.type}
+                  />
+                </>
               ) : (
                 <div className="p-8 text-center">
                   <FileCheck className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-600">Document uploaded successfully</p>
                   <p className="text-sm text-gray-400 mt-2">File type: {viewingDocument.type}</p>
+                  <p className="text-xs text-gray-400 mt-1">URL: {String(viewingDocument.url).substring(0, 50)}...</p>
                 </div>
               )}
             </div>

@@ -1,13 +1,14 @@
 import qrcode
-import os
 from django.conf import settings
-from django.core.files.base import ContentFile
 from io import BytesIO
+
+from .db_file_fields import DatabaseFile, DatabaseImageField
 
 def generate_batch_qr(batch):
     """
     Generates a QR code for a CropBatch and saves it to the qr_code_image field.
     The QR content points to the public trace page on localhost.
+    Stores the image directly in the database.
     """
     if not batch.public_batch_id:
         import uuid
@@ -33,11 +34,18 @@ def generate_batch_qr(batch):
     # Save image to BytesIO
     buffer = BytesIO()
     img.save(buffer, format="PNG")
-    filename = f"qr_{batch.public_batch_id[:8]}.png"
+    buffer.seek(0)
+    
+    # Create DatabaseFile with the image data
+    qr_file = DatabaseFile(
+        data=buffer.getvalue(),
+        name=f"qr_{batch.public_batch_id[:8]}.png",
+        content_type="image/png"
+    )
     
     # Update Model Field
-    batch.qr_code_image.save(filename, ContentFile(buffer.getvalue()), save=False)
-    batch.qr_code_data = qr_url # Storing the URL as well for convenience
-    batch.save()
+    batch.qr_code_image = qr_file
+    batch.qr_code_data = qr_url  # Storing the URL as well for convenience
+    batch.save(update_fields=['qr_code_image', 'qr_code_data'])
     
     return batch.qr_code_image.url

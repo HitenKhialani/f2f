@@ -14,7 +14,7 @@ import {
   LogOut,
   User
 } from 'lucide-react';
-import { retailAPI } from '../../services/api';
+import { retailAPI, inspectionAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import MainLayout from '../../components/layout/MainLayout';
 
@@ -61,6 +61,7 @@ const ConsumerDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [batchIdInput, setBatchIdInput] = useState('');
+  const [listingInspections, setListingInspections] = useState({});
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -95,12 +96,32 @@ const ConsumerDashboard = () => {
         (l.remaining_quantity === undefined || l.remaining_quantity > 0)
       );
       setListings(activeListings);
+      
+      // Fetch inspections for each listing
+      activeListings.forEach(listing => {
+        if (listing.batch_details?.id) {
+          fetchInspections(listing.batch_details.id, listing.id);
+        }
+      });
+      
       setError(null);
     } catch (err) {
       console.error('Error fetching listings:', err);
       setError('Failed to load available produce. Please try again later.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchInspections = async (batchId, listingId) => {
+    try {
+      const response = await inspectionAPI.getBatchTimeline(batchId);
+      setListingInspections(prev => ({
+        ...prev,
+        [listingId]: response.data
+      }));
+    } catch (err) {
+      console.log(`No inspections for batch ${batchId}`);
     }
   };
 
@@ -285,13 +306,21 @@ const ConsumerDashboard = () => {
                     key={listing.id} 
                     className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
                   >
-                    {/* Image Container */}
+                    {/* Image Container - Use retailer inspection image if available */}
                     <div className="relative h-40 overflow-hidden bg-gray-100">
-                      <img
-                        src={getProductImage(cropType)}
-                        alt={cropType}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                      {(() => {
+                        const inspections = listingInspections[listing.id] || [];
+                        const retailerInspection = inspections.find(i => i.stage === 'retailer');
+                        const imageUrl = retailerInspection?.report_file || getProductImage(cropType);
+                        console.log(`Listing ${listing.id}:`, { inspections, retailerInspection, imageUrl });
+                        return (
+                          <img
+                            src={imageUrl}
+                            alt={cropType}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        );
+                      })()}
                       {/* Verified Badge */}
                       <div className="absolute top-3 right-3">
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/95 backdrop-blur-sm rounded-full text-xs font-medium text-emerald-700 shadow-sm">
@@ -328,7 +357,7 @@ const ConsumerDashboard = () => {
                         {qrCodeUrl && (
                           <div className="bg-white p-1.5 rounded-lg border border-gray-200">
                             <img
-                              src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${qrCodeUrl}`}
+                              src={qrCodeUrl.startsWith('data:') ? qrCodeUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${qrCodeUrl}`}
                               alt="QR"
                               className="w-12 h-12"
                             />

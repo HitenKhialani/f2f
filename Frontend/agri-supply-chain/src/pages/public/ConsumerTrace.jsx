@@ -6,23 +6,13 @@ import {
   Search,
   ArrowLeft,
   Truck,
-  ClipboardCheck,
-  Store,
   CheckCircle,
   AlertCircle,
   MapPin,
   User,
-  Calendar,
   ArrowRight,
-  ChevronRight,
-  Leaf,
   Warehouse,
-  Package,
-  Clock,
-  ExternalLink,
-  FileText,
-  Thermometer,
-  Droplets
+  Store
 } from 'lucide-react';
 import { consumerAPI, inspectionAPI } from '../../services/api';
 import { InspectionTimeline } from '../../components/inspection';
@@ -80,16 +70,6 @@ const ConsumerTrace = () => {
     e.preventDefault();
     if (!batchIdTerm.trim()) return;
     performTrace(batchIdTerm.trim());
-  };
-
-  const handleDownloadQR = () => {
-    if (!searchResult?.qr_code_url) return;
-    const link = document.createElement('a');
-    link.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${searchResult.qr_code_url}`;
-    link.download = `QR_${searchResult.batch_id}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const getStakeholderIcon = (role) => {
@@ -199,10 +179,10 @@ const ConsumerTrace = () => {
             </div>
 
             <div className="p-6 md:col-span-2 bg-gray-50/50 flex flex-col items-center justify-center border-l border-gray-100 text-center">
-              <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3">
+              <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
                 {searchResult.qr_code_url ? (
                   <img
-                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${searchResult.qr_code_url}`}
+                    src={searchResult.qr_code_url.startsWith('data:') ? searchResult.qr_code_url : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${searchResult.qr_code_url}`}
                     alt="QR Code"
                     className="w-28 h-28"
                   />
@@ -212,12 +192,6 @@ const ConsumerTrace = () => {
                   </div>
                 )}
               </div>
-              <button
-                onClick={handleDownloadQR}
-                className="text-xs font-bold text-gray-500 hover:text-emerald-600 uppercase tracking-wider py-2 px-4 border border-gray-200 rounded-lg hover:bg-white transition-all"
-              >
-                Download QR
-              </button>
             </div>
           </div>
         </section>
@@ -239,7 +213,7 @@ const ConsumerTrace = () => {
                 <ArrowRight className="w-4 h-4 text-emerald-400" />
               </div>
               <p className="text-xs font-medium text-gray-500 mb-1">Transport</p>
-              <p className="text-lg font-bold text-gray-900">₹{((searchResult.price_breakdown?.farmer_price || 0) + (searchResult.price_breakdown?.transport_cost || 0)).toFixed(2)}<span className="text-sm font-normal text-gray-500">/kg</span></p>
+              <p className="text-lg font-bold text-gray-900">₹{(searchResult.price_breakdown?.transport_cost || 0).toFixed(2)}<span className="text-sm font-normal text-gray-500">/kg</span></p>
             </div>
             {/* Distributor Margin */}
             <div className="bg-emerald-50/50 rounded-2xl p-4 relative">
@@ -264,7 +238,7 @@ const ConsumerTrace = () => {
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-6">Origin & Stakeholders</h2>
           <div className="grid md:grid-cols-4 gap-4">
-            {/* Farmer Card */}
+            {/* Farmer Card - Product Description */}
             <div className="border border-gray-100 rounded-2xl p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
@@ -274,10 +248,6 @@ const ConsumerTrace = () => {
               </div>
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Farmer Name</span>
-                  <span className="font-medium text-gray-900">{searchResult.origin?.farmer_name || '-'}</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="text-gray-400">Farm Location</span>
                   <span className="font-medium text-gray-900">{searchResult.origin?.farm_location || '-'}</span>
                 </div>
@@ -286,45 +256,26 @@ const ConsumerTrace = () => {
                   <span className="font-medium text-gray-900">{searchResult.origin?.harvest_date ? new Date(searchResult.origin.harvest_date).toLocaleDateString() : '-'}</span>
                 </div>
               </div>
-              <div className="pt-2">
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-50 text-yellow-700 text-xs font-medium rounded-lg">
-                  <AlertCircle className="w-3 h-3" />
-                  Warning
-                </span>
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                  <User className="w-3 h-3" /> {searchResult.origin?.farmer_name || 'Inspector'}
-                </p>
-              </div>
+              {(() => {
+                const farmerDescription = inspections.find(i => i.stage === 'farmer');
+                return farmerDescription ? (
+                  <div className="pt-2 border-t border-gray-100">
+                    <span className="text-xs font-medium text-green-700">Product Description</span>
+                    {farmerDescription.inspection_notes && (
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-3">{farmerDescription.inspection_notes}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="pt-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 text-gray-500 text-xs font-medium rounded-lg">
+                      No description provided
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
 
-            {/* Transporter Card */}
-            <div className="border border-gray-100 rounded-2xl p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                  <Truck className="w-4 h-4 text-blue-600" />
-                </div>
-                <span className="text-sm font-semibold text-gray-900">Transporter</span>
-              </div>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Transporter Name</span>
-                  <span className="font-medium text-gray-900">{searchResult.timeline?.find(t => t.stage.toLowerCase().includes('transport'))?.actor || '-'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Transported Date</span>
-                  <span className="font-medium text-gray-900">{searchResult.timeline?.find(t => t.stage.toLowerCase().includes('transport'))?.timestamp ? new Date(searchResult.timeline.find(t => t.stage.toLowerCase().includes('transport')).timestamp).toLocaleString() : '-'}</span>
-                </div>
-              </div>
-              <div className="pt-2">
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-lg">
-                  <CheckCircle className="w-3 h-3" />
-                  Passed
-                </span>
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                  <User className="w-3 h-3" /> Inspector
-                </p>
-              </div>
-            </div>
+            {/* Removed Transporter Card - Transporters don't perform inspections */}
 
             {/* Distributor Card */}
             <div className="border border-gray-100 rounded-2xl p-4 space-y-3">
@@ -337,22 +288,33 @@ const ConsumerTrace = () => {
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Distribution Center</span>
-                  <span className="font-medium text-gray-900">{searchResult.timeline?.find(t => t.stage.toLowerCase().includes('distributor'))?.location || 'Pune'}</span>
+                  <span className="font-medium text-gray-900">{searchResult.timeline?.find(t => t.stage.toLowerCase().includes('distributor'))?.actor || '-'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Arrival Date</span>
                   <span className="font-medium text-gray-900">{searchResult.timeline?.find(t => t.stage.toLowerCase().includes('distributor'))?.timestamp ? new Date(searchResult.timeline.find(t => t.stage.toLowerCase().includes('distributor')).timestamp).toLocaleString() : '-'}</span>
                 </div>
               </div>
-              <div className="pt-2">
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-lg">
-                  <CheckCircle className="w-3 h-3" />
-                  Passed
-                </span>
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                  <User className="w-3 h-3" /> Inspector
-                </p>
-              </div>
+              {(() => {
+                const distributorInspection = inspections.find(i => i.stage === 'distributor');
+                return distributorInspection ? (
+                  <div className="pt-2">
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg ${distributorInspection.result === 'PASS' ? 'bg-emerald-50 text-emerald-700' : distributorInspection.result === 'WARNING' ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-700'}`}>
+                      {distributorInspection.result === 'PASS' ? <CheckCircle className="w-3 h-3" /> : distributorInspection.result === 'WARNING' ? <AlertCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                      {distributorInspection.result === 'PASS' ? 'Passed' : distributorInspection.result === 'WARNING' ? 'Warning' : 'Failed'}
+                    </span>
+                    {distributorInspection.inspection_notes && (
+                      <p className="text-xs text-gray-500 mt-2 line-clamp-2">{distributorInspection.inspection_notes}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="pt-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 text-gray-500 text-xs font-medium rounded-lg">
+                      No inspection recorded
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Retailer Card */}
@@ -373,166 +335,173 @@ const ConsumerTrace = () => {
                   <span className="font-medium text-gray-900">{searchResult.timeline?.find(t => t.stage.toLowerCase().includes('list'))?.timestamp ? new Date(searchResult.timeline.find(t => t.stage.toLowerCase().includes('list')).timestamp).toLocaleString() : '-'}</span>
                 </div>
               </div>
-              <div className="pt-2">
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-lg">
-                  <CheckCircle className="w-3 h-3" />
-                  Listed for Sale
-                </span>
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                  <User className="w-3 h-3" /> Inspector
-                </p>
-              </div>
+              {(() => {
+                const retailerInspection = inspections.find(i => i.stage === 'retailer');
+                return retailerInspection ? (
+                  <div className="pt-2">
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg ${retailerInspection.result === 'PASS' ? 'bg-emerald-50 text-emerald-700' : retailerInspection.result === 'WARNING' ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-700'}`}>
+                      {retailerInspection.result === 'PASS' ? <CheckCircle className="w-3 h-3" /> : retailerInspection.result === 'WARNING' ? <AlertCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                      {retailerInspection.result === 'PASS' ? 'Passed' : retailerInspection.result === 'WARNING' ? 'Warning' : 'Failed'}
+                    </span>
+                    {retailerInspection.inspection_notes && (
+                      <p className="text-xs text-gray-500 mt-2 line-clamp-2">{retailerInspection.inspection_notes}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="pt-2">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-lg">
+                      <CheckCircle className="w-3 h-3" />
+                      Listed for Sale
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </section>
 
-        {/* D. SUPPLY CHAIN JOURNEY - Horizontal Flow */}
+        {/* D. SUPPLY CHAIN JOURNEY - Enhanced Horizontal Flow */}
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-lg font-bold text-gray-900">Supply Chain Journey</h2>
-            <button className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700">
-              <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-              Show Details <ChevronRight className="w-4 h-4" />
-            </button>
+            <span className="text-sm text-gray-500">
+              {searchResult.timeline?.length || 0} events recorded
+            </span>
           </div>
 
-          {/* Journey Flow */}
-          <div className="relative mb-8">
-            <div className="flex items-center justify-between">
+          {/* Journey Flow - Visual Timeline */}
+          <div className="relative mb-10 px-2">
+            <div className="flex items-center justify-between relative">
+              {/* Progress Line Background */}
+              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-gray-200 rounded-full" />
+              {/* Active Progress Line */}
+              <div 
+                className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-emerald-500 rounded-full transition-all duration-500"
+                style={{ width: '100%' }}
+              />
+              
               {/* Farm */}
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center border-2 border-emerald-200">
-                  <Sprout className="w-5 h-5 text-emerald-600" />
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center border-4 border-emerald-100 shadow-lg shadow-emerald-200">
+                  <Sprout className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-xs font-semibold text-gray-700 mt-2">Farm</span>
+                <span className="text-xs font-semibold text-gray-700 mt-2 bg-white px-2">Farm</span>
+                <span className="text-[10px] text-gray-400">Origin</span>
               </div>
-              {/* Line */}
-              <div className="flex-1 h-0.5 bg-emerald-200 mx-4"></div>
+              
               {/* Transport */}
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center border-2 border-blue-200">
-                  <Truck className="w-5 h-5 text-blue-600" />
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center border-4 border-blue-100 shadow-lg shadow-blue-200">
+                  <Truck className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-xs font-semibold text-gray-700 mt-2">Transport</span>
+                <span className="text-xs font-semibold text-gray-700 mt-2 bg-white px-2">Transport</span>
+                <span className="text-[10px] text-gray-400">In Transit</span>
               </div>
-              {/* Line */}
-              <div className="flex-1 h-0.5 bg-emerald-200 mx-4"></div>
+              
               {/* Distributor */}
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center border-2 border-purple-200">
-                  <Warehouse className="w-5 h-5 text-purple-600" />
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-14 h-14 bg-purple-500 rounded-full flex items-center justify-center border-4 border-purple-100 shadow-lg shadow-purple-200">
+                  <Warehouse className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-xs font-semibold text-gray-700 mt-2">Distributor</span>
+                <span className="text-xs font-semibold text-gray-700 mt-2 bg-white px-2">Distributor</span>
+                <span className="text-[10px] text-gray-400">Storage</span>
               </div>
-              {/* Line */}
-              <div className="flex-1 h-0.5 bg-emerald-200 mx-4"></div>
+              
               {/* Retailer */}
-              <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center border-2 border-orange-200">
-                  <Store className="w-5 h-5 text-orange-600" />
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-14 h-14 bg-orange-500 rounded-full flex items-center justify-center border-4 border-orange-100 shadow-lg shadow-orange-200">
+                  <Store className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-xs font-semibold text-gray-700 mt-2">Retailer</span>
+                <span className="text-xs font-semibold text-gray-700 mt-2 bg-white px-2">Retailer</span>
+                <span className="text-[10px] text-gray-400">Point of Sale</span>
               </div>
             </div>
           </div>
 
-          {/* Journey Events */}
+          {/* Journey Events - Detailed Cards */}
           <div className="space-y-3">
-            {searchResult.timeline?.map((item, index) => (
-              <div key={index} className="flex items-start gap-3 py-2">
-                <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <span className="text-sm font-semibold text-gray-900">{item.stage}</span>
-                  <span className="text-sm text-gray-500 ml-2">{item.actor}, {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">Event History</h3>
+            {searchResult.timeline?.map((item, index) => {
+              const getStageColor = (stage) => {
+                const s = stage.toLowerCase();
+                if (s.includes('farm') || s.includes('created')) return 'bg-emerald-50 border-emerald-200 text-emerald-700';
+                if (s.includes('transport') || s.includes('transit')) return 'bg-blue-50 border-blue-200 text-blue-700';
+                if (s.includes('distributor') || s.includes('storage')) return 'bg-purple-50 border-purple-200 text-purple-700';
+                if (s.includes('retail') || s.includes('list') || s.includes('sale')) return 'bg-orange-50 border-orange-200 text-orange-700';
+                return 'bg-gray-50 border-gray-200 text-gray-700';
+              };
+              
+              const getStageIcon = (stage) => {
+                const s = stage.toLowerCase();
+                if (s.includes('farm') || s.includes('created')) return <Sprout className="w-4 h-4" />;
+                if (s.includes('transport') || s.includes('transit')) return <Truck className="w-4 h-4" />;
+                if (s.includes('distributor') || s.includes('storage')) return <Warehouse className="w-4 h-4" />;
+                if (s.includes('retail') || s.includes('list') || s.includes('sale')) return <Store className="w-4 h-4" />;
+                return <CheckCircle className="w-4 h-4" />;
+              };
+              
+              return (
+                <div 
+                  key={index} 
+                  className={`flex items-start gap-3 p-3 rounded-xl border ${getStageColor(item.stage)}`}
+                >
+                  <div className="mt-0.5">
+                    {getStageIcon(item.stage)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold">{item.stage}</span>
+                      <span className="text-xs opacity-75">
+                        {new Date(item.timestamp).toLocaleDateString()} • {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <p className="text-xs mt-1 opacity-75 truncate">
+                      By: {item.actor}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )) || (
-              <div className="space-y-2">
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5" />
-                  <span className="text-sm text-gray-700">Batch Created <span className="text-gray-400">{searchResult.origin?.farmer_name}, {new Date(searchResult.origin?.harvest_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></span>
+              );
+            }) || (
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-700">
+                  <Sprout className="w-4 h-4 mt-0.5" />
+                  <div>
+                    <span className="text-sm font-semibold">Batch Created</span>
+                    <span className="text-xs opacity-75 ml-2">{searchResult.origin?.farmer_name}, {new Date(searchResult.origin?.harvest_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5" />
-                  <span className="text-sm text-gray-700">Arrived at Distributor <span className="text-gray-400">Transporter, --:--</span></span>
+                <div className="flex items-start gap-3 p-3 rounded-xl border bg-blue-50 border-blue-200 text-blue-700">
+                  <Truck className="w-4 h-4 mt-0.5" />
+                  <div>
+                    <span className="text-sm font-semibold">In Transit</span>
+                    <span className="text-xs opacity-75 ml-2">Transport scheduled</span>
+                  </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5" />
-                  <span className="text-sm text-gray-700">Stored by Distributor <span className="text-gray-400">3/22, 12:20 PM</span></span>
+                <div className="flex items-start gap-3 p-3 rounded-xl border bg-purple-50 border-purple-200 text-purple-700">
+                  <Warehouse className="w-4 h-4 mt-0.5" />
+                  <div>
+                    <span className="text-sm font-semibold">At Distributor</span>
+                    <span className="text-xs opacity-75 ml-2">Awaiting processing</span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         </section>
 
-        {/* E. QUALITY INSPECTIONS */}
+        {/* E. QUALITY INSPECTIONS - Real Data */}
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-6">Quality Inspections</h2>
-          <div className="grid md:grid-cols-4 gap-4">
-            {/* Farmer Inspection */}
-            <div className="border border-gray-100 rounded-2xl p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Leaf className="w-4 h-4 text-yellow-500" />
-                <span className="text-sm font-semibold text-gray-900">Farmer</span>
-              </div>
-              <div className="space-y-2 mb-4">
-                <span className="inline-block px-2 py-1 bg-yellow-50 text-yellow-700 text-xs font-medium rounded">Expectation Match</span>
-                <p className="text-xs text-gray-500">Moisture Level: 13%</p>
-                <p className="text-xs text-gray-500">Pesticide Test: Inconclusive</p>
-              </div>
-              <button className="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors">
-                VIEW REPORT
-              </button>
+          {inspections.length > 0 ? (
+            <InspectionTimeline 
+              batchId={searchResult.batch_id}
+              inspections={inspections}
+            />
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p>No quality inspections recorded for this batch yet.</p>
             </div>
-
-            {/* Transporter Inspection */}
-            <div className="border border-gray-100 rounded-2xl p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Truck className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-semibold text-gray-900">Transporter</span>
-              </div>
-              <div className="space-y-2 mb-4">
-                <span className="inline-block px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded">Passed</span>
-                <p className="text-xs text-gray-500">Cleanliness: Good</p>
-                <p className="text-xs text-gray-500">{new Date().toLocaleDateString()}, 12:30 PM</p>
-              </div>
-              <button className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg transition-colors">
-                VIEW REPORT
-              </button>
-            </div>
-
-            {/* Distributor Inspection */}
-            <div className="border border-gray-100 rounded-2xl p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Warehouse className="w-4 h-4 text-purple-500" />
-                <span className="text-sm font-semibold text-gray-900">Distributor</span>
-              </div>
-              <div className="space-y-2 mb-4">
-                <span className="inline-block px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded">Passed</span>
-                <p className="text-xs text-gray-500">Temperature: 6-10C</p>
-                <p className="text-xs text-gray-500">{new Date().toLocaleDateString()}, 12:31 PM</p>
-              </div>
-              <button className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg transition-colors">
-                VIEW REPORT
-              </button>
-            </div>
-
-            {/* Retailer Inspection */}
-            <div className="border border-gray-100 rounded-2xl p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Store className="w-4 h-4 text-orange-500" />
-                <span className="text-sm font-semibold text-gray-900">Retailer</span>
-              </div>
-              <div className="space-y-2 mb-4">
-                <span className="inline-block px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded">Listed for Sale</span>
-                <p className="text-xs text-gray-500">Quality Grade: A</p>
-                <p className="text-xs text-gray-500">{new Date().toLocaleDateString()}, 12:34 PM</p>
-              </div>
-              <button className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg transition-colors">
-                VIEW REPORT
-              </button>
-            </div>
-          </div>
+          )}
         </section>
 
         {/* E. VERIFICATION BADGE */}

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from .db_file_fields import DatabaseFileField, DatabaseImageField
 
 
 class StakeholderRole(models.TextChoices):
@@ -41,7 +42,7 @@ class KYCRecord(models.Model):
     )
     document_type = models.CharField(max_length=100)
     document_number = models.CharField(max_length=255)
-    document_file = models.FileField(upload_to="kyc_documents/", blank=True, null=True)
+    document_file = DatabaseFileField(blank=True, null=True)
     status = models.CharField(
         max_length=32, choices=KYCStatus.choices, default=KYCStatus.PENDING
     )
@@ -107,14 +108,10 @@ class CropBatch(models.Model):
     harvest_date = models.DateField()
     product_batch_id = models.CharField(max_length=100, unique=True, blank=True)
     public_batch_id = models.CharField(max_length=100, unique=True, blank=True, null=True)
-    qr_code_image = models.ImageField(upload_to="qr_codes/", blank=True, null=True)
+    qr_code_image = DatabaseImageField(blank=True, null=True)
     qr_code_data = models.TextField(blank=True)
-    organic_certificate = models.FileField(
-        upload_to="certificates/", blank=True, null=True
-    )
-    quality_test_report = models.FileField(
-        upload_to="reports/", blank=True, null=True
-    )
+    organic_certificate = DatabaseFileField(blank=True, null=True)
+    quality_test_report = DatabaseFileField(blank=True, null=True)
     
     # Linear Pricing Fields
     farmer_base_price_per_unit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -233,9 +230,7 @@ class TransportRequest(models.Model):
     driver_details = models.TextField(blank=True)
     pickup_at = models.DateTimeField(null=True, blank=True)
     delivered_at = models.DateTimeField(null=True, blank=True)
-    delivery_proof = models.FileField(
-        upload_to="delivery_proofs/", blank=True, null=True
-    )
+    delivery_proof = DatabaseFileField(blank=True, null=True)
     
     # Linear Pricing Fields
     transporter_fee_per_unit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -264,7 +259,6 @@ class InspectionResult(models.TextChoices):
 
 class InspectionStage(models.TextChoices):
     FARMER = "farmer", "Farmer"
-    TRANSPORTER = "transporter", "Transporter"
     DISTRIBUTOR = "distributor", "Distributor"
     RETAILER = "retailer", "Retailer"
 
@@ -280,7 +274,7 @@ class InspectionReport(models.Model):
     result = models.CharField(
         max_length=32, choices=InspectionResult.choices, default=InspectionResult.PASS
     )
-    report_file = models.FileField(upload_to="inspection_reports/", blank=True, null=True)
+    report_file = DatabaseFileField(blank=True, null=True)
     # Legacy field - kept for backward compatibility
     storage_conditions = models.TextField(blank=True)
     passed = models.BooleanField(default=False)

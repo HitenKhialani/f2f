@@ -11,6 +11,7 @@ import {
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI } from '../../services/api';
 import { InspectionForm, InspectionTimeline } from '../../components/inspection';
+import ProductDescriptionForm from '../../components/inspection/ProductDescriptionForm';
 
 const FarmerBatches = () => {
   const [batches, setBatches] = useState([]);
@@ -20,6 +21,7 @@ const FarmerBatches = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showTransportModal, setShowTransportModal] = useState(false);
   const [showInspectionModal, setShowInspectionModal] = useState(false);
+  const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [showInspectionTimeline, setShowInspectionTimeline] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [distributors, setDistributors] = useState([]);
@@ -84,7 +86,7 @@ const FarmerBatches = () => {
     }
   };
 
-  const hasFarmerInspection = (batchId) => {
+  const hasFarmerDescription = (batchId) => {
     const inspections = batchInspections[batchId] || [];
     return inspections.some(i => i.stage === 'farmer');
   };
@@ -307,24 +309,24 @@ const FarmerBatches = () => {
                           {batch.status === 'SUSPENDED' && (
                             <span className="text-xs text-red-600 font-medium">Suspended</span>
                           )}
-                          {/* Inspection button for farmer stage */}
-                          {batch.status === 'CREATED' && !hasFarmerInspection(batch.id) && (
+                          {/* Description button for farmer stage */}
+                          {batch.status === 'CREATED' && !hasFarmerDescription(batch.id) && (
                             <button
                               onClick={() => {
                                 setSelectedBatch(batch);
-                                setShowInspectionModal(true);
+                                setShowDescriptionModal(true);
                               }}
-                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center gap-1"
-                              title="Inspect Batch"
+                              className="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 flex items-center gap-1"
+                              title="Add Product Description"
                             >
                               <ClipboardCheck className="w-3 h-3" />
-                              Inspect
+                              Describe
                             </button>
                           )}
-                          {batch.status === 'CREATED' && hasFarmerInspection(batch.id) && (
+                          {batch.status === 'CREATED' && hasFarmerDescription(batch.id) && (
                             <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded flex items-center gap-1">
                               <ClipboardCheck className="w-3 h-3" />
-                              Inspected
+                              Described
                             </span>
                           )}
                           {batch.status === 'CREATED' && (
@@ -498,7 +500,22 @@ const FarmerBatches = () => {
             </div>
           </div>
         )}
-        {/* Inspection Form Modal */}
+        {/* Product Description Form Modal */}
+        {showDescriptionModal && selectedBatch && (
+          <ProductDescriptionForm
+            batch={selectedBatch}
+            onClose={() => {
+              setShowDescriptionModal(false);
+              setSelectedBatch(null);
+            }}
+            onSuccess={() => {
+              fetchBatchInspections(selectedBatch.id);
+              fetchBatches();
+            }}
+          />
+        )}
+
+        {/* Inspection Form Modal - for other stages if needed */}
         {showInspectionModal && selectedBatch && (
           <InspectionForm
             batch={selectedBatch}

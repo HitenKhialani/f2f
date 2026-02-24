@@ -9,8 +9,7 @@ const RESULT_OPTIONS = [
 ];
 
 const STAGE_LABELS = {
-  farmer: 'Farmer Inspection',
-  transporter: 'Transporter Inspection',
+  farmer: 'Farmer Description',
   distributor: 'Distributor Inspection',
   retailer: 'Retailer Inspection',
 };
@@ -53,14 +52,27 @@ const InspectionForm = ({
     setError(null);
 
     try {
-      const data = new FormData();
-      data.append('batch', batch.id);
-      data.append('stage', stage);
-      data.append('result', formData.result);
-      data.append('inspection_notes', formData.inspection_notes);
+      // Convert file to base64 if present
+      let reportFileBase64 = null;
       if (formData.report_file) {
-        data.append('report_file', formData.report_file);
+        reportFileBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            // reader.result contains data URL like "data:image/jpeg;base64,/9j/4AAQ..."
+            resolve(reader.result);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(formData.report_file);
+        });
       }
+
+      const data = {
+        batch: batch.id,
+        stage: stage,
+        result: formData.result,
+        inspection_notes: formData.inspection_notes,
+        report_file: reportFileBase64,
+      };
 
       await inspectionAPI.create(data);
       onSuccess?.();

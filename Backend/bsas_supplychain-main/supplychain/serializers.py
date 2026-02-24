@@ -1,9 +1,57 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+import base64
 
 from supplychain import models
+from supplychain.db_file_fields import DatabaseFile, DatabaseImageField
+
 
 User = get_user_model()
+
+
+class Base64FileField(serializers.Field):
+    """Serializer field for handling file uploads/downloads as base64."""
+    
+    def to_representation(self, value):
+        """Convert database file to base64 data URI for API response."""
+        if not value:
+            return None
+        if hasattr(value, 'url'):
+            return value.url
+        if isinstance(value, bytes):
+            b64_data = base64.b64encode(value).decode('utf-8')
+            return f"data:application/octet-stream;base64,{b64_data}"
+        return None
+    
+    def to_internal_value(self, data):
+        """Convert base64 string to database file."""
+        if not data:
+            return None
+        
+        # Handle data URI format (data:mimetype;base64,content)
+        if isinstance(data, str) and data.startswith('data:'):
+            try:
+                # Parse data URI
+                header, encoded = data.split(',', 1)
+                # Extract content type
+                content_type = 'application/octet-stream'
+                if ';' in header:
+                    content_type = header.split(':')[1].split(';')[0]
+                # Decode base64
+                file_data = base64.b64decode(encoded)
+                return DatabaseFile(data=file_data, content_type=content_type)
+            except Exception:
+                raise serializers.ValidationError("Invalid data URI format")
+        
+        # Handle plain base64 string
+        if isinstance(data, str):
+            try:
+                file_data = base64.b64decode(data)
+                return DatabaseFile(data=file_data)
+            except Exception:
+                raise serializers.ValidationError("Invalid base64 format")
+        
+        return None
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -37,6 +85,7 @@ class UserWithProfileSerializer(serializers.ModelSerializer):
 
 class KYCRecordSerializer(serializers.ModelSerializer):
     profile_details = StakeholderProfileSerializer(source="profile", read_only=True)
+    document_file = Base64FileField(required=False, allow_null=True)
 
     class Meta:
         model = models.KYCRecord
@@ -56,6 +105,9 @@ class KYCRecordSerializer(serializers.ModelSerializer):
 
 class CropBatchSerializer(serializers.ModelSerializer):
     current_owner_username = serializers.CharField(source="current_owner.username", read_only=True)
+    organic_certificate = Base64FileField(required=False, allow_null=True)
+    quality_test_report = Base64FileField(required=False, allow_null=True)
+    qr_code_image = Base64FileField(required=False, allow_null=True)
     
     class Meta:
         model = models.CropBatch
@@ -103,6 +155,7 @@ class TransportRequestSerializer(serializers.ModelSerializer):
     from_party_details = StakeholderProfileSerializer(source="from_party", read_only=True)
     to_party_details = StakeholderProfileSerializer(source="to_party", read_only=True)
     transporter_details = StakeholderProfileSerializer(source="transporter", read_only=True)
+    delivery_proof = Base64FileField(required=False, allow_null=True)
 
     class Meta:
         model = models.TransportRequest
@@ -131,6 +184,7 @@ class InspectionReportSerializer(serializers.ModelSerializer):
     created_by_username = serializers.CharField(source="created_by.username", read_only=True)
     distributor_details = StakeholderProfileSerializer(source="distributor", read_only=True)
     batch_details = CropBatchSerializer(source="batch", read_only=True)
+    report_file = Base64FileField(required=False, allow_null=True)
 
     class Meta:
         model = models.InspectionReport

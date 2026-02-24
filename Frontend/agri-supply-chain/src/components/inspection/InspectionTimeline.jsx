@@ -4,34 +4,23 @@ import {
   AlertCircle, 
   AlertTriangle, 
   User, 
-  Calendar, 
-  FileText,
+  Calendar,
   ChevronDown,
   ChevronUp,
   Sprout,
-  Truck,
   Warehouse,
-  Store,
-  ExternalLink
+  Store
 } from 'lucide-react';
 import { inspectionAPI } from '../../services/api';
 
 const STAGE_CONFIG = {
   farmer: {
-    label: 'Farmer',
+    label: 'Product Description',
     icon: Sprout,
     color: 'green',
     bgColor: 'bg-green-50',
     borderColor: 'border-green-200',
     textColor: 'text-green-700',
-  },
-  transporter: {
-    label: 'Transporter',
-    icon: Truck,
-    color: 'blue',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
-    textColor: 'text-blue-700',
   },
   distributor: {
     label: 'Distributor',
@@ -80,6 +69,14 @@ const InspectionTimeline = ({ batchId, inspections: propInspections }) => {
   const [loading, setLoading] = useState(!propInspections);
   const [error, setError] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
+
+  // Debug: Log inspections data
+  useEffect(() => {
+    console.log('InspectionTimeline - inspections:', inspections);
+    inspections.forEach((insp, idx) => {
+      console.log(`Inspection ${idx}:`, insp.stage, 'report_file:', insp.report_file);
+    });
+  }, [inspections]);
 
   useEffect(() => {
     // Update inspections when prop changes
@@ -238,7 +235,7 @@ const InspectionTimeline = ({ batchId, inspections: propInspections }) => {
                       <div className="mt-4 pt-4 border-t border-gray-200">
                         {inspection.inspection_notes ? (
                           <div className="mb-4">
-                            <h4 className="text-sm font-medium text-gray-700 mb-2">Inspection Notes</h4>
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">{inspection.stage === 'farmer' ? 'Product Description' : 'Inspection Notes'}</h4>
                             <p className="text-sm text-gray-600 whitespace-pre-wrap">
                               {inspection.inspection_notes}
                             </p>
@@ -247,20 +244,23 @@ const InspectionTimeline = ({ batchId, inspections: propInspections }) => {
                           <p className="text-sm text-gray-500 italic mb-4">No notes provided</p>
                         )}
 
+                        {/* Display Images */}
                         {inspection.report_file && (
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-2">Supporting Document</h4>
-                            <a
-                              href={inspection.report_file}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <FileText className="w-4 h-4" />
-                              View Document
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
+                          <div className="mb-4">
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">
+                              {inspection.stage === 'farmer' ? 'Product Images' : 'Inspection Images'}
+                            </h4>
+                            <div className="flex gap-2 flex-wrap">
+                              <img
+                                src={inspection.report_file}
+                                alt="Inspection"
+                                className="w-32 h-32 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(inspection.report_file, '_blank');
+                                }}
+                              />
+                            </div>
                           </div>
                         )}
                       </div>

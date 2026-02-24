@@ -16,21 +16,34 @@ class Base64FileField(serializers.Field):
         """Convert database file to base64 data URI for API response."""
         if not value:
             return None
+        # Handle DatabaseFile object (has url property)
+        if hasattr(value, 'url') and callable(getattr(value, 'url', None)):
+            return value.url
         if hasattr(value, 'url'):
             return value.url
-        if isinstance(value, bytes):
+        # Handle bytes directly
+        if isinstance(value, bytes) and value:
             b64_data = base64.b64encode(value).decode('utf-8')
             return f"data:application/octet-stream;base64,{b64_data}"
         return None
     
     def to_internal_value(self, data):
-        """Convert base64 string to database file."""
+        """Convert base64 string or uploaded file to database file."""
         if not data:
             return None
+        
+        # Handle Django UploadedFile
+        if hasattr(data, 'read'):
+            from supplychain.db_file_fields import DatabaseFile
+            file_content = data.read()
+            content_type = getattr(data, 'content_type', 'application/octet-stream')
+            name = getattr(data, 'name', 'uploaded_file')
+            return DatabaseFile(data=file_content, name=name, content_type=content_type)
         
         # Handle data URI format (data:mimetype;base64,content)
         if isinstance(data, str) and data.startswith('data:'):
             try:
+                from supplychain.db_file_fields import DatabaseFile
                 # Parse data URI
                 header, encoded = data.split(',', 1)
                 # Extract content type
@@ -46,6 +59,7 @@ class Base64FileField(serializers.Field):
         # Handle plain base64 string
         if isinstance(data, str):
             try:
+                from supplychain.db_file_fields import DatabaseFile
                 file_data = base64.b64decode(data)
                 return DatabaseFile(data=file_data)
             except Exception:
@@ -86,6 +100,7 @@ class UserWithProfileSerializer(serializers.ModelSerializer):
 class KYCRecordSerializer(serializers.ModelSerializer):
     profile_details = StakeholderProfileSerializer(source="profile", read_only=True)
     document_file = Base64FileField(required=False, allow_null=True)
+    created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = models.KYCRecord
@@ -99,6 +114,7 @@ class KYCRecordSerializer(serializers.ModelSerializer):
             "status",
             "verified_by",
             "verified_at",
+            "created_at",
         ]
 
 

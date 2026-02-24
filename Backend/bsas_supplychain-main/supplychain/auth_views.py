@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from supplychain import models
+from supplychain.db_file_fields import DatabaseFile
 
 User = get_user_model()
 
@@ -27,6 +28,10 @@ class RegisterView(APIView):
         phone = data.get("phone", "")
         organization = data.get("organization", "")
         address = data.get("address", "")
+        
+        # Document fields from registration form
+        document_type = data.get("document_type", "")
+        document_file = request.FILES.get("document")
 
         # Validation
         if not all([username, email, password, role]):
@@ -72,11 +77,23 @@ class RegisterView(APIView):
                     kyc_status=models.KYCStatus.PENDING,
                 )
 
-                # Create initial KYC record
-                models.KYCRecord.objects.create(
+                # Process document file if uploaded
+                db_file = None
+                if document_file:
+                    # Read file content and create DatabaseFile
+                    file_content = document_file.read()
+                    db_file = DatabaseFile(
+                        data=file_content,
+                        name=document_file.name,
+                        content_type=document_file.content_type or 'application/octet-stream'
+                    )
+
+                # Create KYC record with uploaded document
+                kyc_record = models.KYCRecord.objects.create(
                     profile=profile,
-                    document_type="registration",
+                    document_type=document_type.lower() if document_type else "registration",
                     document_number="pending",
+                    document_file=db_file,
                     status=models.KYCStatus.PENDING,
                 )
 

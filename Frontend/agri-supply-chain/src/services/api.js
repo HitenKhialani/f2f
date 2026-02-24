@@ -25,7 +25,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Don't redirect if we're already on the login page or if it's a login request
+    const isLoginPage = window.location.pathname === '/login';
+    const isLoginRequest = error.config?.url?.includes('/auth/login/');
+    
+    if (error.response?.status === 401 && !isLoginPage && !isLoginRequest) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
@@ -36,7 +40,17 @@ api.interceptors.response.use(
 // Auth APIs
 export const authAPI = {
   login: (data) => api.post('/auth/login/', data),
-  register: (data) => api.post('/auth/register/', data),
+  register: (data) => {
+    // Check if data is FormData (has file upload)
+    const isFormData = data instanceof FormData;
+    return api.post('/auth/register/', data, {
+      headers: isFormData ? {
+        'Content-Type': 'multipart/form-data',
+      } : {
+        'Content-Type': 'application/json',
+      }
+    });
+  },
   me: () => api.get('/auth/me/'),
   updateProfile: (data) => api.patch('/auth/me/', data),
 };

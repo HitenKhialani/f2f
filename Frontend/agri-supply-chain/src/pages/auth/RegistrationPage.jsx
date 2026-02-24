@@ -116,17 +116,23 @@ const RegistrationPage = () => {
     setError('');
 
     try {
-      const data = {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        role: role.toUpperCase(),
-        phone: formData.phone,
-        organization: formData.organization,
-        address: formData.address,
-      };
+      // Use FormData to send file
+      const formDataToSend = new FormData();
+      formDataToSend.append('username', formData.username);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('password', formData.password);
+      formDataToSend.append('role', role.toUpperCase());
+      formDataToSend.append('phone', formData.phone);
+      formDataToSend.append('organization', formData.organization);
+      formDataToSend.append('address', formData.address);
+      
+      // Append document file if exists
+      if (documentFile) {
+        formDataToSend.append('document', documentFile);
+        formDataToSend.append('document_type', config.documentLabel);
+      }
 
-      await register(data);
+      await register(formDataToSend);
       setSuccess(true);
       setTimeout(() => {
         navigate('/kyc-pending');

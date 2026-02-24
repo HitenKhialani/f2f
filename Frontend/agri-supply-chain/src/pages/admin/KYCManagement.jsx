@@ -7,8 +7,8 @@ import {
   Search,
   Filter,
   FileCheck,
-  Download,
-  Eye
+  Eye,
+  X
 } from 'lucide-react';
 import { adminAPI } from '../../services/adminApi';
 
@@ -20,6 +20,19 @@ const KYCManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [notes, setNotes] = useState('');
+  const [viewingDocument, setViewingDocument] = useState(null);
+
+  // Role to document type mapping
+  const getRoleDocumentType = (role) => {
+    const documentTypes = {
+      farmer: 'Land Document',
+      distributor: 'Trade License',
+      transporter: 'Transport License',
+      retailer: 'Shop License',
+      consumer: 'Identity Document'
+    };
+    return documentTypes[role?.toLowerCase()] || 'Registration Document';
+  };
 
   useEffect(() => {
     fetchKYCRecords();
@@ -193,17 +206,26 @@ const KYCManagement = () => {
                     </td>
 
                     <td className="px-6 py-4 text-sm text-gray-700">
-                      {record.document_type || 'KYC Document'}
-                      {record.document_file && (
-                        <a
-                          href={record.document_file}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ml-2 text-green-600 hover:underline text-xs"
-                        >
-                          <Download className="w-3 h-3 inline" /> View
-                        </a>
-                      )}
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium text-gray-900">
+                          {record.document_type || getRoleDocumentType(record.profile_details?.role)}
+                        </span>
+                        {record.document_file ? (
+                          <button
+                            onClick={() => setViewingDocument({
+                              url: record.document_file,
+                              type: record.document_type || getRoleDocumentType(record.profile_details?.role),
+                              user: record.profile_details?.user_details?.username
+                            })}
+                            className="flex items-center gap-1 text-emerald-600 hover:text-emerald-700 text-xs font-medium w-fit"
+                          >
+                            <Eye className="w-3 h-3" />
+                            View Document
+                          </button>
+                        ) : (
+                          <span className="text-xs text-gray-400">No document uploaded</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       {getStatusBadge(record.status)}
@@ -294,6 +316,52 @@ const KYCManagement = () => {
               >
                 {selectedRecord.rejectMode ? 'Reject' : 'Approve'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Document Viewer Modal */}
+      {viewingDocument && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {viewingDocument.type}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Uploaded by: {viewingDocument.user}
+                </p>
+              </div>
+              <button
+                onClick={() => setViewingDocument(null)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="border rounded-lg overflow-hidden bg-gray-50">
+              {/* Check for image data URI or file extension */}
+              {viewingDocument.url?.match(/data:image\/(jpeg|jpg|png|gif)/i) || viewingDocument.url?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                <img
+                  src={viewingDocument.url}
+                  alt={viewingDocument.type}
+                  className="w-full max-h-[60vh] object-contain"
+                />
+              ) : viewingDocument.url?.match(/data:application\/pdf/i) || viewingDocument.url?.match(/\.pdf$/i) ? (
+                <iframe
+                  src={viewingDocument.url}
+                  className="w-full h-[60vh]"
+                  title={viewingDocument.type}
+                />
+              ) : (
+                <div className="p-8 text-center">
+                  <FileCheck className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-600">Document uploaded successfully</p>
+                  <p className="text-sm text-gray-400 mt-2">File type: {viewingDocument.type}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

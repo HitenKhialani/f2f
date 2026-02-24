@@ -1,13 +1,14 @@
 """Django settings for supplychain project."""
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-change-me"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-change-me")
 
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
 
-ALLOWED_HOSTS: list[str] = []
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -55,8 +56,16 @@ WSGI_APPLICATION = "bsas_supplychain.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME", "neondb"),
+        "USER": os.environ.get("DB_USER", "neondb_owner"),
+        "PASSWORD": os.environ.get("DB_PASSWORD", "npg_ts82zxHwmunf"),
+        "HOST": os.environ.get("DB_HOST", "ep-soft-darkness-a16przuw-pooler.ap-southeast-1.aws.neon.tech"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
+        "OPTIONS": {
+            "sslmode": "require",
+            "channel_binding": "require",
+        },
     }
 }
 

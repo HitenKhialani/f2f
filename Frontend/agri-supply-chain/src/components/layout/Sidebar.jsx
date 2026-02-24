@@ -85,20 +85,20 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen sticky top-0">
+    <aside className="w-64 bg-emerald-50 border-r border-emerald-200 flex flex-col h-screen sticky top-0">
       {/* Logo */}
-      <div className="p-6 border-b border-gray-100">
+      <div className="p-6 border-b border-emerald-200">
         <Link to="/" className="flex items-center gap-2">
-          <div className="bg-primary p-1.5 rounded-lg">
+          <div className="bg-emerald-600 p-1.5 rounded-lg">
             <Sprout className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-primary">AgriChain</span>
+          <span className="text-xl font-bold text-emerald-900">AgriChain</span>
         </Link>
       </div>
 
       {/* Role Badge */}
       <div className="px-4 py-3">
-        <div className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium text-center">
+        <div className="bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-full text-sm font-medium text-center border border-emerald-200">
           {getRoleLabel()}
         </div>
       </div>
@@ -109,26 +109,32 @@ const Sidebar = () => {
           <Link
             key={item.path}
             to={item.path}
-            className={`sidebar-link ${location.pathname === item.path ? 'active' : ''}`}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              location.pathname === item.path 
+                ? 'bg-emerald-600 text-white' 
+                : 'text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900'
+            }`}
           >
-            {item.icon}
+            <span className={location.pathname === item.path ? 'text-white' : 'text-emerald-500'}>
+              {item.icon}
+            </span>
             <span>{item.label}</span>
           </Link>
         ))}
       </nav>
 
       {/* Bottom Section */}
-      <div className="p-4 border-t border-gray-100 space-y-2">
+      <div className="p-4 border-t border-emerald-200 space-y-2">
         <Link
           to="/profile"
-          className="sidebar-link"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-emerald-700 hover:bg-emerald-100 hover:text-emerald-900 transition-colors"
         >
-          <User className="w-5 h-5" />
+          <User className="w-5 h-5 text-emerald-500" />
           <span>Profile</span>
         </Link>
         <button
           onClick={handleLogout}
-          className="w-full sidebar-link text-red-600 hover:bg-red-50 hover:text-red-700"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
         >
           <LogOut className="w-5 h-5" />
           <span>Log Out</span>

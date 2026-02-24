@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Sprout, User, Mail, Lock, Phone, Building2, MapPin, FileText, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
+import { Sprout, User, Mail, Lock, Phone, Building2, MapPin, ArrowLeft, Loader2, CheckCircle, FileText, Upload } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const RegistrationPage = () => {
@@ -8,7 +8,6 @@ const RegistrationPage = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   
-  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -21,45 +20,56 @@ const RegistrationPage = () => {
     phone: '',
     organization: '',
     address: '',
-    documentType: '',
-    documentNumber: '',
   });
+
+  const [documentFile, setDocumentFile] = useState(null);
+  const [documentName, setDocumentName] = useState('');
 
   const roleConfig = {
     farmer: {
       title: 'Farmer',
-      subtitle: 'Farmer Registration',
+      subtitle: 'Join as a Farmer to sell your produce',
       icon: <Sprout className="w-6 h-6" />,
       fields: ['organization', 'address'],
-      labels: { organization: 'Farm Name', address: 'Address (Village/District/State)' },
+      labels: { organization: 'Farm Name', address: 'Farm Address (Village/District/State)' },
+      documentLabel: 'Land Document',
+      documentPlaceholder: 'Upload land ownership document',
     },
     distributor: {
       title: 'Distributor',
-      subtitle: 'Distributor Registration',
+      subtitle: 'Join as a Distributor to manage supply chain',
       icon: <Building2 className="w-6 h-6" />,
       fields: ['organization', 'address'],
-      labels: { organization: 'Company Name', address: 'Address (City/State)' },
+      labels: { organization: 'Company Name', address: 'Business Address (City/State)' },
+      documentLabel: 'Trade License',
+      documentPlaceholder: 'Upload trade license document',
     },
     transporter: {
       title: 'Transporter',
-      subtitle: 'Transporter Registration',
+      subtitle: 'Join as a Transporter to handle logistics',
       icon: <User className="w-6 h-6" />,
       fields: ['organization', 'address'],
-      labels: { organization: 'Transport Company Name', address: 'Address (City/State)' },
+      labels: { organization: 'Transport Company Name', address: 'Office Address (City/State)' },
+      documentLabel: 'Driver/Transport License',
+      documentPlaceholder: 'Upload transport license',
     },
     retailer: {
       title: 'Retailer',
-      subtitle: 'Retailer Registration',
+      subtitle: 'Join as a Retailer to sell to consumers',
       icon: <Building2 className="w-6 h-6" />,
       fields: ['organization', 'address'],
-      labels: { organization: 'Shop Name', address: 'Address (Market/City)' },
+      labels: { organization: 'Shop Name', address: 'Shop Address (Market/City)' },
+      documentLabel: 'Shop License',
+      documentPlaceholder: 'Upload shop/business license',
     },
     consumer: {
       title: 'Consumer',
-      subtitle: 'Consumer Registration',
+      subtitle: 'Join as a Consumer to trace products',
       icon: <User className="w-6 h-6" />,
       fields: [],
       labels: {},
+      documentLabel: null,
+      documentPlaceholder: null,
     },
   };
 
@@ -70,7 +80,15 @@ const RegistrationPage = () => {
     setError('');
   };
 
-  const validateStep1 = () => {
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setDocumentFile(file);
+      setDocumentName(file.name);
+    }
+  };
+
+  const validateForm = () => {
     if (!formData.username || !formData.email || !formData.password) {
       setError('Please fill all required fields');
       return false;
@@ -83,17 +101,17 @@ const RegistrationPage = () => {
       setError('Password must be at least 8 characters');
       return false;
     }
-    return true;
-  };
-
-  const handleNext = () => {
-    if (validateStep1()) {
-      setStep(2);
+    if (config.documentLabel && !documentFile) {
+      setError(`Please upload your ${config.documentLabel}`);
+      return false;
     }
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     setLoading(true);
     setError('');
 
@@ -159,21 +177,6 @@ const RegistrationPage = () => {
 
       {/* Main Content */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Progress */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${step >= 1 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
-              <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-sm font-medium">1</span>
-              <span className="text-sm font-medium">Account</span>
-            </div>
-            <div className="w-8 h-0.5 bg-gray-300"></div>
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${step >= 2 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'}`}>
-              <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-sm font-medium">2</span>
-              <span className="text-sm font-medium">Profile</span>
-            </div>
-          </div>
-        </div>
-
         {/* Form Card */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
           {/* Card Header */}
@@ -196,11 +199,16 @@ const RegistrationPage = () => {
               </div>
             )}
 
-            {step === 1 ? (
-              <form className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Account Information Section */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Account Information
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                       <input
@@ -208,13 +216,14 @@ const RegistrationPage = () => {
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
-                        placeholder="Rajesh Kumar"
+                        placeholder="Enter your full name"
                         className="input-field pl-10"
+                        required
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                       <input
@@ -222,16 +231,17 @@ const RegistrationPage = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        placeholder="rajesh@example.com"
+                        placeholder="your@email.com"
                         className="input-field pl-10"
+                        required
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-2 gap-4 mt-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Password *</label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                       <input
@@ -239,13 +249,14 @@ const RegistrationPage = () => {
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        placeholder="••••••••"
+                        placeholder="Min 8 characters"
                         className="input-field pl-10"
+                        required
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                       <input
@@ -253,26 +264,22 @@ const RegistrationPage = () => {
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
-                        placeholder="••••••••"
+                        placeholder="Confirm your password"
                         className="input-field pl-10"
+                        required
                       />
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div className="pt-4">
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="w-full btn-primary py-3"
-                  >
-                    Next
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
+              {/* Profile Information Section */}
+              <div className="border-t border-gray-100 pt-6">
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 flex items-center gap-2">
+                  <Building2 className="w-4 h-4" />
+                  Profile Information
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                     <div className="relative">
@@ -299,7 +306,7 @@ const RegistrationPage = () => {
                           name="organization"
                           value={formData.organization}
                           onChange={handleChange}
-                          placeholder="Organization name"
+                          placeholder={`Enter ${config.labels.organization}`}
                           className="input-field pl-10"
                         />
                       </div>
@@ -308,7 +315,7 @@ const RegistrationPage = () => {
                 </div>
 
                 {config.fields.includes('address') && (
-                  <div>
+                  <div className="mt-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {config.labels.address}
                     </label>
@@ -319,38 +326,89 @@ const RegistrationPage = () => {
                         value={formData.address}
                         onChange={handleChange}
                         rows="2"
-                        placeholder="Enter your complete address"
+                        placeholder={`Enter ${config.labels.address}`}
                         className="input-field pl-10"
                       />
                     </div>
                   </div>
                 )}
+              </div>
 
-                <div className="pt-4 flex gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="flex-1 btn-secondary py-3"
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 btn-primary py-3 flex items-center justify-center gap-2"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Processing...</span>
-                      </>
-                    ) : (
-                      <span>Register</span>
-                    )}
-                  </button>
+              {/* Document Upload Section - Role Based */}
+              {config.documentLabel && (
+                <div className="border-t border-gray-100 pt-6">
+                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Document Verification
+                  </h3>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {config.documentLabel} *
+                    </label>
+                    <div className="relative">
+                      <div className="flex items-center gap-4">
+                        <label className="flex-1 cursor-pointer">
+                          <div className={`flex items-center gap-3 px-4 py-3 border-2 border-dashed rounded-lg transition-colors ${
+                            documentFile 
+                              ? 'border-emerald-500 bg-emerald-50' 
+                              : 'border-gray-300 hover:border-primary bg-gray-50'
+                          }`}>
+                            <Upload className={`w-5 h-5 ${documentFile ? 'text-emerald-600' : 'text-gray-400'}`} />
+                            <div className="flex-1">
+                              <p className={`text-sm ${documentFile ? 'text-emerald-700 font-medium' : 'text-gray-600'}`}>
+                                {documentName || config.documentPlaceholder}
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                {documentFile ? 'File selected' : 'Click to upload PDF, JPG, or PNG'}
+                              </p>
+                            </div>
+                          </div>
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={handleFileChange}
+                            className="hidden"
+                          />
+                        </label>
+                        {documentFile && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDocumentFile(null);
+                              setDocumentName('');
+                            }}
+                            className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Please upload a clear image or PDF of your {config.documentLabel.toLowerCase()} for verification.
+                    </p>
+                  </div>
                 </div>
-              </form>
-            )}
+              )}
+
+              {/* Submit Button */}
+              <div className="pt-4 border-t border-gray-100">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full btn-primary py-3 flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Creating Account...</span>
+                    </>
+                  ) : (
+                    <span>Complete Registration</span>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 

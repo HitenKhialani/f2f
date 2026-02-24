@@ -248,7 +248,7 @@ const Incoming = () => {
                         {getStatusBadge(item.status)}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex gap-2 flex-wrap items-center">
                           {(item.status === 'ARRIVED_AT_DISTRIBUTOR' || item.status === 'ARRIVED') && (
                             <button
                               onClick={() => handleConfirmArrival(item.id)}
@@ -257,32 +257,29 @@ const Incoming = () => {
                               Confirm Arrival
                             </button>
                           )}
-                          {/* Inspection button for distributor stage */}
-                          {(item.status === 'DELIVERED_TO_DISTRIBUTOR' || item.status === 'STORED') && 
-                           (item.batch || item.batch_details?.id) &&
-                           !hasDistributorInspection(item.batch || item.batch_details?.id) && (
-                            <button
-                              onClick={() => {
-                                setSelectedBatch(item);
-                                setShowInspectionModal(true);
-                              }}
-                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center gap-1"
-                              title="Inspect Batch"
-                            >
-                              <ClipboardCheck className="w-3 h-3" />
-                              Inspect
-                            </button>
-                          )}
-                          {(item.status === 'DELIVERED_TO_DISTRIBUTOR' || item.status === 'STORED') && 
-                           (item.batch || item.batch_details?.id) &&
-                           hasDistributorInspection(item.batch || item.batch_details?.id) && (
-                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded flex items-center gap-1">
-                              <ClipboardCheck className="w-3 h-3" />
-                              Inspected
-                            </span>
-                          )}
                           {item.status === 'DELIVERED_TO_DISTRIBUTOR' && (
                             <>
+                              {/* Inspection button - shows first for visibility */}
+                              {(item.batch || item.batch_details?.id || item.id) && (
+                                !hasDistributorInspection(item.batch || item.batch_details?.id || item.id) ? (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedBatch(item);
+                                      setShowInspectionModal(true);
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md"
+                                    title="Inspect Batch"
+                                  >
+                                    <ClipboardCheck className="w-4 h-4" />
+                                    Inspect
+                                  </button>
+                                ) : (
+                                  <span className="px-3 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-lg flex items-center gap-2">
+                                    <ClipboardCheck className="w-4 h-4" />
+                                    Inspected
+                                  </span>
+                                )
+                              )}
                               <button
                                 onClick={() => {
                                   setSelectedBatch(item);
@@ -299,6 +296,31 @@ const Incoming = () => {
                               >
                                 Suspend
                               </button>
+                            </>
+                          )}
+                          {item.status === 'STORED' && (
+                            <>
+                              {/* Inspection button for stored batches */}
+                              {(item.batch || item.batch_details?.id || item.id) && (
+                                !hasDistributorInspection(item.batch || item.batch_details?.id || item.id) ? (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedBatch(item);
+                                      setShowInspectionModal(true);
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md"
+                                    title="Inspect Batch"
+                                  >
+                                    <ClipboardCheck className="w-4 h-4" />
+                                    Inspect
+                                  </button>
+                                ) : (
+                                  <span className="px-3 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-lg flex items-center gap-2">
+                                    <ClipboardCheck className="w-4 h-4" />
+                                    Inspected
+                                  </span>
+                                )
+                              )}
                             </>
                           )}
                           {(item.status === 'ARRIVED' || item.status === 'ARRIVAL_CONFIRMED' || item.status?.includes('IN_TRANSIT')) && (

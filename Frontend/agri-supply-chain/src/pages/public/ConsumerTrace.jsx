@@ -360,132 +360,86 @@ const ConsumerTrace = () => {
           </div>
         </section>
 
-        {/* D. SUPPLY CHAIN JOURNEY - Enhanced Horizontal Flow */}
+        {/* D. SUPPLY CHAIN JOURNEY - Compact Horizontal Flow */}
         <section className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-gray-900">Supply Chain Journey</h2>
             <span className="text-sm text-gray-500">
               {searchResult.timeline?.length || 0} events recorded
             </span>
           </div>
 
-          {/* Journey Flow - Visual Timeline */}
-          <div className="relative mb-10 px-2">
+          {/* Compact Journey Flow */}
+          <div className="relative mb-6">
             <div className="flex items-center justify-between relative">
               {/* Progress Line Background */}
-              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-gray-200 rounded-full" />
+              <div className="absolute left-0 right-0 top-6 h-1 bg-gray-200 rounded-full" />
               {/* Active Progress Line */}
               <div 
-                className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-emerald-500 rounded-full transition-all duration-500"
+                className="absolute left-0 top-6 h-1 bg-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: '100%' }}
               />
               
-              {/* Farm */}
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center border-4 border-emerald-100 shadow-lg shadow-emerald-200">
-                  <Sprout className="w-7 h-7 text-white" />
+              {/* Journey Nodes */}
+              {[
+                { icon: Sprout, label: 'Farm', sub: 'Origin', color: 'emerald' },
+                { icon: Truck, label: 'Transport', sub: 'In Transit', color: 'blue' },
+                { icon: Warehouse, label: 'Distributor', sub: 'Storage', color: 'purple' },
+                { icon: Store, label: 'Retailer', sub: 'Point of Sale', color: 'orange' }
+              ].map((node, idx) => (
+                <div key={idx} className="relative z-10 flex flex-col items-center bg-white px-2">
+                  <div className={`w-12 h-12 bg-${node.color}-500 rounded-full flex items-center justify-center border-3 border-${node.color}-100 shadow-md`}>
+                    <node.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs font-semibold text-gray-700 mt-1">{node.label}</span>
+                  <span className="text-[10px] text-gray-400">{node.sub}</span>
                 </div>
-                <span className="text-xs font-semibold text-gray-700 mt-2 bg-white px-2">Farm</span>
-                <span className="text-[10px] text-gray-400">Origin</span>
-              </div>
-              
-              {/* Transport */}
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center border-4 border-blue-100 shadow-lg shadow-blue-200">
-                  <Truck className="w-7 h-7 text-white" />
-                </div>
-                <span className="text-xs font-semibold text-gray-700 mt-2 bg-white px-2">Transport</span>
-                <span className="text-[10px] text-gray-400">In Transit</span>
-              </div>
-              
-              {/* Distributor */}
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="w-14 h-14 bg-purple-500 rounded-full flex items-center justify-center border-4 border-purple-100 shadow-lg shadow-purple-200">
-                  <Warehouse className="w-7 h-7 text-white" />
-                </div>
-                <span className="text-xs font-semibold text-gray-700 mt-2 bg-white px-2">Distributor</span>
-                <span className="text-[10px] text-gray-400">Storage</span>
-              </div>
-              
-              {/* Retailer */}
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="w-14 h-14 bg-orange-500 rounded-full flex items-center justify-center border-4 border-orange-100 shadow-lg shadow-orange-200">
-                  <Store className="w-7 h-7 text-white" />
-                </div>
-                <span className="text-xs font-semibold text-gray-700 mt-2 bg-white px-2">Retailer</span>
-                <span className="text-[10px] text-gray-400">Point of Sale</span>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Journey Events - Detailed Cards */}
-          <div className="space-y-3">
+          {/* Event History - Compact Grid */}
+          <div className="border-t border-gray-100 pt-4">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">Event History</h3>
-            {searchResult.timeline?.map((item, index) => {
-              const getStageColor = (stage) => {
-                const s = stage.toLowerCase();
-                if (s.includes('farm') || s.includes('created')) return 'bg-emerald-50 border-emerald-200 text-emerald-700';
-                if (s.includes('transport') || s.includes('transit')) return 'bg-blue-50 border-blue-200 text-blue-700';
-                if (s.includes('distributor') || s.includes('storage')) return 'bg-purple-50 border-purple-200 text-purple-700';
-                if (s.includes('retail') || s.includes('list') || s.includes('sale')) return 'bg-orange-50 border-orange-200 text-orange-700';
-                return 'bg-gray-50 border-gray-200 text-gray-700';
-              };
-              
-              const getStageIcon = (stage) => {
-                const s = stage.toLowerCase();
-                if (s.includes('farm') || s.includes('created')) return <Sprout className="w-4 h-4" />;
-                if (s.includes('transport') || s.includes('transit')) return <Truck className="w-4 h-4" />;
-                if (s.includes('distributor') || s.includes('storage')) return <Warehouse className="w-4 h-4" />;
-                if (s.includes('retail') || s.includes('list') || s.includes('sale')) return <Store className="w-4 h-4" />;
-                return <CheckCircle className="w-4 h-4" />;
-              };
-              
-              return (
-                <div 
-                  key={index} 
-                  className={`flex items-start gap-3 p-3 rounded-xl border ${getStageColor(item.stage)}`}
-                >
-                  <div className="mt-0.5">
-                    {getStageIcon(item.stage)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold">{item.stage}</span>
-                      <span className="text-xs opacity-75">
-                        {new Date(item.timestamp).toLocaleDateString()} • {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {searchResult.timeline?.map((item, index) => {
+                const getStageColor = (stage) => {
+                  const s = stage.toLowerCase();
+                  if (s.includes('farm') || s.includes('created')) return 'bg-emerald-50 border-emerald-200 text-emerald-700';
+                  if (s.includes('transport') || s.includes('transit')) return 'bg-blue-50 border-blue-200 text-blue-700';
+                  if (s.includes('distributor') || s.includes('storage')) return 'bg-purple-50 border-purple-200 text-purple-700';
+                  if (s.includes('retail') || s.includes('list') || s.includes('sale')) return 'bg-orange-50 border-orange-200 text-orange-700';
+                  return 'bg-gray-50 border-gray-200 text-gray-700';
+                };
+                
+                const getStageIcon = (stage) => {
+                  const s = stage.toLowerCase();
+                  if (s.includes('farm') || s.includes('created')) return <Sprout className="w-4 h-4" />;
+                  if (s.includes('transport') || s.includes('transit')) return <Truck className="w-4 h-4" />;
+                  if (s.includes('distributor') || s.includes('storage')) return <Warehouse className="w-4 h-4" />;
+                  if (s.includes('retail') || s.includes('list') || s.includes('sale')) return <Store className="w-4 h-4" />;
+                  return <CheckCircle className="w-4 h-4" />;
+                };
+                
+                return (
+                  <div 
+                    key={index} 
+                    className={`flex items-center gap-3 p-2.5 rounded-lg border ${getStageColor(item.stage)}`}
+                  >
+                    <div className="mt-0.5">{getStageIcon(item.stage)}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold">{item.stage}</span>
+                        <span className="text-xs opacity-75">
+                          {new Date(item.timestamp).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-xs opacity-75 truncate">By: {item.actor}</p>
                     </div>
-                    <p className="text-xs mt-1 opacity-75 truncate">
-                      By: {item.actor}
-                    </p>
                   </div>
-                </div>
-              );
-            }) || (
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 p-3 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-700">
-                  <Sprout className="w-4 h-4 mt-0.5" />
-                  <div>
-                    <span className="text-sm font-semibold">Batch Created</span>
-                    <span className="text-xs opacity-75 ml-2">{searchResult.origin?.farmer_name}, {new Date(searchResult.origin?.harvest_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-xl border bg-blue-50 border-blue-200 text-blue-700">
-                  <Truck className="w-4 h-4 mt-0.5" />
-                  <div>
-                    <span className="text-sm font-semibold">In Transit</span>
-                    <span className="text-xs opacity-75 ml-2">Transport scheduled</span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-xl border bg-purple-50 border-purple-200 text-purple-700">
-                  <Warehouse className="w-4 h-4 mt-0.5" />
-                  <div>
-                    <span className="text-sm font-semibold">At Distributor</span>
-                    <span className="text-xs opacity-75 ml-2">Awaiting processing</span>
-                  </div>
-                </div>
-              </div>
-            )}
+                );
+              })}
+            </div>
           </div>
         </section>
 

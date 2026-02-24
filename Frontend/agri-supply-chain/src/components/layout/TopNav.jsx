@@ -32,12 +32,12 @@ const TopNav = () => {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <header className="bg-white border-b border-emerald-200 sticky top-0 z-40">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left - Breadcrumb/Title */}
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-xl font-semibold text-emerald-900">
               {/* This can be dynamic based on route */}
             </h2>
           </div>
@@ -50,7 +50,7 @@ const TopNav = () => {
           {/* Right - User Actions */}
           <div className="flex items-center gap-4">
             {/* Notifications */}
-            <button className="relative p-2 text-gray-600 hover:text-primary hover:bg-gray-100 rounded-lg transition-colors">
+            <button className="relative p-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
@@ -59,26 +59,26 @@ const TopNav = () => {
             <div className="relative">
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center gap-2 p-2 hover:bg-emerald-50 rounded-lg transition-colors"
               >
-                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-primary" />
+                <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-emerald-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700 hidden md:block">
+                <span className="text-sm font-medium text-emerald-900 hidden md:block">
                   {user?.username || 'User'}
                 </span>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <ChevronDown className="w-4 h-4 text-emerald-500" />
               </button>
 
               {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">{user?.username}</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-emerald-100 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-emerald-100">
+                    <p className="text-sm font-medium text-emerald-900">{user?.username}</p>
+                    <p className="text-xs text-emerald-600">{user?.email}</p>
                   </div>
                   <Link
                     to="/profile"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-50"
                     onClick={() => setShowDropdown(false)}
                   >
                     <User className="w-4 h-4" />

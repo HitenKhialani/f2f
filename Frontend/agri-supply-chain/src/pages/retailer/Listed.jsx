@@ -7,7 +7,6 @@ import {
   Eye,
   CheckCircle,
   Ban,
-  QrCode,
   X
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
@@ -56,13 +55,19 @@ const Listed = () => {
     
     const quantity = parseFloat(soldQuantity);
     if (isNaN(quantity) || quantity <= 0) {
-      setModalError('Please enter a valid quantity greater than 0');
+      setModalError('Please enter a valid quantity');
       return;
     }
     
-    const remaining = parseFloat(selectedListing.remaining_quantity || 0);
-    if (quantity > remaining) {
-      setModalError(`Cannot sell more than available (${remaining} kg)`);
+    // Calculate available quantity properly
+    const totalQty = parseFloat(selectedListing.total_quantity || selectedListing.batch_details?.quantity || 0);
+    const soldQty = parseFloat(selectedListing.units_sold || 0);
+    const available = selectedListing.remaining_quantity !== undefined 
+      ? parseFloat(selectedListing.remaining_quantity) 
+      : (totalQty - soldQty);
+      
+    if (quantity > available) {
+      setModalError(`Cannot sell more than available (${available.toFixed(2)} kg)`);
       return;
     }
     
@@ -190,11 +195,13 @@ const Listed = () => {
                   <div className="space-y-3 mb-4">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Total Quantity:</span>
-                      <span className="font-medium">{listing.total_quantity || listing.batch_details?.quantity || '-'} kg</span>
+                      <span className="font-medium">{listing.total_quantity || listing.batch_details?.quantity || 0} kg</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Remaining:</span>
-                      <span className="font-medium text-emerald-600">{listing.remaining_quantity || '-'} kg</span>
+                      <span className="font-medium text-emerald-600">
+                        {(listing.remaining_quantity !== undefined ? listing.remaining_quantity : (listing.total_quantity || listing.batch_details?.quantity || 0) - (listing.units_sold || 0))} kg
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Units Sold:</span>
@@ -223,19 +230,6 @@ const Listed = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* QR Code */}
-                  {listing.batch_details?.qr_code_image && (
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg mb-4">
-                      <QrCode className="w-5 h-5 text-gray-400" />
-                      <img
-                        src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${listing.batch_details.qr_code_image}`}
-                        alt="QR Code"
-                        className="w-16 h-16 border rounded p-1 bg-white"
-                      />
-                      <span className="text-xs text-gray-500">Scan to trace</span>
-                    </div>
-                  )}
 
                   {/* Actions */}
                   <div className="flex gap-2">
@@ -289,7 +283,12 @@ const Listed = () => {
                   Crop: <span className="font-medium text-gray-900">{selectedListing.batch_details?.crop_type}</span>
                 </p>
                 <p className="text-sm text-gray-600 mb-4">
-                  Available: <span className="font-medium text-emerald-600">{selectedListing.remaining_quantity} kg</span>
+                  Available: <span className="font-medium text-emerald-600">
+                    {(selectedListing.remaining_quantity !== undefined 
+                      ? selectedListing.remaining_quantity 
+                      : (selectedListing.total_quantity || selectedListing.batch_details?.quantity || 0) - (selectedListing.units_sold || 0)
+                    )} kg
+                  </span>
                 </p>
                 <p className="text-sm text-gray-600 mb-4">
                   Price per kg: <span className="font-medium text-gray-900">₹{selectedListing.selling_price_per_unit?.toLocaleString('en-IN') || selectedListing.total_price?.toLocaleString('en-IN')}</span>

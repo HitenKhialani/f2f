@@ -309,23 +309,6 @@ const Inventory = () => {
                                 <Scissors className="w-3 h-3 inline mr-1" />
                                 Split
                               </button>
-                              {!hasDistributorInspection(batch.id) ? (
-                                <button
-                                  onClick={() => {
-                                    setSelectedBatch(batch);
-                                    setShowInspectionModal(true);
-                                  }}
-                                  className="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
-                                >
-                                  <ClipboardCheck className="w-3 h-3 inline mr-1" />
-                                  Inspect
-                                </button>
-                              ) : (
-                                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded flex items-center gap-1">
-                                  <ClipboardCheck className="w-3 h-3" />
-                                  Inspected
-                                </span>
-                              )}
                               <button
                                 onClick={() => {
                                   setSelectedBatch(batch);

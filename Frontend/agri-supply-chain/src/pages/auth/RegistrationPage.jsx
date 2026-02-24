@@ -20,6 +20,7 @@ const RegistrationPage = () => {
     phone: '',
     organization: '',
     address: '',
+    wallet_id: '',
   });
 
   const [documentFile, setDocumentFile] = useState(null);
@@ -125,6 +126,7 @@ const RegistrationPage = () => {
       formDataToSend.append('phone', formData.phone);
       formDataToSend.append('organization', formData.organization);
       formDataToSend.append('address', formData.address);
+      formDataToSend.append('wallet_id', formData.wallet_id);
       
       // Append document file if exists
       if (documentFile) {
@@ -299,6 +301,20 @@ const RegistrationPage = () => {
                         className="input-field pl-10"
                       />
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Wallet ID</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="wallet_id"
+                        value={formData.wallet_id}
+                        onChange={handleChange}
+                        placeholder="Enter your wallet address"
+                        className="input-field pl-3"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">For blockchain payments</p>
                   </div>
                   {config.fields.includes('organization') && (
                     <div>

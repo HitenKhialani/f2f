@@ -28,6 +28,7 @@ class RegisterView(APIView):
         phone = data.get("phone", "")
         organization = data.get("organization", "")
         address = data.get("address", "")
+        wallet_id = data.get("wallet_id", "")
         
         # Document fields from registration form
         document_type = data.get("document_type", "")
@@ -74,6 +75,7 @@ class RegisterView(APIView):
                     phone=phone,
                     organization=organization,
                     address=address,
+                    wallet_id=wallet_id,
                     kyc_status=models.KYCStatus.PENDING,
                 )
 
@@ -139,14 +141,14 @@ class LoginView(APIView):
 
         if not user:
             return Response(
-                {"message": "Invalid credentials"},
+                {"message": "User not found. Please check your email/username."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
 
         if not user.check_password(password):
             return Response(
-                {"message": "Invalid credentials"},
+                {"message": "Incorrect password. Please try again."},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 

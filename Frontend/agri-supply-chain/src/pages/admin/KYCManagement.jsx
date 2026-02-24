@@ -273,10 +273,10 @@ const KYCManagement = () => {
                   </tr>
                 ))
               )}
-            </tbody>
-          </table>
-        </div>
+          </tbody>
+        </table>
       </div>
+    </div>
 
       {/* Decision Modal */}
       {selectedRecord && (
@@ -347,14 +347,12 @@ const KYCManagement = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
             {/* Debug info */}
             <div className="mb-4 p-2 bg-gray-100 rounded text-xs font-mono">
               URL type: {typeof viewingDocument.url} | 
               Starts with data: {viewingDocument.url?.startsWith?.('data:')?.toString()} | 
               Length: {viewingDocument.url?.length}
             </div>
-            
             <div className="border rounded-lg overflow-hidden bg-gray-50">
               {/* Check for image data URI or file extension */}
               {viewingDocument.url?.match(/data:image\/(jpeg|jpg|png|gif)/i) || viewingDocument.url?.match(/\.(jpg|jpeg|png|gif)$/i) ? (

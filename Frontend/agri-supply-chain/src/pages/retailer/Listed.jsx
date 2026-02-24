@@ -43,44 +43,37 @@ const Listed = () => {
     }
   };
 
-  const handleMarkSoldClick = (listing) => {
-    setSelectedListing(listing);
-    setSoldQuantity(listing.remaining_quantity?.toString() || '0');
-    setModalError('');
-    setShowQuantityModal(true);
+  // Helper function to calculate remaining quantity
+  const getRemainingQuantity = (listing) => {
+    // If remaining_quantity exists and is not null/undefined, use it
+    if (listing.remaining_quantity != null) {
+      return parseFloat(listing.remaining_quantity);
+    }
+    // Otherwise calculate: total - sold
+    const total = parseFloat(listing.total_quantity || listing.batch_details?.quantity || 0);
+    const sold = parseFloat(listing.units_sold || 0);
+    return Math.max(0, total - sold);
   };
 
-  const handleConfirmSale = async () => {
-    if (!selectedListing) return;
-    
-    const quantity = parseFloat(soldQuantity);
-    if (isNaN(quantity) || quantity <= 0) {
-      setModalError('Please enter a valid quantity');
+  const handleMarkSoldOut = async (listing) => {
+    const remaining = getRemainingQuantity(listing);
+    if (remaining <= 0) {
+      alert('No quantity available to sell');
       return;
     }
     
-    // Calculate available quantity properly
-    const totalQty = parseFloat(selectedListing.total_quantity || selectedListing.batch_details?.quantity || 0);
-    const soldQty = parseFloat(selectedListing.units_sold || 0);
-    const available = selectedListing.remaining_quantity !== undefined 
-      ? parseFloat(selectedListing.remaining_quantity) 
-      : (totalQty - soldQty);
-      
-    if (quantity > available) {
-      setModalError(`Cannot sell more than available (${available.toFixed(2)} kg)`);
+    if (!confirm(`Mark as sold out? This will sell all ${remaining} kg remaining.`)) {
       return;
     }
     
     try {
-      const batchId = selectedListing.batch || selectedListing.batch_details?.id;
-      await retailerAPI.markSold(batchId, quantity);
-      alert(`Sold ${quantity} kg successfully`);
-      setShowQuantityModal(false);
-      setSelectedListing(null);
+      const batchId = listing.batch || listing.batch_details?.id;
+      await retailerAPI.markSold(batchId, remaining);
+      alert(`Marked as sold out. Sold ${remaining} kg.`);
       fetchData();
     } catch (error) {
-      console.error('Error marking batch as sold:', error);
-      setModalError(error.response?.data?.message || 'Failed to mark batch as sold');
+      console.error('Error marking batch as sold out:', error);
+      alert(error.response?.data?.message || 'Failed to mark batch as sold out');
     }
   };
 
@@ -97,11 +90,12 @@ const Listed = () => {
   };
 
   // Filter active listings - exclude those already sold or out of stock
-  const activeListings = listings.filter(l => 
-    l.is_for_sale === true && 
-    l.batch_details?.status !== 'SOLD' &&
-    (l.remaining_quantity === undefined || l.remaining_quantity > 0)
-  );
+  const activeListings = listings.filter(l => {
+    const remaining = getRemainingQuantity(l);
+    return l.is_for_sale === true && 
+           l.batch_details?.status !== 'SOLD' &&
+           remaining > 0;
+  });
 
   const filteredListings = activeListings.filter(listing => {
     const searchLower = searchTerm.toLowerCase();
@@ -200,7 +194,7 @@ const Listed = () => {
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Remaining:</span>
                       <span className="font-medium text-emerald-600">
-                        {(listing.remaining_quantity !== undefined ? listing.remaining_quantity : (listing.total_quantity || listing.batch_details?.quantity || 0) - (listing.units_sold || 0))} kg
+                        {getRemainingQuantity(listing)} kg
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
@@ -241,11 +235,11 @@ const Listed = () => {
                       View Trace
                     </button>
                     <button
-                      onClick={() => handleMarkSoldClick(listing)}
+                      onClick={() => handleMarkSoldOut(listing)}
                       className="flex-1 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium flex items-center justify-center gap-1"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      Mark Sold
+                      Mark as Sold Out
                     </button>
                     <button
                       onClick={() => handleSuspendBatch(listing.batch || listing.batch_details?.id)}
@@ -258,89 +252,6 @@ const Listed = () => {
                 </div>
               </div>
             ))}
-          </div>
-        )}
-
-        {/* Quantity Input Modal */}
-        {showQuantityModal && selectedListing && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Mark Batch as Sold</h3>
-                <button
-                  onClick={() => setShowQuantityModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-4">
-                  Batch: <span className="font-medium text-gray-900">{selectedListing.batch_details?.product_batch_id}</span>
-                </p>
-                <p className="text-sm text-gray-600 mb-4">
-                  Crop: <span className="font-medium text-gray-900">{selectedListing.batch_details?.crop_type}</span>
-                </p>
-                <p className="text-sm text-gray-600 mb-4">
-                  Available: <span className="font-medium text-emerald-600">
-                    {(selectedListing.remaining_quantity !== undefined 
-                      ? selectedListing.remaining_quantity 
-                      : (selectedListing.total_quantity || selectedListing.batch_details?.quantity || 0) - (selectedListing.units_sold || 0)
-                    )} kg
-                  </span>
-                </p>
-                <p className="text-sm text-gray-600 mb-4">
-                  Price per kg: <span className="font-medium text-gray-900">₹{selectedListing.selling_price_per_unit?.toLocaleString('en-IN') || selectedListing.total_price?.toLocaleString('en-IN')}</span>
-                </p>
-
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Quantity to Sell (kg)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  max={selectedListing.remaining_quantity}
-                  value={soldQuantity}
-                  onChange={(e) => {
-                    setSoldQuantity(e.target.value);
-                    setModalError('');
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  placeholder="Enter quantity"
-                />
-
-                {modalError && (
-                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-600">{modalError}</p>
-                  </div>
-                )}
-
-                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600">
-                    Estimated Revenue: <span className="font-semibold text-emerald-600">
-                      ₹{((parseFloat(soldQuantity) || 0) * (selectedListing.selling_price_per_unit || selectedListing.total_price || 0)).toLocaleString('en-IN')}
-                    </span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowQuantityModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmSale}
-                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium"
-                >
-                  Confirm Sale
-                </button>
-              </div>
-            </div>
           </div>
         )}
       </div>

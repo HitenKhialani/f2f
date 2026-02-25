@@ -147,7 +147,7 @@ const Sold = () => {
                         {listing.batch_details?.crop_type || 'N/A'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {listing.batch_details?.quantity || '-'} kg
+                        {listing.units_sold || 0} kg
                       </td>
                       <td className="px-6 py-4 text-sm font-medium text-emerald-600">
                         ₹{listing.total_price?.toLocaleString('en-IN') || 0}

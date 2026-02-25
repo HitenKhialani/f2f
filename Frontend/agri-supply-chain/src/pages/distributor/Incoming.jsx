@@ -236,7 +236,7 @@ const Incoming = () => {
                         {item.batch_details?.crop_type || item.crop_type || 'N/A'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {item.quantity || item.batch_details?.quantity || '-'} kg
+                        {item.quantity || item.batch_details?.quantity || 0} kg
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">
                         <div className="flex items-center gap-1">

@@ -293,7 +293,7 @@ const FarmerBatches = () => {
                         {batch.crop_type || 'N/A'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {batch.quantity} kg
+                        {batch.quantity || 0} kg
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {batch.harvest_date ? new Date(batch.harvest_date).toLocaleDateString('hi-IN') : 'N/A'}
@@ -390,14 +390,17 @@ const FarmerBatches = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
-                    <input
-                      type="number"
-                      required
-                      value={formData.quantity}
-                      onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                      placeholder="1000"
-                    />
+                    <div className="relative">
+                      <input
+                        type="number"
+                        required
+                        value={formData.quantity}
+                        onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                        className="w-full px-3 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        placeholder="1000"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">kg</span>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Harvest Date</label>

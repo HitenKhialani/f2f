@@ -106,7 +106,7 @@ const InspectionPage = () => {
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Quantity</p>
-                            <p className="font-medium text-gray-900">{batch.quantity} kg</p>
+                            <p className="font-medium text-gray-900">{batch.quantity || 0} kg</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Harvest Date</p>

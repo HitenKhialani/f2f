@@ -306,7 +306,7 @@ const TransporterShipmentsList = ({
                             {request.batch_details?.product_batch_id || 'N/A'}
                           </span>
                           <span className="text-xs text-gray-500 block">
-                            {request.batch_details?.crop_type || 'N/A'} • {request.batch_details?.quantity || '-'} kg
+                            {request.batch_details?.crop_type || 'N/A'} • {request.batch_details?.quantity || 0} kg
                           </span>
                         </div>
                       </td>

@@ -283,7 +283,7 @@ const Inventory = () => {
                         {batch.crop_type || 'N/A'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
-                        {batch.quantity} kg
+                        {batch.quantity || 0} kg
                       </td>
                       <td className="px-6 py-4">
                         {getStatusBadge(batch.status)}

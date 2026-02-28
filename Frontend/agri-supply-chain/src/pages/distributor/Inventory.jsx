@@ -63,6 +63,11 @@ const Inventory = () => {
   };
 
   const handleRequestTransport = async () => {
+    if (selectedBatch?.is_locked) {
+      toast.warning('Please complete all pending payments before proceeding.');
+      return;
+    }
+
     if (!selectedBatch || !selectedRetailer) {
       toast.warning('Please select a retailer');
       return;
@@ -85,6 +90,11 @@ const Inventory = () => {
   };
 
   const handleSplitBatch = (batch) => {
+    if (batch.is_locked) {
+      toast.warning('Please complete all pending payments before proceeding.');
+      return;
+    }
+
     setSelectedBatch(batch);
     setShowSplitModal(true);
     setSplitData({ splits: [{ label: '', quantity: '' }] });

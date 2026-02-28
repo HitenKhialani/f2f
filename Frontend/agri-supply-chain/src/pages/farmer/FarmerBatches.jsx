@@ -104,6 +104,11 @@ const FarmerBatches = () => {
   };
 
   const handleRequestTransport = async () => {
+    if (selectedBatch?.is_locked) {
+      toast.warning('Please complete all pending payments before proceeding.');
+      return;
+    }
+
     if (!selectedDistributor) {
       toast.warning('Please select a distributor');
       return;

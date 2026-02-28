@@ -3,8 +3,8 @@ from rest_framework import status
 from rest_framework.exceptions import APIException
 
 class PaymentRequiredException(APIException):
-    status_code = status.HTTP_402_PAYMENT_REQUIRED
-    default_detail = 'Action blocked: Batch is locked until financial settlement is complete.'
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Batch locked until financial settlement complete.'
     default_code = 'PAYMENT_REQUIRED'
 
 def check_batch_locked(batch):
@@ -14,15 +14,8 @@ def check_batch_locked(batch):
     """
     if batch.is_locked:
         return True, Response(
-            {
-                "message": "Action blocked: Batch is locked until financial settlement is complete.",
-                "batch_id": batch.id,
-                "product_batch_id": batch.product_batch_id,
-                "current_phase": batch.current_phase,
-                "financial_status": batch.financial_status,
-                "code": "PAYMENT_REQUIRED"
-            },
-            status=status.HTTP_402_PAYMENT_REQUIRED
+            {"error": "Batch locked until financial settlement complete."},
+            status=status.HTTP_400_BAD_REQUEST
         )
     return False, None
 

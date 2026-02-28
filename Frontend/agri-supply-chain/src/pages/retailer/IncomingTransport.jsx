@@ -39,6 +39,12 @@ const IncomingTransport = () => {
   };
 
   const handleConfirmArrival = async (requestId) => {
+    const request = transportRequests.find(tr => tr.id === requestId);
+    if (request?.batch_details?.is_locked) {
+      toast.warning('Please complete all pending payments before proceeding.');
+      return;
+    }
+
     try {
       await transportAPI.confirmArrivalRequest(requestId);
       toast.success('Arrival confirmed. The transporter can now mark the delivery as complete.');

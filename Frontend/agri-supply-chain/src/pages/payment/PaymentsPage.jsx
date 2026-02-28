@@ -122,17 +122,10 @@ const PaymentsPage = () => {
     const payeeName = payment.payee_details?.user_details?.username || 'F2F_Participant';
     const amount = parseFloat(payment.amount).toFixed(2);
     const batchId = payment.batch_details?.product_batch_id || payment.batch;
-    const txnId = `F2F_${payment.id}_${Date.now()}`;
+    const paymentId = payment.id;
 
-    // Standard UPI deep link format:
-    // pa: Payee VPA
-    // pn: Payee Name
-    // mc: Merchant Category Code (using 0000 for generic)
-    // tr: Transaction Reference ID
-    // tn: Transaction Note
-    // am: Amount
-    // cu: Currency
-    return `upi://pay?pa=${payeeUPI}&pn=${encodeURIComponent(payeeName)}&mc=0000&tr=${txnId}&tn=${encodeURIComponent(`${batchId} Payment`)}&am=${amount}&cu=INR`;
+    // Requested exact format: upi://pay?pa={payee_upi}&pn={payee.name}&am={amount}&cu=INR&tn={batch_id}_{payment_id}
+    return `upi://pay?pa=${payeeUPI}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${batchId}_${paymentId}`;
   };
 
   const isMobile = () => {

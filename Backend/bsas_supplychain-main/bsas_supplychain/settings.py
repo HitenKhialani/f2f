@@ -8,6 +8,10 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-change-me")
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
 
+# Payment Settings
+PAYMENT_MODE = os.environ.get("PAYMENT_MODE", "demo")
+DEMO_UPI_ID = "hitenkhialani05@okhdfcbank"
+
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [

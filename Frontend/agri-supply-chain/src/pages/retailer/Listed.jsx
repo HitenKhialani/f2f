@@ -58,6 +58,11 @@ const Listed = () => {
   };
 
   const handleMarkSoldOut = async (listing) => {
+    if (listing.batch_details?.is_locked || listing.is_locked) {
+      toast.warning('Please complete all pending payments before proceeding.');
+      return;
+    }
+
     const remaining = getRemainingQuantity(listing);
     if (remaining <= 0) {
       toast.warning('No quantity available to sell');

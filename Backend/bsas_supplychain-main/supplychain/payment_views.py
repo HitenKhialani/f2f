@@ -12,8 +12,14 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 
 from . import models, serializers
+
+def get_upi_id(payee):
+    if getattr(settings, "PAYMENT_MODE", "demo") == "demo":
+        return getattr(settings, "DEMO_UPI_ID", "hitenkhialani05@okhdfcbank")
+    return payee.wallet_id or ""
 
 
 class PaymentViewSet(ModelViewSet):
@@ -385,7 +391,7 @@ def create_payment_records_on_delivery(batch, transport_request):
                 phase=phase,
                 amount=farmer_base_price,
                 status=models.PaymentStatus.PENDING,
-                payee_upi_id=batch.farmer.wallet_id or "",
+                payee_upi_id=get_upi_id(batch.farmer),
             )
 
             # 2. Distributor → Transporter (TRANSPORT_SHARE)
@@ -400,7 +406,7 @@ def create_payment_records_on_delivery(batch, transport_request):
                     phase=phase,
                     amount=receiver_transport_share,
                     status=models.PaymentStatus.PENDING,
-                    payee_upi_id=transporter.wallet_id or "",
+                    payee_upi_id=get_upi_id(transporter),
                 )
 
             # 3. Farmer → Transporter (TRANSPORT_SHARE)
@@ -415,7 +421,7 @@ def create_payment_records_on_delivery(batch, transport_request):
                     phase=phase,
                     amount=sender_transport_share,
                     status=models.PaymentStatus.PENDING,
-                    payee_upi_id=transporter.wallet_id or "",
+                    payee_upi_id=get_upi_id(transporter),
                 )
 
         elif to_party_role == models.StakeholderRole.RETAILER:
@@ -442,7 +448,7 @@ def create_payment_records_on_delivery(batch, transport_request):
                 phase=phase,
                 amount=batch_payment_amount,
                 status=models.PaymentStatus.PENDING,
-                payee_upi_id=from_party.wallet_id or "",
+                payee_upi_id=get_upi_id(from_party),
             )
 
             # 2. Retailer → Transporter (TRANSPORT_SHARE)
@@ -457,7 +463,7 @@ def create_payment_records_on_delivery(batch, transport_request):
                     phase=phase,
                     amount=receiver_transport_share,
                     status=models.PaymentStatus.PENDING,
-                    payee_upi_id=transporter.wallet_id or "",
+                    payee_upi_id=get_upi_id(transporter),
                 )
 
             # 3. Distributor → Transporter (TRANSPORT_SHARE)
@@ -472,5 +478,5 @@ def create_payment_records_on_delivery(batch, transport_request):
                     phase=phase,
                     amount=sender_transport_share,
                     status=models.PaymentStatus.PENDING,
-                    payee_upi_id=transporter.wallet_id or "",
+                    payee_upi_id=get_upi_id(transporter),
                 )

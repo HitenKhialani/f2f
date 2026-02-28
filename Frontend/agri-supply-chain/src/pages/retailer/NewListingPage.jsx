@@ -65,6 +65,13 @@ const NewListingPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const selected = batches.find(b => b.id.toString() === formData.batch.toString());
+        if (selected?.is_locked) {
+            toast.warning('Please complete all pending payments before proceeding.');
+            return;
+        }
+
         setSubmitting(true);
 
         try {

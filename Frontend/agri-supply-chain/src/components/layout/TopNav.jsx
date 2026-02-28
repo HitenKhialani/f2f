@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sprout, Bell, User, ChevronDown, LogOut } from 'lucide-react';
+import { Sprout, Bell, User, ChevronDown, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const TopNav = () => {
   const { user, role, logout } = useAuth();
+  const { t } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const getRoleBadgeColor = () => {
@@ -82,7 +84,16 @@ const TopNav = () => {
                     onClick={() => setShowDropdown(false)}
                   >
                     <User className="w-4 h-4" />
-                    Profile
+                    {t('navbar.profile', 'Profile')}
+                  </Link>
+                  <div className="border-t border-emerald-100 my-1"></div>
+                  <Link
+                    to="/settings"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-emerald-700 hover:bg-emerald-50"
+                    onClick={() => setShowDropdown(false)}
+                  >
+                    <Settings className="w-4 h-4" />
+                    {t('navbar.settings', 'Settings')}
                   </Link>
                   <button
                     onClick={() => {
@@ -92,7 +103,7 @@ const TopNav = () => {
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                   >
                     <LogOut className="w-4 h-4" />
-                    Logout
+                    {t('navbar.logout', 'Logout')}
                   </button>
                 </div>
               )}

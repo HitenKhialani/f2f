@@ -1,0 +1,136 @@
+{
+    "common": {
+        "welcome": "સ્વાગત છે",
+        "loading": "લોડ થઈ રહ્યું છે...",
+        "noData": "કોઈ ડેટા ઉપલબ્ધ નથી",
+        "search": "શોધો",
+        "errorOccurred": "એક ભૂલ આવી છે",
+        "profile": "પ્રોફાઈલ",
+        "logout": "લૉગ આઉટ",
+        "settings": "સેટિંગ્સ",
+        "total": "કુલ",
+        "price": "કિંમત",
+        "quantity": "જથ્થો"
+    },
+    "navbar": {
+        "dashboard": "ડેશબોર્ડ",
+        "trace": "ટ્રેસ",
+        "settings": "સેટિંગ્સ",
+        "notifications": "સૂચનાઓ",
+        "profile": "પ્રોફાઈલ",
+        "logout": "લૉગ આઉટ"
+    },
+    "sidebar": {
+        "dashboard": "ડેશબોર્ડ",
+        "myBatches": "મારા બેચ",
+        "payments": "ચૂકવણીઓ",
+        "incoming": "ઇનકમિંગ",
+        "inventory": "ઇન્વેન્ટરી",
+        "outgoing": "આઉટગોઇંગ",
+        "farmerShipments": "ખેડૂત શિપમેન્ટ",
+        "distributorShipments": "વિતરક શિપમેન્ટ",
+        "inTransit": "ટ્રાન્ઝિટમાં",
+        "completed": "પૂર્ણ થયું",
+        "incomingTransport": "ઇનકમિંગ ટ્રાન્સપોર્ટ",
+        "received": "પ્રાપ્ત થયું",
+        "listed": "સૂચિબદ્ધ",
+        "sold": "વેચાયેલ",
+        "newListing": "નવી સૂચિ",
+        "settings": "સેટિંગ્સ"
+    },
+    "dashboard": {
+        "farmerTitle": "ખેડૂત ડેશબોર્ડ",
+        "farmerSubtitle": "તમારા કૃષિ બેચ અને ચૂકવણીઓની ઝાંખી",
+        "overview": "ઝાંખી",
+        "totalBatches": "કુલ બેચ",
+        "activeBatches": "સક્રિય બેચ",
+        "completedBatches": "પૂર્ણ થયેલ બેચ",
+        "financialSummary": "નાણાકીય સારાંશ",
+        "totalRevenue": "કુલ આવક",
+        "pendingPayments": "બાકી ચૂકવણીઓ",
+        "recentActivity": "તાજેતરની પ્રવૃત્તિ",
+        "batchId": "બેચ આઈડી",
+        "cropType": "પાકનો પ્રકાર",
+        "status": "સ્થિતિ",
+        "date": "તારીખ",
+        "action": "ક્રિયા",
+        "noRecentActivity": "કોઈ તાજેતરની પ્રવૃત્તિ મળી નથી",
+        "viewAll": "બધું જુઓ",
+        "createBatch": "નવો બેચ બનાવો"
+    },
+    "trace": {
+        "title": "સપ્લાય ચેન ટ્રેસ",
+        "enterId": "પબ્લિક બેચ આઈડી દાખલ કરો",
+        "scanQr": "ક્યૂઆર (QR) કોડ સ્કેન કરો",
+        "blockchainStatus": "બ્લોકચેન (Blockchain) રેકોર્ડ",
+        "verified": "બ્લોકચેન (Blockchain) પર ચકાસાયેલ",
+        "unverified": "ચકાસાયેલ નથી"
+    },
+    "kyc": {
+        "title": "કેવાયસી (KYC) ચકાસણી",
+        "status": "કેવાયસી (KYC) સ્થિતિ",
+        "uploadDocs": "દસ્તાવેજો અપલોડ કરો",
+        "aadhar": "આધાર નંબર",
+        "pan": "પાન નંબર"
+    },
+    "forms": {
+        "cropType": "પાકનો પ્રકાર",
+        "quantityKg": "જથ્થો (કિલોગ્રામ)",
+        "basePrice": "મૂળ કિંમત (₹/કિલો)",
+        "location": "સ્થાન",
+        "selectCrop": "પાક પસંદ કરો...",
+        "coffee": "કોફી",
+        "wheat": "ઘઉં",
+        "rice": "ચોખા",
+        "cotton": "કપાસ"
+    },
+    "buttons": {
+        "submit": "સબમિટ કરો",
+        "cancel": "રદ કરો",
+        "save": "સાચવો",
+        "upload": "અપલોડ કરો",
+        "create": "બનાવો",
+        "edit": "સંપાદિત કરો",
+        "delete": "કાઢી નાખો",
+        "viewtrace": "ટ્રેસ જુઓ",
+        "requestTransport": "ટ્રાન્સપોર્ટની વિનંતી કરો",
+        "confirm": "પુષ્ટિ કરો",
+        "close": "બંધ કરો"
+    },
+    "toast": {
+        "successSave": "સફળતાપૂર્વક સાચવ્યું",
+        "errorSave": "કંઈક ખોટું થયું",
+        "requestSent": "વિનંતી સફળતાપૂર્વક મોકલવામાં આવી",
+        "paymentRequired": "આગળ વધતા પહેલા કૃપા કરીને બધી બાકી ચૂકવણીઓ પૂર્ણ કરો.",
+        "batchCreated": "બેચ સફળતાપૂર્વક બનાવવામાં આવ્યો",
+        "errorCreatingBatch": "બેચ બનાવવામાં ભૂલ"
+    },
+    "status": {
+        "pending": "પેન્ડિંગ",
+        "approved": "મંજૂર",
+        "rejected": "નકારાયેલ",
+        "inTransit": "ટ્રાન્ઝિટમાં",
+        "delivered": "વિતરિત",
+        "stored": "સંગ્રહિત",
+        "listed": "સૂચિબદ્ધ",
+        "sold": "વેચાયેલ",
+        "inspected": "તપાસાયેલ",
+        "failedInspection": "નિરીક્ષણ નિષ્ફળ"
+    },
+    "notifications": {
+        "title": "સૂચનાઓ",
+        "empty": "કોઈ નવી સૂચનાઓ નથી",
+        "markAllRead": "બધાને વાંચેલા તરીકે ચિહ્નિત કરો"
+    },
+    "errors": {
+        "networkError": "નેટવર્ક ભૂલ, કૃપા કરીને ફરી પ્રયાસ કરો",
+        "unauthorized": "બિનસત્તાવાર પ્રવેશ",
+        "notFound": "સંસાધન મળ્યું નથી"
+    },
+    "settings": {
+        "title": "સેટિંગ્સ",
+        "language": "ભાષા",
+        "languageDescription": "એપ્લિકેશન માટે તમારી ૫સંદગીની ભાષા પસંદ કરો",
+        "saveChanges": "ફેરફારો સાચવો"
+    }
+}

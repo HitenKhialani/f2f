@@ -52,8 +52,14 @@ class CropBatchViewSet(viewsets.ModelViewSet):
         ).distinct()
     
     def perform_create(self, serializer):
-        # Automatically set farmer to the authenticated user
-        batch = serializer.save(farmer=self.request.user.stakeholderprofile)
+        profile = self.request.user.stakeholderprofile
+        farm_location = self.request.data.get('farm_location') or profile.address
+        
+        # Automatically set farmer and location
+        batch = serializer.save(
+            farmer=profile,
+            farm_location=farm_location
+        )
         
         # Log batch creation event
         log_batch_event(

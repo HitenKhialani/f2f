@@ -103,6 +103,8 @@ class SuspendBatchView(APIView):
         batch.status = BatchStatus.SUSPENDED
         batch.save()
 
+        reason = request.data.get('reason', 'No reason provided')
+
         # Log event
         log_batch_event(
             batch=batch,
@@ -111,6 +113,7 @@ class SuspendBatchView(APIView):
             metadata={
                 "suspended_by_role": user_role,
                 "suspended_by": request.user.username,
+                "suspend_reason": reason,
             },
         )
 

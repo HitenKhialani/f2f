@@ -1,0 +1,136 @@
+{
+    "common": {
+        "welcome": "स्वागत आहे",
+        "loading": "लोड होत आहे...",
+        "noData": "कोणताही डेटा उपलब्ध नाही",
+        "search": "शोधा",
+        "errorOccurred": "एक त्रुटी आली",
+        "profile": "प्रोफाइल",
+        "logout": "लॉग आउट",
+        "settings": "सेटिंग्ज",
+        "total": "एकूण",
+        "price": "किंमत",
+        "quantity": "प्रमाण"
+    },
+    "navbar": {
+        "dashboard": "डॅशबोर्ड",
+        "trace": "ट्रेस",
+        "settings": "सेटिंग्ज",
+        "notifications": "सूचना",
+        "profile": "प्रोफाइल",
+        "logout": "लॉग आउट"
+    },
+    "sidebar": {
+        "dashboard": "डॅशबोर्ड",
+        "myBatches": "माझे बॅचेस",
+        "payments": "देयके",
+        "incoming": "येणारे",
+        "inventory": "इन्व्हेंटरी",
+        "outgoing": "जाणारे",
+        "farmerShipments": "शेतकरी शिपमेंट",
+        "distributorShipments": "वितरक शिपमेंट",
+        "inTransit": "वाटेत",
+        "completed": "पूर्ण झाले",
+        "incomingTransport": "येणारी वाहतूक",
+        "received": "प्राप्त",
+        "listed": "सूचीबद्ध",
+        "sold": "विकले",
+        "newListing": "नवीन सूची",
+        "settings": "सेटिंग्ज"
+    },
+    "dashboard": {
+        "farmerTitle": "शेतकरी डॅशबोर्ड",
+        "farmerSubtitle": "आपल्या कृषी बॅचेस आणि पेमेंट्सचे विहंगावलोकन",
+        "overview": "विहंगावलोकन",
+        "totalBatches": "एकूण बॅचेस",
+        "activeBatches": "सक्रिय बॅचेस",
+        "completedBatches": "पूर्ण झालेले बॅचेस",
+        "financialSummary": "आर्थिक सारांश",
+        "totalRevenue": "एकूण महसूल",
+        "pendingPayments": "प्रलंबित देयके",
+        "recentActivity": "अलीकडील क्रियाकलाप",
+        "batchId": "बॅच आयडी",
+        "cropType": "पिकाचा प्रकार",
+        "status": "स्थिती",
+        "date": "तारीख",
+        "action": "कृती",
+        "noRecentActivity": "कोणताही अलीकडील क्रियाकलाप आढळला नाही",
+        "viewAll": "सर्व पहा",
+        "createBatch": "नवीन बॅच तयार करा"
+    },
+    "trace": {
+        "title": "सप्लाय चेन ट्रेस",
+        "enterId": "पब्लिक बॅच आयडी प्रविष्ट करा",
+        "scanQr": "क्यूआर (QR) कोड स्कॅन करा",
+        "blockchainStatus": "ब्लॉकचेन (Blockchain) रेकॉर्ड",
+        "verified": "ब्लॉकचेन (Blockchain) वर सत्यापित",
+        "unverified": "सत्यापित नाही"
+    },
+    "kyc": {
+        "title": "केवायसी (KYC) पडताळणी",
+        "status": "केवायसी (KYC) स्थिती",
+        "uploadDocs": "कागदपत्रे अपलोड करा",
+        "aadhar": "आधार क्रमांक",
+        "pan": "पॅन क्रमांक"
+    },
+    "forms": {
+        "cropType": "पिकाचा प्रकार",
+        "quantityKg": "प्रमाण (किलोमध्ये)",
+        "basePrice": "मूळ किंमत (₹/किलो)",
+        "location": "स्थान",
+        "selectCrop": "पीक निवडा...",
+        "coffee": "कॉफी",
+        "wheat": "गहू",
+        "rice": "तांदूळ",
+        "cotton": "कापूस"
+    },
+    "buttons": {
+        "submit": "सबमिट करा",
+        "cancel": "रद्द करा",
+        "save": "जतन करा",
+        "upload": "अपलोड करा",
+        "create": "तयार करा",
+        "edit": "संपादित करा",
+        "delete": "हटवा",
+        "viewtrace": "ट्रेस पहा",
+        "requestTransport": "वाहतुकीची विनंती करा",
+        "confirm": "पुष्टी करा",
+        "close": "बंद करा"
+    },
+    "toast": {
+        "successSave": "यशस्वीरित्या जतन केले",
+        "errorSave": "काहीतरी चूक झाली",
+        "requestSent": "विनंती यशस्वीरित्या पाठवली",
+        "paymentRequired": "पुढे जाण्यापूर्वी कृपया सर्व प्रलंबित देयके पूर्ण करा.",
+        "batchCreated": "बॅच यशस्वीरित्या तयार केली",
+        "errorCreatingBatch": "बॅच तयार करण्यात त्रुटी"
+    },
+    "status": {
+        "pending": "प्रलंबित",
+        "approved": "मंजूर",
+        "rejected": "नाकारले",
+        "inTransit": "वाटेत",
+        "delivered": "वितरित",
+        "stored": "साठवले",
+        "listed": "सूचीबद्ध",
+        "sold": "विकले",
+        "inspected": "तपासणी केली",
+        "failedInspection": "तपासणी अयशस्वी"
+    },
+    "notifications": {
+        "title": "सूचना",
+        "empty": "कोणत्याही नवीन सूचना नाहीत",
+        "markAllRead": "सर्व वाचले म्हणून चिन्हांकित करा"
+    },
+    "errors": {
+        "networkError": "नेटवर्क त्रुटी, कृपया पुन्हा प्रयत्न करा",
+        "unauthorized": "अनधिकृत प्रवेश",
+        "notFound": "संसाधन सापडले नाही"
+    },
+    "settings": {
+        "title": "सेटिंग्ज",
+        "language": "भाषा",
+        "languageDescription": "अनुप्रयोगासाठी आपली पसंतीची भाषा निवडा",
+        "saveChanges": "बदल जतन करा"
+    }
+}

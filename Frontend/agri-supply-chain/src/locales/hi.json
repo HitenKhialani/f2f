@@ -1,0 +1,136 @@
+{
+    "common": {
+        "welcome": "स्वागत है",
+        "loading": "लोड हो रहा है...",
+        "noData": "कोई डेटा उपलब्ध नहीं",
+        "search": "खोजें",
+        "errorOccurred": "एक त्रुटि हुई",
+        "profile": "प्रोफ़ाइल",
+        "logout": "लॉग आउट",
+        "settings": "सेटिंग्स",
+        "total": "कुल",
+        "price": "कीमत",
+        "quantity": "मात्रा"
+    },
+    "navbar": {
+        "dashboard": "डैशबोर्ड",
+        "trace": "ट्रेस",
+        "settings": "सेटिंग्स",
+        "notifications": "सूचनाएं",
+        "profile": "प्रोफ़ाइल",
+        "logout": "लॉग आउट"
+    },
+    "sidebar": {
+        "dashboard": "डैशबोर्ड",
+        "myBatches": "मेरे बैच",
+        "payments": "भुगतान",
+        "incoming": "आवक",
+        "inventory": "इन्वेंटरी",
+        "outgoing": "जावक",
+        "farmerShipments": "किसान शिपमेंट",
+        "distributorShipments": "वितरक शिपमेंट",
+        "inTransit": "रास्ते में",
+        "completed": "पूरा हुआ",
+        "incomingTransport": "आने वाला परिवहन",
+        "received": "प्राप्त",
+        "listed": "सूचीबद्ध",
+        "sold": "बिक गया",
+        "newListing": "नई सूची",
+        "settings": "सेटिंग्स"
+    },
+    "dashboard": {
+        "farmerTitle": "किसान डैशबोर्ड",
+        "farmerSubtitle": "आपके कृषि बैचों और भुगतानों का अवलोकन",
+        "overview": "अवलोकन",
+        "totalBatches": "कुल बैच",
+        "activeBatches": "सक्रिय बैच",
+        "completedBatches": "पूरे हुए बैच",
+        "financialSummary": "वित्तीय सारांश",
+        "totalRevenue": "कुल राजस्व",
+        "pendingPayments": "लंबित भुगतान",
+        "recentActivity": "हाल की गतिविधि",
+        "batchId": "बैच आईडी",
+        "cropType": "फसल का प्रकार",
+        "status": "स्थिति",
+        "date": "तारीख",
+        "action": "कार्रवाई",
+        "noRecentActivity": "कोई हाल की गतिविधि नहीं मिली",
+        "viewAll": "सभी देखें",
+        "createBatch": "नया बैच बनाएं"
+    },
+    "trace": {
+        "title": "सप्लाई चेन ट्रेस",
+        "enterId": "पब्लिक बैच आईडी दर्ज करें",
+        "scanQr": "क्यूआर (QR) कोड स्कैन करें",
+        "blockchainStatus": "ब्लॉकचेन (Blockchain) रिकॉर्ड",
+        "verified": "ब्लॉकचेन (Blockchain) पर सत्यापित",
+        "unverified": "सत्यापित नहीं"
+    },
+    "kyc": {
+        "title": "केवाईसी (KYC) सत्यापन",
+        "status": "केवाईसी (KYC) स्थिति",
+        "uploadDocs": "दस्तावेज़ अपलोड करें",
+        "aadhar": "आधार नंबर",
+        "pan": "पैन नंबर"
+    },
+    "forms": {
+        "cropType": "फसल का प्रकार",
+        "quantityKg": "मात्रा (किलोग्राम)",
+        "basePrice": "मूल मूल्य (₹/किलो)",
+        "location": "स्थान",
+        "selectCrop": "फसल चुनें...",
+        "coffee": "कॉफी",
+        "wheat": "गेहूं",
+        "rice": "चावल",
+        "cotton": "कपास"
+    },
+    "buttons": {
+        "submit": "जमा करें",
+        "cancel": "रद्द करें",
+        "save": "सेव करें",
+        "upload": "अपलोड करें",
+        "create": "बनाएं",
+        "edit": "संपादित करें",
+        "delete": "हटाएं",
+        "viewtrace": "ट्रेस देखें",
+        "requestTransport": "परिवहन का अनुरोध करें",
+        "confirm": "पुष्टि करें",
+        "close": "बंद करें"
+    },
+    "toast": {
+        "successSave": "सफलतापूर्वक सेव किया गया",
+        "errorSave": "कुछ गलत हो गया",
+        "requestSent": "अनुरोध सफलतापूर्वक भेजा गया",
+        "paymentRequired": "आगे बढ़ने से पहले कृपया सभी लंबित भुगतान पूरे करें।",
+        "batchCreated": "बैच सफलतापूर्वक बनाया गया",
+        "errorCreatingBatch": "बैच बनाने में त्रुटि"
+    },
+    "status": {
+        "pending": "लंबित",
+        "approved": "स्वीकृत",
+        "rejected": "अस्वीकृत",
+        "inTransit": "रास्ते में",
+        "delivered": "डिलिवर किया गया",
+        "stored": "स्टोर किया गया",
+        "listed": "सूचीबद्ध",
+        "sold": "बिक गया",
+        "inspected": "निरीक्षण किया गया",
+        "failedInspection": "निरीक्षण विफल"
+    },
+    "notifications": {
+        "title": "सूचनाएं",
+        "empty": "कोई नई सूचना नहीं",
+        "markAllRead": "सभी को पढ़ा हुआ चिह्नित करें"
+    },
+    "errors": {
+        "networkError": "नेटवर्क त्रुटि, कृपया पुनः प्रयास करें",
+        "unauthorized": "अनधिकृत पहुंच",
+        "notFound": "संसाधन नहीं मिला"
+    },
+    "settings": {
+        "title": "सेटिंग्स",
+        "language": "भाषा",
+        "languageDescription": "एप्लिकेशन के लिए अपनी पसंदीदा भाषा चुनें",
+        "saveChanges": "बदलाव सेव करें"
+    }
+}

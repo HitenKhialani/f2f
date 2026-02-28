@@ -1,0 +1,136 @@
+{
+    "common": {
+        "welcome": "Welcome",
+        "loading": "Loading...",
+        "noData": "No data available",
+        "search": "Search",
+        "errorOccurred": "An error occurred",
+        "profile": "Profile",
+        "logout": "Logout",
+        "settings": "Settings",
+        "total": "Total",
+        "price": "Price",
+        "quantity": "Quantity"
+    },
+    "navbar": {
+        "dashboard": "Dashboard",
+        "trace": "Trace",
+        "settings": "Settings",
+        "notifications": "Notifications",
+        "profile": "Profile",
+        "logout": "Logout"
+    },
+    "sidebar": {
+        "dashboard": "Dashboard",
+        "myBatches": "My Batches",
+        "payments": "Payments",
+        "incoming": "Incoming",
+        "inventory": "Inventory",
+        "outgoing": "Outgoing",
+        "farmerShipments": "Farmer Shipments",
+        "distributorShipments": "Distributor Shipments",
+        "inTransit": "In Transit",
+        "completed": "Completed",
+        "incomingTransport": "Incoming Transport",
+        "received": "Received",
+        "listed": "Listed",
+        "sold": "Sold",
+        "newListing": "New Listing",
+        "settings": "Settings"
+    },
+    "dashboard": {
+        "farmerTitle": "Farmer Dashboard",
+        "farmerSubtitle": "Overview of your agricultural batches and payments",
+        "overview": "Overview",
+        "totalBatches": "Total Batches",
+        "activeBatches": "Active Batches",
+        "completedBatches": "Completed Batches",
+        "financialSummary": "Financial Summary",
+        "totalRevenue": "Total Revenue",
+        "pendingPayments": "Pending Payments",
+        "recentActivity": "Recent Activity",
+        "batchId": "Batch ID",
+        "cropType": "Crop Type",
+        "status": "Status",
+        "date": "Date",
+        "action": "Action",
+        "noRecentActivity": "No recent activity found",
+        "viewAll": "View All",
+        "createBatch": "Create New Batch"
+    },
+    "trace": {
+        "title": "Supply Chain Trace",
+        "enterId": "Enter Public Batch ID",
+        "scanQr": "Scan QR Code",
+        "blockchainStatus": "Blockchain Record",
+        "verified": "Verified on Blockchain",
+        "unverified": "Not Verified"
+    },
+    "kyc": {
+        "title": "KYC Verification",
+        "status": "KYC Status",
+        "uploadDocs": "Upload Documents",
+        "aadhar": "Aadhar Number",
+        "pan": "PAN Number"
+    },
+    "forms": {
+        "cropType": "Crop Type",
+        "quantityKg": "Quantity (kg)",
+        "basePrice": "Base Price (₹/kg)",
+        "location": "Location",
+        "selectCrop": "Select Crop...",
+        "coffee": "Coffee",
+        "wheat": "Wheat",
+        "rice": "Rice",
+        "cotton": "Cotton"
+    },
+    "buttons": {
+        "submit": "Submit",
+        "cancel": "Cancel",
+        "save": "Save",
+        "upload": "Upload",
+        "create": "Create",
+        "edit": "Edit",
+        "delete": "Delete",
+        "viewtrace": "View Trace",
+        "requestTransport": "Request Transport",
+        "confirm": "Confirm",
+        "close": "Close"
+    },
+    "toast": {
+        "successSave": "Saved successfully",
+        "errorSave": "Something went wrong",
+        "requestSent": "Request sent successfully",
+        "paymentRequired": "Please complete all pending payments before proceeding.",
+        "batchCreated": "Batch created successfully",
+        "errorCreatingBatch": "Error creating batch"
+    },
+    "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "inTransit": "In Transit",
+        "delivered": "Delivered",
+        "stored": "Stored",
+        "listed": "Listed",
+        "sold": "Sold",
+        "inspected": "Inspected",
+        "failedInspection": "Failed Inspection"
+    },
+    "notifications": {
+        "title": "Notifications",
+        "empty": "No new notifications",
+        "markAllRead": "Mark all as read"
+    },
+    "errors": {
+        "networkError": "Network error, please try again",
+        "unauthorized": "Unauthorized access",
+        "notFound": "Resource not found"
+    },
+    "settings": {
+        "title": "Settings",
+        "language": "Language",
+        "languageDescription": "Choose your preferred language for the application",
+        "saveChanges": "Save Changes"
+    }
+}

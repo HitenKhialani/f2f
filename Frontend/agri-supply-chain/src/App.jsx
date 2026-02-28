@@ -43,6 +43,8 @@ import NewListingPage from './pages/retailer/NewListingPage';
 import ConsumerDashboard from './pages/consumer/ConsumerDashboard';
 import ProfilePage from './pages/ProfilePage';
 import PaymentsPage from './pages/payment/PaymentsPage';
+// Shared Pages
+import SettingsPage from './pages/common/Settings';
 
 // Admin Protected Route
 const AdminProtectedRoute = ({ children }) => {
@@ -331,7 +333,15 @@ function App() {
           }
         />
 
-        {/* Universal Profile Route */}
+        {/* Shared Protected Routes */}
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute allowedRoles={['FARMER', 'DISTRIBUTOR', 'TRANSPORTER', 'RETAILER', 'CONSUMER']}>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/profile"
           element={

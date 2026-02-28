@@ -1,0 +1,136 @@
+{
+    "common": {
+        "welcome": "ਜੀ ਆਇਆਂ ਨੂੰ",
+        "loading": "ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...",
+        "noData": "ਕੋਈ ਡਾਟਾ ਉਪਲਬਧ ਨਹੀਂ",
+        "search": "ਖੋਜੋ",
+        "errorOccurred": "ਇੱਕ ਗਲਤੀ ਆਈ ਹੈ",
+        "profile": "ਪ੍ਰੋਫਾਈਲ",
+        "logout": "ਲਾਗ ਆਉਟ",
+        "settings": "ਸੈਟਿੰਗਾਂ",
+        "total": "ਕੁੱਲ",
+        "price": "ਕੀਮਤ",
+        "quantity": "ਮਾਤਰਾ"
+    },
+    "navbar": {
+        "dashboard": "ਡੈਸ਼ਬੋਰਡ",
+        "trace": "ਟਰੇਸ",
+        "settings": "ਸੈਟਿੰਗਾਂ",
+        "notifications": "ਸੂਚਨਾਵਾਂ",
+        "profile": "ਪ੍ਰੋਫਾਈਲ",
+        "logout": "ਲਾਗ ਆਉਟ"
+    },
+    "sidebar": {
+        "dashboard": "ਡੈਸ਼ਬੋਰਡ",
+        "myBatches": "ਮੇਰੇ ਬੈਚ",
+        "payments": "ਭੁਗਤਾਨ",
+        "incoming": "ਆਉਣ ਵਾਲਾ",
+        "inventory": "ਵਸਤੂ-ਸੂਚੀ",
+        "outgoing": "ਜਾਣ ਵਾਲਾ",
+        "farmerShipments": "ਕਿਸਾਨ ਸ਼ਿਪਮੈਂਟ",
+        "distributorShipments": "ਵਿਤਰਕ ਸ਼ਿਪਮੈਂਟ",
+        "inTransit": "ਰਸਤੇ ਵਿੱਚ",
+        "completed": "ਪੂਰਾ ਹੋਇਆ",
+        "incomingTransport": "ਆਉਣ ਵਾਲਾ ਟ੍ਰਾਂਸਪੋਰਟ",
+        "received": "ਪ੍ਰਾਪਤ ਹੋਇਆ",
+        "listed": "ਸੂਚੀਬੱਧ",
+        "sold": "ਵਿਕਿਆ",
+        "newListing": "ਨਵੀਂ ਸੂਚੀ",
+        "settings": "ਸੈਟਿੰਗਾਂ"
+    },
+    "dashboard": {
+        "farmerTitle": "ਕਿਸਾਨ ਡੈਸ਼ਬੋਰਡ",
+        "farmerSubtitle": "ਤੁਹਾਡੇ ਖੇਤੀਬਾੜੀ ਬੈਚਾਂ ਅਤੇ ਭੁਗਤਾਨਾਂ ਦੀ ਸੰਖੇਪ ਜਾਣਕਾਰੀ",
+        "overview": "ਸੰਖੇਪ ਜਾਣਕਾਰੀ",
+        "totalBatches": "ਕੁੱਲ ਬੈਚ",
+        "activeBatches": "ਸਰਗਰਮ ਬੈਚ",
+        "completedBatches": "ਪੂਰੇ ਹੋਏ ਬੈਚ",
+        "financialSummary": "ਵਿੱਤੀ ਸਾਰਾਂਸ਼",
+        "totalRevenue": "ਕੁੱਲ ਮਾਲੀਆ",
+        "pendingPayments": "ਬਕਾਇਆ ਭੁਗਤਾਨ",
+        "recentActivity": "ਹਾਲੀਆ ਗਤੀਵਿਧੀ",
+        "batchId": "ਬੈਚ ਆਈਡੀ",
+        "cropType": "ਫਸਲ ਦੀ ਕਿਸਮ",
+        "status": "ਸਥਿਤੀ",
+        "date": "ਤਾਰੀਖ",
+        "action": "ਕਾਰਵਾਈ",
+        "noRecentActivity": "ਕੋਈ ਹਾਲੀਆ ਗਤੀਵਿਧੀ ਨਹੀਂ ਮਿਲੀ",
+        "viewAll": "ਸਾਰੇ ਵੇਖੋ",
+        "createBatch": "ਨਵਾਂ ਬੈਚ ਬਣਾਓ"
+    },
+    "trace": {
+        "title": "ਸਪਲਾਈ ਚੈਨ ਟਰੇਸ",
+        "enterId": "ਪਬਲਿਕ ਬੈਚ ਆਈਡੀ ਦਰਜ ਕਰੋ",
+        "scanQr": "ਕਿਊਆਰ (QR) ਕੋਡ ਸਕੈਨ ਕਰੋ",
+        "blockchainStatus": "ਬਲਾਕਚੈਨ (Blockchain) ਰਿਕਾਰਡ",
+        "verified": "ਬਲਾਕਚੈਨ (Blockchain) 'ਤੇ ਪ੍ਰਮਾਣਿਤ",
+        "unverified": "ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ"
+    },
+    "kyc": {
+        "title": "ਕੇਵਾਈਸੀ (KYC) ਪ੍ਰਮਾਣੀਕਰਨ",
+        "status": "ਕੇਵਾਈਸੀ (KYC) ਸਥਿਤੀ",
+        "uploadDocs": "ਦਸਤਾਵੇਜ਼ ਅੱਪਲੋਡ ਕਰੋ",
+        "aadhar": "ਆਧਾਰ ਨੰਬਰ",
+        "pan": "ਪੈਨ ਨੰਬਰ"
+    },
+    "forms": {
+        "cropType": "ਫਸਲ ਦੀ ਕਿਸਮ",
+        "quantityKg": "ਮਾਤਰਾ (ਕਿਲੋਗ੍ਰਾਮ)",
+        "basePrice": "ਮੂਲ ਕੀਮਤ (₹/ਕਿਲੋ)",
+        "location": "ਸਥਾਨ",
+        "selectCrop": "ਫਸਲ ਚੁਣੋ...",
+        "coffee": "ਕੌਫੀ",
+        "wheat": "ਕਣਕ",
+        "rice": "ਚੌਲ",
+        "cotton": "ਕਪਾਹ"
+    },
+    "buttons": {
+        "submit": "ਜਮ੍ਹਾਂ ਕਰੋ",
+        "cancel": "ਰੱਦ ਕਰੋ",
+        "save": "ਸੇਵ ਕਰੋ",
+        "upload": "ਅੱਪਲੋਡ ਕਰੋ",
+        "create": "ਬਣਾਓ",
+        "edit": "ਸੋਧੋ",
+        "delete": "ਮਿਟਾਓ",
+        "viewtrace": "ਟਰੇਸ ਵੇਖੋ",
+        "requestTransport": "ਟ੍ਰਾਂਸਪੋਰਟ ਦੀ ਬੇਨਤੀ ਕਰੋ",
+        "confirm": "ਪੁਸ਼ਟੀ ਕਰੋ",
+        "close": "ਬੰਦ ਕਰੋ"
+    },
+    "toast": {
+        "successSave": "ਸਫਲਤਾਪੂਰਵਕ ਸੇਵ ਕੀਤਾ ਗਿਆ",
+        "errorSave": "ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ",
+        "requestSent": "ਬੇਨਤੀ ਸਫਲਤਾਪੂਰਵਕ ਭੇਜੀ ਗਈ",
+        "paymentRequired": "ਅੱਗੇ ਵਧਣ ਤੋਂ ਪਹਿਲਾਂ ਕਿਰਪਾ ਕਰਕੇ ਸਾਰੇ ਬਕਾਇਆ ਭੁਗਤਾਨ ਪੂਰੇ ਕਰੋ।",
+        "batchCreated": "ਬੈਚ ਸਫਲਤਾਪੂਰਵਕ ਬਣਾਇਆ ਗਿਆ",
+        "errorCreatingBatch": "ਬੈਚ ਬਣਾਉਣ ਵਿੱਚ ਗਲਤੀ"
+    },
+    "status": {
+        "pending": "ਬਕਾਇਆ",
+        "approved": "ਮਨਜ਼ੂਰ",
+        "rejected": "ਰੱਦ ਕੀਤਾ ਗਿਆ",
+        "inTransit": "ਰਸਤੇ ਵਿੱਚ",
+        "delivered": "ਪਹੁੰਚਾਇਆ ਗਿਆ",
+        "stored": "ਸਟੋਰ ਕੀਤਾ ਗਿਆ",
+        "listed": "ਸੂਚੀਬੱਧ",
+        "sold": "ਵਿਕਿਆ",
+        "inspected": "ਜਾਂਚ ਕੀਤੀ ਗਈ",
+        "failedInspection": "ਨਿਰੀਖਣ ਫੇਲ੍ਹ ਹੋਇਆ"
+    },
+    "notifications": {
+        "title": "ਸੂਚਨਾਵਾਂ",
+        "empty": "ਕੋਈ ਨਵੀਂ ਸੂਚਨਾ ਨਹੀਂ",
+        "markAllRead": "ਸਾਰਿਆਂ ਨੂੰ ਪੜ੍ਹਿਆ ਹੋਇਆ ਚਿੰਨ੍ਹਿਤ ਕਰੋ"
+    },
+    "errors": {
+        "networkError": "ਨੈੱਟਵਰਕ ਗਲਤੀ, ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+        "unauthorized": "ਅਣਅਧਿਕਾਰਤ ਪਹੁੰਚ",
+        "notFound": "ਸਰੋਤ ਨਹੀਂ ਮਿਲਿਆ"
+    },
+    "settings": {
+        "title": "ਸੈਟਿੰਗਾਂ",
+        "language": "ਭਾਸ਼ਾ",
+        "languageDescription": "ਐਪਲੀਕੇਸ਼ਨ ਲਈ ਆਪਣੀ ਪਸੰਦੀਦਾ ਭਾਸ਼ਾ ਚੁਣੋ",
+        "saveChanges": "ਤਬਦੀਲੀਆਂ ਸੇਵ ਕਰੋ"
+    }
+}

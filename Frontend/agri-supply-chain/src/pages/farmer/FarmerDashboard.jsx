@@ -11,9 +11,11 @@ import {
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from 'react-i18next';
 
 // Simple Donut Chart Component
 const DonutChart = ({ data, title, colors }) => {
+  const { t } = useTranslation();
   const total = data.reduce((sum, item) => sum + item.count, 0);
   let currentAngle = 0;
 
@@ -22,7 +24,7 @@ const DonutChart = ({ data, title, colors }) => {
       <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
       {total === 0 ? (
         <div className="flex items-center justify-center h-48 text-gray-400">
-          <p>No data available</p>
+          <p>{t('common.noData', 'No data available')}</p>
         </div>
       ) : (
         <div className="flex items-center gap-6">
@@ -75,7 +77,9 @@ const DonutChart = ({ data, title, colors }) => {
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: colors[index % colors.length] }}
                   />
-                  <span className="text-gray-600">{item.label || item.crop_type}</span>
+                  <span className="text-gray-600">
+                    {t(`forms.${(item.label || item.crop_type).toLowerCase()}`, item.label || item.crop_type)}
+                  </span>
                 </div>
                 <span className="font-medium text-gray-900">{item.count}</span>
               </div>
@@ -89,6 +93,7 @@ const DonutChart = ({ data, title, colors }) => {
 
 // Bar Chart Component
 const BarChart = ({ data, title }) => {
+  const { t } = useTranslation();
   const maxCount = Math.max(...data.map(d => d.count), 1);
 
   return (
@@ -96,14 +101,14 @@ const BarChart = ({ data, title }) => {
       <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
       {data.length === 0 ? (
         <div className="flex items-center justify-center h-48 text-gray-400">
-          <p>No data available</p>
+          <p>{t('common.noData', 'No data available')}</p>
         </div>
       ) : (
         <div className="space-y-3">
           {data.map((item, index) => (
             <div key={index} className="flex items-center gap-3">
-              <div className="w-20 text-sm text-gray-600 truncate">
-                {item.crop_type}
+              <div className="w-20 text-sm text-gray-600 truncate" title={item.crop_type}>
+                {t(`forms.${item.crop_type.toLowerCase()}`, item.crop_type)}
               </div>
               <div className="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden">
                 <div
@@ -123,26 +128,30 @@ const BarChart = ({ data, title }) => {
 };
 
 // Empty State Component
-const EmptyState = ({ onCreateClick }) => (
-  <div className="bg-white rounded-xl shadow-sm p-12 border border-gray-100 text-center">
-    <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-      <Sprout className="w-8 h-8 text-green-600" />
+const EmptyState = ({ onCreateClick }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-12 border border-gray-100 text-center">
+      <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <Sprout className="w-8 h-8 text-green-600" />
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('dashboard.noRecentActivity', 'No Batches Yet')}</h3>
+      <p className="text-gray-600 mb-6 max-w-md mx-auto">
+        You haven't created any crop batches yet. Start by creating your first batch to track your produce.
+      </p>
+      <button
+        onClick={onCreateClick}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+      >
+        <Plus className="w-5 h-5" />
+        {t('dashboard.createBatch', 'Create Your First Batch')}
+      </button>
     </div>
-    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Batches Yet</h3>
-    <p className="text-gray-600 mb-6 max-w-md mx-auto">
-      You haven't created any crop batches yet. Start by creating your first batch to track your produce.
-    </p>
-    <button
-      onClick={onCreateClick}
-      className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-    >
-      <Plus className="w-5 h-5" />
-      Create Your First Batch
-    </button>
-  </div>
-);
+  );
+};
 
 const FarmerDashboard = () => {
+  const { t } = useTranslation();
   const toast = useToast();
   const [batches, setBatches] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
@@ -163,7 +172,6 @@ const FarmerDashboard = () => {
     crop_type: '',
     quantity: '',
     harvest_date: '',
-    farm_location: '',
     farmer_base_price_per_unit: '',
   });
 
@@ -232,12 +240,12 @@ const FarmerDashboard = () => {
 
   const handleRequestTransport = async () => {
     if (selectedBatch?.is_locked) {
-      toast.warning('Please complete all pending payments before proceeding.');
+      toast.warning(t('toast.paymentRequired', 'Please complete all pending payments before proceeding.'));
       return;
     }
 
     if (!selectedDistributor) {
-      toast.warning('Please select a distributor');
+      toast.warning(t('common.errorOccurred', 'Please select a distributor'));
       return;
     }
 
@@ -250,22 +258,22 @@ const FarmerDashboard = () => {
       setSelectedBatch(null);
       setSelectedDistributor('');
       fetchDashboardData(); // Refresh to show updated status
-      toast.success('Transport request created successfully!');
+      toast.success(t('toast.requestSent', 'Transport request created successfully!'));
     } catch (error) {
       console.error('Error creating transport request:', error);
-      toast.error(error.response?.data?.message || 'Failed to create transport request');
+      toast.error(error.response?.data?.message || t('errors.networkError', 'Failed to create transport request'));
     }
   };
 
   const handleSuspendBatch = async (batchId) => {
-    if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
+    if (!confirm(t('buttons.confirm', 'Are you sure you want to suspend this batch?'))) return;
     try {
       await batchAPI.suspend(batchId);
-      toast.success('Batch suspended successfully.');
+      toast.success(t('toast.successSave', 'Batch suspended successfully.'));
       fetchDashboardData();
     } catch (error) {
       console.error('Error suspending batch:', error);
-      toast.error(error.response?.data?.message || 'Failed to suspend batch');
+      toast.error(error.response?.data?.message || t('errors.networkError', 'Failed to suspend batch'));
     }
   };
 
@@ -277,7 +285,6 @@ const FarmerDashboard = () => {
         crop_type: formData.crop_type,
         quantity: formData.quantity,
         harvest_date: formData.harvest_date,
-        farm_location: formData.farm_location,
         farmer_base_price_per_unit: formData.farmer_base_price_per_unit
       };
 
@@ -287,14 +294,14 @@ const FarmerDashboard = () => {
         crop_type: '',
         quantity: '',
         harvest_date: '',
-        farm_location: '',
         farmer_base_price_per_unit: '',
       });
 
       fetchDashboardData();
+      toast.success(t('toast.batchCreated', 'Batch created successfully'));
     } catch (error) {
       console.error('Error creating batch:', error);
-      toast.error('Error creating batch. Please try again.');
+      toast.error(t('toast.errorCreatingBatch', 'Error creating batch. Please try again.'));
     }
   };
 
@@ -302,7 +309,7 @@ const FarmerDashboard = () => {
     return (
       <MainLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading dashboard...</div>
+          <div className="text-gray-500">{t('common.loading', 'Loading dashboard...')}</div>
         </div>
       </MainLayout>
     );
@@ -317,15 +324,15 @@ const FarmerDashboard = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Farmer Dashboard</h1>
-            <p className="text-gray-600">Manage your crop batches and track production</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.farmerTitle', 'Farmer Dashboard')}</h1>
+            <p className="text-gray-600">{t('dashboard.farmerSubtitle', 'Manage your crop batches and track production')}</p>
           </div>
           <button
             onClick={() => setShowCreateForm(true)}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
           >
             <Plus className="w-5 h-5" />
-            Create Batch
+            {t('dashboard.createBatch', 'Create Batch')}
           </button>
         </div>
 
@@ -347,7 +354,7 @@ const FarmerDashboard = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Batches</p>
+                    <p className="text-sm font-medium text-gray-600">{t('dashboard.totalBatches', 'Total Batches')}</p>
                     <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
                   </div>
                   <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
@@ -358,7 +365,7 @@ const FarmerDashboard = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Active Batches</p>
+                    <p className="text-sm font-medium text-gray-600">{t('dashboard.activeBatches', 'Active Batches')}</p>
                     <p className="text-2xl font-bold text-green-600">{stats.active}</p>
                   </div>
                   <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
@@ -369,7 +376,7 @@ const FarmerDashboard = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Completed Sales</p>
+                    <p className="text-sm font-medium text-gray-600">{t('dashboard.completedBatches', 'Completed Sales')}</p>
                     <p className="text-2xl font-bold text-emerald-600">{stats.completed}</p>
                   </div>
                   <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
@@ -380,7 +387,7 @@ const FarmerDashboard = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                    <p className="text-sm font-medium text-gray-600">{t('dashboard.totalRevenue', 'Total Revenue')}</p>
                     <p className="text-2xl font-bold text-amber-600">₹{stats.revenue.toLocaleString('en-IN')}</p>
                   </div>
                   <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center">
@@ -394,12 +401,12 @@ const FarmerDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <DonutChart
                 data={dashboardData?.status_distribution || []}
-                title="Batch Status Distribution"
+                title={t('dashboard.statusDistribution', 'Batch Status Distribution')}
                 colors={['#10B981', '#F59E0B', '#3B82F6', '#8B5CF6', '#EF4444', '#6B7280', '#EC4899']}
               />
               <BarChart
                 data={dashboardData?.crop_distribution || []}
-                title="Crop Type Distribution"
+                title={t('dashboard.cropDistribution', 'Crop Type Distribution')}
               />
             </div>
           </>
@@ -409,22 +416,22 @@ const FarmerDashboard = () => {
         {showCreateForm && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Create New Batch</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('dashboard.createBatch', 'Create New Batch')}</h2>
               <form onSubmit={handleCreateBatch} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Crop Type *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('forms.cropType', 'Crop Type')} *</label>
                     <input
                       type="text"
                       required
                       value={formData.crop_type}
                       onChange={(e) => setFormData({ ...formData, crop_type: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                      placeholder="e.g., Wheat, Rice"
+                      placeholder={t('forms.selectCrop', 'e.g., Wheat, Rice')}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('forms.quantityKg', 'Quantity')} *</label>
                     <input
                       type="number"
                       required
@@ -435,7 +442,7 @@ const FarmerDashboard = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Harvest Date</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('forms.harvestDate', 'Harvest Date')}</label>
                     <input
                       type="date"
                       value={formData.harvest_date}
@@ -444,18 +451,7 @@ const FarmerDashboard = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Farm Location *</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.farm_location}
-                      onChange={(e) => setFormData({ ...formData, farm_location: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                      placeholder="Village, District, State"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Base Price per Unit (₹) *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('forms.basePrice', 'Base Price per Unit (₹)')} *</label>
                     <input
                       type="number"
                       required
@@ -474,13 +470,13 @@ const FarmerDashboard = () => {
                     onClick={() => setShowCreateForm(false)}
                     className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                   >
-                    Cancel
+                    {t('buttons.cancel', 'Cancel')}
                   </button>
                   <button
                     type="submit"
                     className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                   >
-                    Create Batch
+                    {t('buttons.create', 'Create Batch')}
                   </button>
                 </div>
               </form>
@@ -492,20 +488,20 @@ const FarmerDashboard = () => {
         {showTransportModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl p-6 max-w-md w-full">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Request Transport</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{t('buttons.requestTransport', 'Request Transport')}</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Batch</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('dashboard.batchId', 'Batch')}</label>
                   <p className="text-sm text-gray-600">{selectedBatch?.product_batch_id} - {selectedBatch?.crop_type}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Select Distributor</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('dashboard.selectDistributor', 'Select Distributor')}</label>
                   <select
                     value={selectedDistributor}
                     onChange={(e) => setSelectedDistributor(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   >
-                    <option value="">Choose a distributor...</option>
+                    <option value="">{t('dashboard.chooseDistributor', 'Choose a distributor...')}</option>
                     {distributors.map(dist => (
                       <option key={dist.id} value={dist.id}>
                         {dist.user_details?.username || dist.organization || `Distributor ${dist.id}`}
@@ -523,13 +519,13 @@ const FarmerDashboard = () => {
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
-                  Cancel
+                  {t('buttons.cancel', 'Cancel')}
                 </button>
                 <button
                   onClick={handleRequestTransport}
                   className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                 >
-                  Request Transport
+                  {t('buttons.requestTransport', 'Request Transport')}
                 </button>
               </div>
             </div>

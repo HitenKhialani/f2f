@@ -12,8 +12,10 @@ import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI } from '../../services/api';
 import { InspectionForm, InspectionTimeline } from '../../components/inspection';
 import ProductDescriptionForm from '../../components/inspection/ProductDescriptionForm';
+import { useToast } from '../../context/ToastContext';
 
 const FarmerBatches = () => {
+  const toast = useToast();
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,7 +46,7 @@ const FarmerBatches = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Try dashboard API first
       try {
         const response = await dashboardAPI.getFarmerDashboard();
@@ -103,7 +105,7 @@ const FarmerBatches = () => {
 
   const handleRequestTransport = async () => {
     if (!selectedDistributor) {
-      alert('Please select a distributor');
+      toast.warning('Please select a distributor');
       return;
     }
 
@@ -116,10 +118,10 @@ const FarmerBatches = () => {
       setSelectedBatch(null);
       setSelectedDistributor('');
       fetchBatches();
-      alert('Transport request created successfully!');
+      toast.success('Transport request created successfully!');
     } catch (error) {
       console.error('Error creating transport request:', error);
-      alert(error.response?.data?.message || 'Failed to create transport request');
+      toast.error(error.response?.data?.message || 'Failed to create transport request');
     }
   };
 
@@ -127,11 +129,11 @@ const FarmerBatches = () => {
     if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
     try {
       await batchAPI.suspend(batchId);
-      alert('Batch suspended successfully.');
+      toast.success('Batch suspended successfully.');
       fetchBatches();
     } catch (error) {
       console.error('Error suspending batch:', error);
-      alert(error.response?.data?.message || 'Failed to suspend batch');
+      toast.error(error.response?.data?.message || 'Failed to suspend batch');
     }
   };
 
@@ -158,7 +160,7 @@ const FarmerBatches = () => {
       fetchBatches();
     } catch (error) {
       console.error('Error creating batch:', error);
-      alert('Error creating batch. Please try again.');
+      toast.error('Error creating batch. Please try again.');
     }
   };
 
@@ -553,8 +555,8 @@ const FarmerBatches = () => {
                   <span className="text-gray-500">✕</span>
                 </button>
               </div>
-              <InspectionTimeline 
-                batchId={selectedBatch.id} 
+              <InspectionTimeline
+                batchId={selectedBatch.id}
                 inspections={batchInspections[selectedBatch.id]}
               />
             </div>

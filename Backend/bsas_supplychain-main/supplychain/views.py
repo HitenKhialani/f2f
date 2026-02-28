@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 from . import models, serializers
 from .event_logger import log_batch_event
 from .models import BatchEventType, BatchStatus
+from .view_utils import raise_if_locked
 
 User = get_user_model()
 
@@ -297,8 +298,10 @@ class BatchSplitViewSet(viewsets.ModelViewSet):
         
         # Suspend guard
         if parent_batch.status == BatchStatus.SUSPENDED:
-            from rest_framework.exceptions import ValidationError
             raise ValidationError("This batch has been suspended and cannot proceed further.")
+        
+        # lock guard
+        raise_if_locked(parent_batch)
         
         split_label = serializer.validated_data.get('split_label', '')
         quantity = serializer.validated_data.get('quantity', 0)
@@ -342,9 +345,11 @@ class RetailListingViewSet(viewsets.ModelViewSet):
             if not batch:
                  raise ValidationError("Batch is required")
             
-            # Suspend guard
             if batch.status == BatchStatus.SUSPENDED:
                 raise ValidationError("This batch has been suspended and cannot proceed further.")
+            
+            # lock guard
+            raise_if_locked(batch)
             
             # 1. Farmer Base Price
             farmer_base_price = batch.farmer_base_price_per_unit

@@ -145,6 +145,21 @@ class RetailerDashboardView(APIView):
             'units': [units_map.get(m, 0) for m in sorted_months],
         }
 
+        # --- PAYMENT-DERIVED FINANCIAL METRICS ---
+        from .models import Payment, PaymentStatus as PS, PaymentType as PT, StakeholderRole as SR
+        
+        paid_to_distributor = Payment.objects.filter(
+            payer=profile, payee_role=SR.DISTRIBUTOR, status=PS.SETTLED
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        paid_transport = Payment.objects.filter(
+            payer=profile, payment_type=PT.TRANSPORT_SHARE, status=PS.SETTLED
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        payment_pending_count = Payment.objects.filter(
+            payer=profile, status=PS.PENDING
+        ).count()
+
         # Build response
         response_data = {
             'metrics': {
@@ -153,6 +168,11 @@ class RetailerDashboardView(APIView):
                 'active_listings': active_listings,
                 'total_sales_revenue': round(total_sales_revenue, 2),
                 'units_sold': round(units_sold, 2),
+            },
+            'financial': {
+                'paid_to_distributor': float(paid_to_distributor),
+                'paid_transport': float(paid_transport),
+                'pending_payments_count': payment_pending_count,
             },
             'inventory_distribution': inventory_distribution,
             'monthly_sales': monthly_sales_data,

@@ -15,6 +15,18 @@ from supplychain.transport_views import (
 from supplychain.distributor_views import StoreBatchView, RequestTransportToRetailerView
 from supplychain.retailer_views import MarkBatchSoldView
 from supplychain.consumer_views import BatchTraceView
+try:
+    from supplychain.payment_views import (
+        PaymentViewSet,
+        PaymentDeclareView,
+        PaymentSettleView
+    )
+    print("DEBUG: PaymentViewSet imported successfully")
+except Exception as e:
+    print(f"DEBUG: PaymentViewSet import FAILED: {e}")
+    import traceback
+    traceback.print_exc()
+    PaymentViewSet = None
 from supplychain.suspend_views import SuspendBatchView
 
 router = routers.DefaultRouter()
@@ -26,7 +38,11 @@ router.register(r"transport-requests", views.TransportRequestViewSet)
 router.register(r"inspection-reports", views.InspectionReportViewSet)
 router.register(r"batch-splits", views.BatchSplitViewSet)
 router.register(r"retail-listings", views.RetailListingViewSet)
-router.register(r"consumer-scans", views.ConsumerScanViewSet)
+if PaymentViewSet is not None:
+    router.register(r"payments", PaymentViewSet, basename="payment")
+    print("DEBUG: payments route registered")
+else:
+    print("DEBUG: payments route NOT registered - PaymentViewSet is None")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -61,6 +77,10 @@ urlpatterns = [
     
     # Consumer Trace Endpoint
     path("api/public/trace/<str:public_id>/", BatchTraceView.as_view(), name="consumer-trace"),
+    
+    # Payment Endpoints
+    path("api/payment/<int:pk>/declare/", PaymentDeclareView.as_view(), name="payment-declare"),
+    path("api/payment/<int:pk>/settle/", PaymentSettleView.as_view(), name="payment-settle"),
     
     # Suspend Batch Endpoint
     path("api/batch/<int:batch_id>/suspend/", SuspendBatchView.as_view(), name="suspend-batch"),

@@ -11,8 +11,10 @@ import {
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { transportAPI } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
 const IncomingTransport = () => {
+  const toast = useToast();
   const [transportRequests, setTransportRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,11 +41,11 @@ const IncomingTransport = () => {
   const handleConfirmArrival = async (requestId) => {
     try {
       await transportAPI.confirmArrivalRequest(requestId);
-      alert('Arrival confirmed. The transporter can now mark the delivery as complete.');
+      toast.success('Arrival confirmed. The transporter can now mark the delivery as complete.');
       fetchData();
     } catch (error) {
       console.error('Error confirming arrival:', error);
-      alert(error.response?.data?.message || 'Failed to confirm arrival');
+      toast.error(error.response?.data?.message || 'Failed to confirm arrival');
     }
   };
 

@@ -28,11 +28,20 @@ api.interceptors.response.use(
     // Don't redirect if we're already on the login page or if it's a login request
     const isLoginPage = window.location.pathname === '/login';
     const isLoginRequest = error.config?.url?.includes('/auth/login/');
-    
+
     if (error.response?.status === 401 && !isLoginPage && !isLoginRequest) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
+
+    // Handle 402 Payment Required for locked batches
+    if (error.response?.status === 402) {
+      const event = new CustomEvent('payment-required', {
+        detail: error.response.data
+      });
+      window.dispatchEvent(event);
+    }
+
     return Promise.reject(error);
   }
 );

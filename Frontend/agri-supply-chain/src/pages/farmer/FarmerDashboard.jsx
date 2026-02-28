@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
 // Simple Donut Chart Component
 const DonutChart = ({ data, title, colors }) => {
@@ -32,24 +33,24 @@ const DonutChart = ({ data, title, colors }) => {
                 const angle = percentage * 360;
                 const startAngle = currentAngle;
                 currentAngle += angle;
-                
+
                 const startRad = (startAngle * Math.PI) / 180;
                 const endRad = ((startAngle + angle) * Math.PI) / 180;
-                
+
                 const x1 = 50 + 40 * Math.cos(startRad);
                 const y1 = 50 + 40 * Math.sin(startRad);
                 const x2 = 50 + 40 * Math.cos(endRad);
                 const y2 = 50 + 40 * Math.sin(endRad);
-                
+
                 const largeArcFlag = angle > 180 ? 1 : 0;
-                
+
                 const pathData = [
                   `M 50 50`,
                   `L ${x1} ${y1}`,
                   `A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2}`,
                   `Z`
                 ].join(' ');
-                
+
                 return (
                   <path
                     key={index}
@@ -142,6 +143,7 @@ const EmptyState = ({ onCreateClick }) => (
 );
 
 const FarmerDashboard = () => {
+  const toast = useToast();
   const [batches, setBatches] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
   const [stats, setStats] = useState({
@@ -174,13 +176,13 @@ const FarmerDashboard = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Fetch dashboard analytics from the new endpoint
       const response = await dashboardAPI.getFarmerDashboard();
       const data = response.data.data;
-      
+
       setDashboardData(data);
-      
+
       // Update stats from dashboard data
       if (data && data.metrics) {
         setStats({
@@ -190,7 +192,7 @@ const FarmerDashboard = () => {
           revenue: data.metrics.total_revenue,
         });
       }
-      
+
       // Use recent batches from dashboard data
       if (data && data.recent_batches) {
         setBatches(data.recent_batches);
@@ -198,17 +200,17 @@ const FarmerDashboard = () => {
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       setError(error.response?.data?.message || 'Failed to load dashboard data');
-      
+
       // Fallback to legacy batch list API if dashboard endpoint fails
       try {
         const response = await batchAPI.list();
         const originalBatches = (response.data || []).filter(batch => !batch.is_child_batch);
         setBatches(originalBatches);
-        
+
         const total = originalBatches.length;
         const active = originalBatches.filter(b => b.status !== 'SUSPENDED' && b.status !== 'SOLD').length;
         const completed = originalBatches.filter(b => b.status === 'SOLD').length;
-        
+
         setStats({ total, active, completed, revenue: 0 });
       } catch (fallbackError) {
         console.error('Fallback error:', fallbackError);
@@ -230,7 +232,7 @@ const FarmerDashboard = () => {
 
   const handleRequestTransport = async () => {
     if (!selectedDistributor) {
-      alert('Please select a distributor');
+      toast.warning('Please select a distributor');
       return;
     }
 
@@ -243,10 +245,10 @@ const FarmerDashboard = () => {
       setSelectedBatch(null);
       setSelectedDistributor('');
       fetchDashboardData(); // Refresh to show updated status
-      alert('Transport request created successfully!');
+      toast.success('Transport request created successfully!');
     } catch (error) {
       console.error('Error creating transport request:', error);
-      alert(error.response?.data?.message || 'Failed to create transport request');
+      toast.error(error.response?.data?.message || 'Failed to create transport request');
     }
   };
 
@@ -254,11 +256,11 @@ const FarmerDashboard = () => {
     if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
     try {
       await batchAPI.suspend(batchId);
-      alert('Batch suspended successfully.');
+      toast.success('Batch suspended successfully.');
       fetchDashboardData();
     } catch (error) {
       console.error('Error suspending batch:', error);
-      alert(error.response?.data?.message || 'Failed to suspend batch');
+      toast.error(error.response?.data?.message || 'Failed to suspend batch');
     }
   };
 
@@ -287,7 +289,7 @@ const FarmerDashboard = () => {
       fetchDashboardData();
     } catch (error) {
       console.error('Error creating batch:', error);
-      alert('Error creating batch. Please try again.');
+      toast.error('Error creating batch. Please try again.');
     }
   };
 

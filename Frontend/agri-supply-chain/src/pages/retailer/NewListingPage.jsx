@@ -4,10 +4,12 @@ import { useAuth } from '../../context/AuthContext';
 import { Store, ArrowLeft, Package } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, retailAPI } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
 const NewListingPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const toast = useToast();
     const [batches, setBatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -71,11 +73,11 @@ const NewListingPage = () => {
                 retailer_margin: formData.retailer_margin,
                 is_for_sale: true,
             });
-            alert('Listing created successfully!');
+            toast.success('Listing created successfully!');
             navigate('/retailer/dashboard');
         } catch (error) {
             console.error('Error creating listing:', error);
-            alert(error.response?.data?.message || 'Failed to create listing');
+            toast.error(error.response?.data?.message || 'Failed to create listing');
         } finally {
             setSubmitting(false);
         }

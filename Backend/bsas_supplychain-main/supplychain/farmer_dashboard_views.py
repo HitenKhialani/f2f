@@ -128,6 +128,24 @@ class FarmerDashboardView(APIView):
         # Check if farmer has no batches (for empty state)
         has_batches = total_batches > 0
         
+        # Payment-derived financial metrics (from Payment model only)
+        total_received = models.Payment.objects.filter(
+            payee=farmer_profile,
+            payment_type=models.PaymentType.BATCH_PAYMENT,
+            status=models.PaymentStatus.SETTLED
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        total_paid_transport = models.Payment.objects.filter(
+            payer=farmer_profile,
+            payment_type=models.PaymentType.TRANSPORT_SHARE,
+            status=models.PaymentStatus.SETTLED
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        pending_confirmations = models.Payment.objects.filter(
+            payee=farmer_profile,
+            status=models.PaymentStatus.AWAITING_CONFIRMATION
+        ).count()
+        
         return Response({
             "success": True,
             "data": {
@@ -136,6 +154,12 @@ class FarmerDashboardView(APIView):
                     "active_batches": active_batches,
                     "completed_batches": completed_batches,
                     "total_revenue": round(total_revenue, 2),
+                },
+                "financial": {
+                    "total_received": float(total_received),
+                    "total_paid_transport": float(total_paid_transport),
+                    "net_earnings": float(total_received - total_paid_transport),
+                    "pending_confirmations": pending_confirmations,
                 },
                 "status_distribution": status_dist_formatted,
                 "crop_distribution": list(crop_distribution),

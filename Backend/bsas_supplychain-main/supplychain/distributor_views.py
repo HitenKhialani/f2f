@@ -9,7 +9,8 @@ from rest_framework.permissions import IsAuthenticated
 from . import models
 from .batch_validators import BatchStatusTransitionValidator
 from .event_logger import log_batch_event
-from .models import BatchEventType, BatchStatus
+from .models import BatchEventType, BatchStatus, PaymentStatus, FinancialStatus
+from .view_utils import check_batch_locked
 
 
 class StoreBatchView(APIView):
@@ -63,6 +64,11 @@ class StoreBatchView(APIView):
                 {"success": False, "message": f"Cannot store batch with status {batch.status}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Check if batch is locked
+        is_locked, lock_response = check_batch_locked(batch)
+        if is_locked:
+            return lock_response
         
         # Validate transition
         if not BatchStatusTransitionValidator.can_transition(
@@ -171,6 +177,11 @@ class RequestTransportToRetailerView(APIView):
                 {"success": False, "message": f"Cannot request transport for batch with status {batch.status}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Check if batch is locked
+        is_locked, lock_response = check_batch_locked(batch)
+        if is_locked:
+            return lock_response
         
         # Create transport request
         transport_request = models.TransportRequest.objects.create(

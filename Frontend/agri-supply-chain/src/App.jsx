@@ -42,6 +42,7 @@ import Sold from './pages/retailer/Sold';
 import NewListingPage from './pages/retailer/NewListingPage';
 import ConsumerDashboard from './pages/consumer/ConsumerDashboard';
 import ProfilePage from './pages/ProfilePage';
+import PaymentsPage from './pages/payment/PaymentsPage';
 
 // Admin Protected Route
 const AdminProtectedRoute = ({ children }) => {
@@ -96,9 +97,29 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
+import PaymentLockedModal from './components/payment/PaymentLockedModal';
+
 function App() {
+  const [isPaymentLockedModalOpen, setIsPaymentLockedModalOpen] = React.useState(false);
+  const [lockedBatchData, setLockedBatchData] = React.useState(null);
+
+  React.useEffect(() => {
+    const handlePaymentRequired = (event) => {
+      setLockedBatchData(event.detail);
+      setIsPaymentLockedModalOpen(true);
+    };
+
+    window.addEventListener('payment-required', handlePaymentRequired);
+    return () => window.removeEventListener('payment-required', handlePaymentRequired);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <PaymentLockedModal
+        isOpen={isPaymentLockedModalOpen}
+        onClose={() => setIsPaymentLockedModalOpen(false)}
+        batchData={lockedBatchData}
+      />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
@@ -141,6 +162,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/farmer/payments"
+          element={
+            <ProtectedRoute allowedRoles={['FARMER']}>
+              <PaymentsPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Distributor Routes */}
         <Route
@@ -172,6 +201,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['DISTRIBUTOR']}>
               <Outgoing />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/distributor/payments"
+          element={
+            <ProtectedRoute allowedRoles={['DISTRIBUTOR']}>
+              <PaymentsPage />
             </ProtectedRoute>
           }
         />
@@ -214,6 +251,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['TRANSPORTER']}>
               <Completed />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transporter/payments"
+          element={
+            <ProtectedRoute allowedRoles={['TRANSPORTER']}>
+              <PaymentsPage />
             </ProtectedRoute>
           }
         />
@@ -264,6 +309,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['RETAILER']}>
               <NewListingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/retailer/payments"
+          element={
+            <ProtectedRoute allowedRoles={['RETAILER']}>
+              <PaymentsPage />
             </ProtectedRoute>
           }
         />

@@ -15,9 +15,11 @@ import {
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, distributorAPI, inspectionAPI } from '../../services/api';
 import { InspectionForm, InspectionTimeline } from '../../components/inspection';
+import { useToast } from '../../context/ToastContext';
 
 const Incoming = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [batches, setBatches] = useState([]);
   const [transportRequests, setTransportRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -80,11 +82,11 @@ const Incoming = () => {
   const handleConfirmArrival = async (requestId) => {
     try {
       await transportAPI.confirmArrivalRequest(requestId);
-      alert('Arrival confirmed. The transporter can now mark the delivery as complete.');
+      toast.success('Arrival confirmed. The transporter can now mark the delivery as complete.');
       fetchData();
     } catch (error) {
       console.error('Error confirming arrival:', error);
-      alert(error.response?.data?.message || 'Failed to confirm arrival');
+      toast.error(error.response?.data?.message || 'Failed to confirm arrival');
     }
   };
 
@@ -92,18 +94,18 @@ const Incoming = () => {
     try {
       const distributorMargin = parseFloat(storeMargin);
       if (isNaN(distributorMargin)) {
-        alert('Please enter a valid numeric margin');
+        toast.warning('Please enter a valid numeric margin');
         return;
       }
       await distributorAPI.storeBatch(selectedBatch.id, { distributor_margin_per_unit: distributorMargin });
-      alert('Batch stored successfully');
+      toast.success('Batch stored successfully');
       setShowStoreModal(false);
       setSelectedBatch(null);
       setStoreMargin('0.00');
       fetchData();
     } catch (error) {
       console.error('Error storing batch:', error);
-      alert(error.response?.data?.message || 'Failed to store batch');
+      toast.error(error.response?.data?.message || 'Failed to store batch');
     }
   };
 
@@ -111,11 +113,11 @@ const Incoming = () => {
     if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
     try {
       await batchAPI.suspend(batchId);
-      alert('Batch suspended successfully.');
+      toast.success('Batch suspended successfully.');
       fetchData();
     } catch (error) {
       console.error('Error suspending batch:', error);
-      alert(error.response?.data?.message || 'Failed to suspend batch');
+      toast.error(error.response?.data?.message || 'Failed to suspend batch');
     }
   };
 
@@ -421,7 +423,7 @@ const Incoming = () => {
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">Inspection History</h2>
                   <p className="text-sm text-gray-500">
-                    {(selectedBatch.batch_details?.product_batch_id || selectedBatch.product_batch_id || 'Unknown')} - 
+                    {(selectedBatch.batch_details?.product_batch_id || selectedBatch.product_batch_id || 'Unknown')} -
                     {(selectedBatch.batch_details?.crop_type || selectedBatch.crop_type || 'N/A')}
                   </p>
                 </div>
@@ -435,7 +437,7 @@ const Incoming = () => {
                   <span className="text-gray-500">✕</span>
                 </button>
               </div>
-              <InspectionTimeline 
+              <InspectionTimeline
                 batchId={selectedBatch.batch || selectedBatch.batch_details?.id || selectedBatch.id}
                 inspections={batchInspections[selectedBatch.batch || selectedBatch.batch_details?.id || selectedBatch.id]}
               />

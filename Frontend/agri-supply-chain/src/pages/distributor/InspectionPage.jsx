@@ -4,10 +4,12 @@ import { ClipboardCheck, ArrowLeft } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, inspectionAPI } from '../../services/api';
 import { InspectionForm, InspectionTimeline } from '../../components/inspection';
+import { useToast } from '../../context/ToastContext';
 
 const InspectionPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const toast = useToast();
     const [batch, setBatch] = useState(null);
     const [loading, setLoading] = useState(true);
     const [inspections, setInspections] = useState([]);
@@ -25,7 +27,7 @@ const InspectionPage = () => {
             fetchInspections(id);
         } catch (error) {
             console.error('Error fetching batch:', error);
-            alert('Failed to load batch details');
+            toast.error('Failed to load batch details');
         } finally {
             setLoading(false);
         }
@@ -117,8 +119,8 @@ const InspectionPage = () => {
                         <div>
                             <p className="text-sm text-gray-500">Current Status</p>
                             <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${batch.status === 'DELIVERED_TO_DISTRIBUTOR' ? 'bg-yellow-100 text-yellow-700' :
-                                    batch.status === 'STORED' ? 'bg-green-100 text-green-700' :
-                                        'bg-gray-100 text-gray-700'
+                                batch.status === 'STORED' ? 'bg-green-100 text-green-700' :
+                                    'bg-gray-100 text-gray-700'
                                 }`}>
                                 {batch.status?.replace(/_/g, ' ')}
                             </span>
@@ -135,7 +137,7 @@ const InspectionPage = () => {
                 </div>
 
                 {/* Inspection History Timeline */}
-                <InspectionTimeline 
+                <InspectionTimeline
                     batchId={id}
                     inspections={inspections}
                 />

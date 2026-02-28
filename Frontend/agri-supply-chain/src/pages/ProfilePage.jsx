@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { User, Mail, Building, MapPin, FileText, ArrowLeft } from 'lucide-react';
 import MainLayout from '../components/layout/MainLayout';
 import { authAPI } from '../services/api';
+import { useToast } from '../context/ToastContext';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
+    const toast = useToast();
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState(null);
 
@@ -20,7 +22,7 @@ const ProfilePage = () => {
             setProfile(data);
         } catch (error) {
             console.error('Error fetching profile:', error);
-            alert('Failed to load profile');
+            toast.error('Failed to load profile');
         } finally {
             setLoading(false);
         }
@@ -129,12 +131,11 @@ const ProfilePage = () => {
                                 KYC Status
                             </label>
                             <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg">
-                                <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                                    profile.kyc_status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                                    profile.kyc_status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
-                                    profile.kyc_status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                                    'bg-gray-100 text-gray-700'
-                                }`}>
+                                <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${profile.kyc_status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                        profile.kyc_status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                                            profile.kyc_status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                                'bg-gray-100 text-gray-700'
+                                    }`}>
                                     {profile.kyc_status || 'N/A'}
                                 </span>
                             </div>

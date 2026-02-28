@@ -11,9 +11,11 @@ import {
   X
 } from 'lucide-react';
 import { adminAPI } from '../../services/adminApi';
+import { useToast } from '../../context/ToastContext';
 
 const KYCManagement = () => {
   const { refreshUser } = useAuth();
+  const toast = useToast();
   const [kycRecords, setKycRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -62,7 +64,7 @@ const KYCManagement = () => {
       await refreshUser();
     } catch (error) {
       console.error('Error updating KYC:', error);
-      alert('Error updating KYC: ' + (error.response?.data?.message || error.message));
+      toast.error('Error updating KYC: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -273,10 +275,10 @@ const KYCManagement = () => {
                   </tr>
                 ))
               )}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
 
       {/* Decision Modal */}
       {selectedRecord && (
@@ -317,8 +319,8 @@ const KYCManagement = () => {
                   selectedRecord.rejectMode ? 'rejected' : 'approved'
                 )}
                 className={`flex-1 px-4 py-2 text-white rounded-lg ${selectedRecord.rejectMode
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-green-600 hover:bg-green-700'
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-green-600 hover:bg-green-700'
                   }`}
               >
                 {selectedRecord.rejectMode ? 'Reject' : 'Approve'}
@@ -349,8 +351,8 @@ const KYCManagement = () => {
             </div>
             {/* Debug info */}
             <div className="mb-4 p-2 bg-gray-100 rounded text-xs font-mono">
-              URL type: {typeof viewingDocument.url} | 
-              Starts with data: {viewingDocument.url?.startsWith?.('data:')?.toString()} | 
+              URL type: {typeof viewingDocument.url} |
+              Starts with data: {viewingDocument.url?.startsWith?.('data:')?.toString()} |
               Length: {viewingDocument.url?.length}
             </div>
             <div className="border rounded-lg overflow-hidden bg-gray-50">

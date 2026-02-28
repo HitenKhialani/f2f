@@ -17,7 +17,8 @@ import {
   CheckCircle,
   Boxes,
   PackageCheck,
-  PlusCircle
+  PlusCircle,
+  CreditCard
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -41,12 +42,14 @@ const Sidebar = () => {
       FARMER: [
         { path: '/farmer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
         { path: '/farmer/batches', icon: <Boxes className="w-5 h-5" />, label: 'My Batches' },
+        { path: '/farmer/payments', icon: <CreditCard className="w-5 h-5" />, label: 'Payments' },
       ],
       DISTRIBUTOR: [
         { path: '/distributor/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
         { path: '/distributor/incoming', icon: <Package className="w-5 h-5" />, label: 'Incoming' },
         { path: '/distributor/inventory', icon: <Boxes className="w-5 h-5" />, label: 'Inventory' },
         { path: '/distributor/outgoing', icon: <Truck className="w-5 h-5" />, label: 'Outgoing' },
+        { path: '/distributor/payments', icon: <CreditCard className="w-5 h-5" />, label: 'Payments' },
       ],
       TRANSPORTER: [
         { path: '/transporter/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
@@ -54,6 +57,7 @@ const Sidebar = () => {
         { path: '/transporter/distributor-shipments', icon: <Truck className="w-5 h-5" />, label: 'Distributor Shipments' },
         { path: '/transporter/in-transit', icon: <Navigation className="w-5 h-5" />, label: 'In Transit' },
         { path: '/transporter/completed', icon: <CheckCircle className="w-5 h-5" />, label: 'Completed' },
+        { path: '/transporter/payments', icon: <CreditCard className="w-5 h-5" />, label: 'Payments' },
       ],
       RETAILER: [
         { path: '/retailer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
@@ -62,6 +66,7 @@ const Sidebar = () => {
         { path: '/retailer/listed', icon: <ShoppingCart className="w-5 h-5" />, label: 'Listed' },
         { path: '/retailer/sold', icon: <CheckCircle className="w-5 h-5" />, label: 'Sold' },
         { path: '/retailer/listing/new', icon: <PlusCircle className="w-5 h-5" />, label: 'New Listing' },
+        { path: '/retailer/payments', icon: <CreditCard className="w-5 h-5" />, label: 'Payments' },
       ],
       CONSUMER: [
         { path: '/consumer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },

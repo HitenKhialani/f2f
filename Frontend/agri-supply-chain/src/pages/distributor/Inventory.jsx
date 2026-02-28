@@ -16,9 +16,11 @@ import {
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, stakeholderAPI, distributorAPI, batchSplitAPI, inspectionAPI } from '../../services/api';
 import { InspectionForm, InspectionTimeline } from '../../components/inspection';
+import { useToast } from '../../context/ToastContext';
 
 const Inventory = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [batches, setBatches] = useState([]);
   const [retailers, setRetailers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -62,7 +64,7 @@ const Inventory = () => {
 
   const handleRequestTransport = async () => {
     if (!selectedBatch || !selectedRetailer) {
-      alert('Please select a retailer');
+      toast.warning('Please select a retailer');
       return;
     }
 
@@ -71,14 +73,14 @@ const Inventory = () => {
         batch_id: selectedBatch.id,
         retailer_id: selectedRetailer,
       });
-      alert('Transport request sent successfully');
+      toast.success('Transport request sent successfully');
       setShowTransportModal(false);
       setSelectedBatch(null);
       setSelectedRetailer('');
       fetchData();
     } catch (error) {
       console.error('Error requesting transport:', error);
-      alert(error.response?.data?.message || 'Failed to request transport');
+      toast.error(error.response?.data?.message || 'Failed to request transport');
     }
   };
 
@@ -112,14 +114,14 @@ const Inventory = () => {
     const parentQuantity = parseFloat(selectedBatch.quantity);
 
     if (Math.abs(totalQuantity - parentQuantity) > 0.001) {
-      alert(`Total split quantity (${totalQuantity} kg) must exactly match parent batch quantity (${parentQuantity} kg)`);
+      toast.warning(`Total split quantity (${totalQuantity} kg) must exactly match parent batch quantity (${parentQuantity} kg)`);
       return;
     }
 
     for (let i = 0; i < splitData.splits.length; i++) {
       const split = splitData.splits[i];
       if (!split.label || !split.quantity) {
-        alert(`Please fill all fields for split ${i + 1}`);
+        toast.warning(`Please fill all fields for split ${i + 1}`);
         return;
       }
     }
@@ -133,13 +135,13 @@ const Inventory = () => {
         }))
       });
 
-      alert(`Batch ${selectedBatch.product_batch_id} split into ${splitData.splits.length} child batches successfully!`);
+      toast.success(`Batch ${selectedBatch.product_batch_id} split into ${splitData.splits.length} child batches successfully!`);
       setShowSplitModal(false);
       setSelectedBatch(null);
       fetchData();
     } catch (error) {
       console.error('Error splitting batch:', error);
-      alert(error.response?.data?.message || 'Failed to split batch');
+      toast.error(error.response?.data?.message || 'Failed to split batch');
     }
   };
 
@@ -147,11 +149,11 @@ const Inventory = () => {
     if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
     try {
       await batchAPI.suspend(batchId);
-      alert('Batch suspended successfully.');
+      toast.success('Batch suspended successfully.');
       fetchData();
     } catch (error) {
       console.error('Error suspending batch:', error);
-      alert(error.response?.data?.message || 'Failed to suspend batch');
+      toast.error(error.response?.data?.message || 'Failed to suspend batch');
     }
   };
 
@@ -173,7 +175,7 @@ const Inventory = () => {
   };
 
   // Filter inventory batches
-  const inventoryBatches = batches.filter(b => 
+  const inventoryBatches = batches.filter(b =>
     b.status === 'STORED' || b.status === 'FULLY_SPLIT'
   ).sort((a, b) => {
     if (a.id === b.parent_batch) return -1;
@@ -529,7 +531,7 @@ const Inventory = () => {
                   <span className="text-gray-500">✕</span>
                 </button>
               </div>
-              <InspectionTimeline 
+              <InspectionTimeline
                 batchId={selectedBatch.id}
                 inspections={batchInspections[selectedBatch.id]}
               />

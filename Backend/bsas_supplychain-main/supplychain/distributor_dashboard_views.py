@@ -159,6 +159,25 @@ class DistributorDashboardView(APIView):
             'outgoing': [outgoing_map.get(m, 0) for m in sorted_months],
         }
 
+        # --- PAYMENT-DERIVED FINANCIAL METRICS ---
+        from .models import Payment, PaymentStatus, PaymentType, StakeholderRole as SR
+        
+        paid_to_farmers = Payment.objects.filter(
+            payer=profile, payee_role=SR.FARMER, status=PaymentStatus.SETTLED
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        received_from_retailers = Payment.objects.filter(
+            payee=profile, payer_role=SR.RETAILER, status=PaymentStatus.SETTLED
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        paid_transport = Payment.objects.filter(
+            payer=profile, payment_type=PaymentType.TRANSPORT_SHARE, status=PaymentStatus.SETTLED
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        pending_payments_count = Payment.objects.filter(
+            payer=profile, status=PaymentStatus.PENDING
+        ).count()
+
         # Build response
         response_data = {
             'metrics': {
@@ -168,6 +187,12 @@ class DistributorDashboardView(APIView):
                 'outgoing_shipments': outgoing_requests,
                 'total_outgoing': total_outgoing,
                 'total_revenue': round(total_revenue, 2),
+            },
+            'financial': {
+                'paid_to_farmers': float(paid_to_farmers),
+                'received_from_retailers': float(received_from_retailers),
+                'paid_transport': float(paid_transport),
+                'pending_payments_count': pending_payments_count,
             },
             'inventory_distribution': inventory_distribution,
             'monthly_activity': monthly_activity,

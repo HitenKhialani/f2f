@@ -7,8 +7,10 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from . import models, serializers
 from .batch_validators import BatchStatusTransitionValidator
-from .event_logger import log_batch_event
+from .event_logger import log_batch_event, log_ownership_transfer
 from .models import BatchEventType, BatchStatus
+from .payment_views import create_payment_records_on_delivery
+from .view_utils import check_batch_locked
 
 
 class TransportRequestCreateView(APIView):
@@ -36,6 +38,12 @@ class TransportRequestCreateView(APIView):
                 {"success": False, "message": "This batch has been suspended and cannot proceed further."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Financial lock guard
+        # Batch lock guard
+        is_locked, lock_response = check_batch_locked(batch)
+        if is_locked:
+            return lock_response
         
         # Verify user is the farmer who owns this batch
         try:
@@ -116,6 +124,12 @@ class TransportAcceptView(APIView):
                 {"success": False, "message": "This batch has been suspended and cannot proceed further."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Financial lock guard
+        # Batch lock guard
+        is_locked, lock_response = check_batch_locked(batch)
+        if is_locked:
+            return lock_response
         
         # Verify user is a transporter
         try:
@@ -267,6 +281,9 @@ class TransportDeliverView(APIView):
             user_performing_action=request.user,
             reason=f"Delivery to {to_party_role} confirmed by transporter after receiver arrival confirmation"
         )
+        
+        # Create payment records for this delivery
+        create_payment_records_on_delivery(batch, transport_request)
         
         return Response({
             "success": True,

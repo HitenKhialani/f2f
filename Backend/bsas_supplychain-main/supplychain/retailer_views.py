@@ -10,8 +10,9 @@ from rest_framework.permissions import IsAuthenticated
 
 from . import models
 from .batch_validators import BatchStatusTransitionValidator
+from .models import StakeholderProfile, StakeholderRole, CropBatch, BatchStatus, BatchEventType, RetailListing
 from .event_logger import log_batch_event
-from .models import BatchEventType, BatchStatus
+from .view_utils import check_batch_locked
 
 
 class MarkBatchSoldView(APIView):
@@ -40,6 +41,12 @@ class MarkBatchSoldView(APIView):
                 {"success": False, "message": "This batch has been suspended and cannot proceed further."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        # Financial lock guard
+        # Batch lock guard
+        is_locked, lock_response = check_batch_locked(batch)
+        if is_locked:
+            return lock_response
         
         # Verify user is retailer
         try:

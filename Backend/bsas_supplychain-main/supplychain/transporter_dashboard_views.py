@@ -137,6 +137,17 @@ class TransporterDashboardView(APIView):
                 month_key = item['month'].strftime('%b %Y')
                 monthly_trend[month_key] = item['count']
 
+        # --- PAYMENT-DERIVED FINANCIAL METRICS ---
+        from .models import Payment, PaymentStatus as PS
+        
+        payment_earnings = Payment.objects.filter(
+            payee=profile, status=PS.SETTLED
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        payment_pending_count = Payment.objects.filter(
+            payee=profile
+        ).exclude(status=PS.SETTLED).count()
+
         # Build response
         response_data = {
             'metrics': {
@@ -145,6 +156,10 @@ class TransporterDashboardView(APIView):
                 'in_transit': in_transit,
                 'completed': completed,
                 'total_earnings': total_earnings,
+            },
+            'financial': {
+                'total_earnings': float(payment_earnings),
+                'pending_count': payment_pending_count,
             },
             'status_distribution': status_distribution,
             'total_deliveries': total_deliveries,

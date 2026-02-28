@@ -80,6 +80,17 @@ class BatchStatus(models.TextChoices):
     FULLY_SPLIT = "FULLY_SPLIT", "Fully Split"
 
 
+class FinancialStatus(models.TextChoices):
+    PAYMENT_PENDING = "PAYMENT_PENDING", "Payment Pending"
+    DISTRIBUTOR_PHASE_SETTLED = "DISTRIBUTOR_PHASE_SETTLED", "Distributor Phase Settled"
+    RETAILER_PHASE_SETTLED = "RETAILER_PHASE_SETTLED", "Retailer Phase Settled"
+
+
+class BatchPhase(models.TextChoices):
+    DISTRIBUTOR_PHASE = "DISTRIBUTOR_PHASE", "Distributor Phase"
+    RETAILER_PHASE = "RETAILER_PHASE", "Retailer Phase"
+
+
 class CropBatch(models.Model):
     farmer = models.ForeignKey(
         StakeholderProfile, on_delete=models.PROTECT, related_name="crop_batches"
@@ -116,6 +127,15 @@ class CropBatch(models.Model):
     # Linear Pricing Fields
     farmer_base_price_per_unit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     distributor_margin_per_unit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    # Financial State Machine Fields
+    financial_status = models.CharField(
+        max_length=32, choices=FinancialStatus.choices, blank=True, default=''
+    )
+    current_phase = models.CharField(
+        max_length=32, choices=BatchPhase.choices, blank=True, default=''
+    )
+    is_locked = models.BooleanField(default=False)
     
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -394,3 +414,63 @@ class ConsumerScan(models.Model):
 
     def __str__(self) -> str:
         return f"Scan {self.listing.batch.product_batch_id}"
+
+
+class PaymentStatus(models.TextChoices):
+    PENDING = "PENDING", "Pending"
+    AWAITING_CONFIRMATION = "AWAITING_CONFIRMATION", "Awaiting Confirmation"
+    SETTLED = "SETTLED", "Settled"
+
+
+class PaymentType(models.TextChoices):
+    BATCH_PAYMENT = "BATCH_PAYMENT", "Batch Payment"
+    TRANSPORT_SHARE = "TRANSPORT_SHARE", "Transport Share"
+
+
+class Payment(models.Model):
+    """
+    Payment records for batch transactions.
+    Role-agnostic table - filtering happens at query level.
+    """
+    batch = models.ForeignKey(
+        CropBatch, on_delete=models.CASCADE, related_name="payments"
+    )
+    payer = models.ForeignKey(
+        StakeholderProfile,
+        on_delete=models.PROTECT,
+        related_name="payments_made",
+    )
+    payee = models.ForeignKey(
+        StakeholderProfile,
+        on_delete=models.PROTECT,
+        related_name="payments_received",
+    )
+    payer_role = models.CharField(max_length=32, choices=StakeholderRole.choices)
+    payee_role = models.CharField(max_length=32, choices=StakeholderRole.choices)
+    payment_type = models.CharField(
+        max_length=32, choices=PaymentType.choices, default=PaymentType.BATCH_PAYMENT
+    )
+    phase = models.CharField(
+        max_length=32, choices=BatchPhase.choices, blank=True, default=''
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    status = models.CharField(
+        max_length=32, choices=PaymentStatus.choices, default=PaymentStatus.PENDING
+    )
+    payee_upi_id = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['payer', 'status']),
+            models.Index(fields=['payee', 'status']),
+            models.Index(fields=['batch', 'status']),
+        ]
+
+    def __str__(self) -> str:
+        return f"Payment {self.id} - {self.batch.product_batch_id} - {self.status}"
+
+
+# Later phase: After all payments declared, generate SHA256 hash and push to blockchain module.

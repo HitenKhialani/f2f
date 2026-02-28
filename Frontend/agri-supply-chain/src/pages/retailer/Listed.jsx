@@ -11,13 +11,15 @@ import {
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { retailAPI, retailerAPI, batchAPI } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
 const Listed = () => {
+  const toast = useToast();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Modal state for quantity input
   const [showQuantityModal, setShowQuantityModal] = useState(false);
   const [selectedListing, setSelectedListing] = useState(null);
@@ -58,22 +60,22 @@ const Listed = () => {
   const handleMarkSoldOut = async (listing) => {
     const remaining = getRemainingQuantity(listing);
     if (remaining <= 0) {
-      alert('No quantity available to sell');
+      toast.warning('No quantity available to sell');
       return;
     }
-    
+
     if (!confirm(`Mark as sold out? This will sell all ${remaining} kg remaining.`)) {
       return;
     }
-    
+
     try {
       const batchId = listing.batch || listing.batch_details?.id;
       await retailerAPI.markSold(batchId, remaining);
-      alert(`Marked as sold out. Sold ${remaining} kg.`);
+      toast.success(`Marked as sold out. Sold ${remaining} kg.`);
       fetchData();
     } catch (error) {
       console.error('Error marking batch as sold out:', error);
-      alert(error.response?.data?.message || 'Failed to mark batch as sold out');
+      toast.error(error.response?.data?.message || 'Failed to mark batch as sold out');
     }
   };
 
@@ -81,20 +83,20 @@ const Listed = () => {
     if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
     try {
       await batchAPI.suspend(batchId);
-      alert('Batch suspended successfully.');
+      toast.success('Batch suspended successfully.');
       fetchData();
     } catch (error) {
       console.error('Error suspending batch:', error);
-      alert(error.response?.data?.message || 'Failed to suspend batch');
+      toast.error(error.response?.data?.message || 'Failed to suspend batch');
     }
   };
 
   // Filter active listings - exclude those already sold or out of stock
   const activeListings = listings.filter(l => {
     const remaining = getRemainingQuantity(l);
-    return l.is_for_sale === true && 
-           l.batch_details?.status !== 'SOLD' &&
-           remaining > 0;
+    return l.is_for_sale === true &&
+      l.batch_details?.status !== 'SOLD' &&
+      remaining > 0;
   });
 
   const filteredListings = activeListings.filter(listing => {

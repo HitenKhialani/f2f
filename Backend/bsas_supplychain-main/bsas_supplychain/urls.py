@@ -32,6 +32,11 @@ from supplychain.transporter_dashboard_views import TransporterDashboardView
 from supplychain.retailer_dashboard_views import RetailerDashboardView
 
 from supplychain.distributor_dashboard_views import DistributorDashboardView
+from supplychain.payment_views import (
+    PaymentViewSet,
+    PaymentDeclareView,
+    PaymentSettleView
+)
 
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet, basename="user")
@@ -43,6 +48,7 @@ router.register(r"inspection-reports", views.InspectionReportViewSet)
 router.register(r"batch-splits", views.BatchSplitViewSet)
 router.register(r"retail-listings", views.RetailListingViewSet)
 router.register(r"consumer-scans", views.ConsumerScanViewSet)
+router.register(r"payments", PaymentViewSet, basename="payment")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -85,5 +91,8 @@ urlpatterns = [
     path("api/dashboard/distributor/", DistributorDashboardView.as_view(), name="distributor-dashboard"),
     # Retailer Dashboard endpoint
     path("api/dashboard/retailer/", RetailerDashboardView.as_view(), name="retailer-dashboard"),
+    # Payment endpoints
+    path("api/payment/<int:pk>/declare/", PaymentDeclareView.as_view(), name="payment-declare"),
+    path("api/payment/<int:pk>/settle/", PaymentSettleView.as_view(), name="payment-settle"),
 ]
 

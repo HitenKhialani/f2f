@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { transportAPI } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -95,12 +96,13 @@ const ActionButton = ({ status, onAccept, onReject, onArrive, onDeliver }) => {
   }
 };
 
-const TransporterShipmentsList = ({ 
-  title, 
-  filterFn, 
+const TransporterShipmentsList = ({
+  title,
+  filterFn,
   emptyMessage = "No shipments found",
-  showActions = true 
+  showActions = true
 }) => {
+  const toast = useToast();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -134,14 +136,14 @@ const TransporterShipmentsList = ({
 
   // Apply additional search and status filters
   const displayedRequests = filteredRequests.filter(request => {
-    const matchesSearch = 
+    const matchesSearch =
       request.batch_details?.product_batch_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.from_party_details?.organization?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.to_party_details?.organization?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.batch_details?.crop_type?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -162,7 +164,7 @@ const TransporterShipmentsList = ({
       fetchRequests();
     } catch (error) {
       console.error('Error updating status:', error);
-      alert(error.response?.data?.message || 'Failed to update status');
+      toast.error(error.response?.data?.message || 'Failed to update status');
     }
   };
 
@@ -170,7 +172,7 @@ const TransporterShipmentsList = ({
     try {
       const transportFeeVal = parseFloat(transportFee || 0);
       if (isNaN(transportFeeVal) || transportFeeVal < 0) {
-        alert('Please enter a valid transport fee');
+        toast.warning('Please enter a valid transport fee');
         return;
       }
       await transportAPI.acceptRequest(selectedRequestId, { transporter_fee_per_unit: transportFeeVal });
@@ -180,13 +182,13 @@ const TransporterShipmentsList = ({
       fetchRequests();
     } catch (error) {
       console.error('Error accepting request:', error);
-      alert(error.response?.data?.message || 'Failed to accept request');
+      toast.error(error.response?.data?.message || 'Failed to accept request');
     }
   };
 
   const getTypeIcon = (role) => {
-    return role === 'farmer' ? 
-      <Package className="w-4 h-4 text-blue-600" /> : 
+    return role === 'farmer' ?
+      <Package className="w-4 h-4 text-blue-600" /> :
       <Truck className="w-4 h-4 text-purple-600" />;
   };
 

@@ -149,8 +149,11 @@ class CropBatchSerializer(serializers.ModelSerializer):
             "farmer_base_price_per_unit",
             "distributor_margin_per_unit",
             "total_transport_fees",
+            "financial_status",
+            "current_phase",
+            "is_locked",
         ]
-        read_only_fields = ["farmer", "product_batch_id", "public_batch_id", "qr_code_image", "qr_code_data", "created_at", "current_owner", "is_child_batch", "parent_batch"]
+        read_only_fields = ["farmer", "product_batch_id", "public_batch_id", "qr_code_image", "qr_code_data", "created_at", "current_owner", "is_child_batch", "parent_batch", "financial_status", "current_phase", "is_locked"]
 
     total_transport_fees = serializers.SerializerMethodField()
 
@@ -269,3 +272,48 @@ class ConsumerScanSerializer(serializers.ModelSerializer):
         model = models.ConsumerScan
         fields = ["id", "listing", "scanned_at", "note"]
         read_only_fields = ["scanned_at"]
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    batch_details = CropBatchSerializer(source="batch", read_only=True)
+    payer_details = StakeholderProfileSerializer(source="payer", read_only=True)
+    payee_details = StakeholderProfileSerializer(source="payee", read_only=True)
+    counterparty_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = models.Payment
+        fields = [
+            "id",
+            "batch",
+            "batch_details",
+            "payer",
+            "payer_details",
+            "payee",
+            "payee_details",
+            "payer_role",
+            "payee_role",
+            "payment_type",
+            "phase",
+            "amount",
+            "status",
+            "payee_upi_id",
+            "created_at",
+            "updated_at",
+            "counterparty_name",
+        ]
+        read_only_fields = ["created_at", "updated_at"]
+    
+    def get_counterparty_name(self, obj):
+        """Get the name of the counterparty based on current user's perspective."""
+        request = self.context.get('request')
+        if not request or not hasattr(request.user, 'stakeholderprofile'):
+            return None
+        
+        user_profile = request.user.stakeholderprofile
+        if obj.payer == user_profile:
+            # Current user is payer, return payee name
+            return obj.payee.user.get_full_name() or obj.payee.user.username
+        elif obj.payee == user_profile:
+            # Current user is payee, return payer name
+            return obj.payer.user.get_full_name() or obj.payer.user.username
+        return None

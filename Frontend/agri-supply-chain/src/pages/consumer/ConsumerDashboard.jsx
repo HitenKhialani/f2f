@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
   Search,
   ScanLine,
@@ -46,15 +45,14 @@ const getProductImage = (cropType) => {
 };
 
 const getRetailerLocation = (listing) => {
-  return listing.retailer_location || 
-         listing.retailer_name || 
-         listing.batch_details?.current_location ||
-         listing.location ||
-         'Local Market';
+  return listing.retailer_location ||
+    listing.retailer_name ||
+    listing.batch_details?.current_location ||
+    listing.location ||
+    'Local Market';
 };
 
 const ConsumerDashboard = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [listings, setListings] = useState([]);
@@ -92,20 +90,20 @@ const ConsumerDashboard = () => {
       setLoading(true);
       const response = await retailAPI.list();
       const data = Array.isArray(response.data) ? response.data : response.data.results || [];
-      const activeListings = data.filter(l => 
-        l.is_for_sale === true && 
+      const activeListings = data.filter(l =>
+        l.is_for_sale === true &&
         l.batch_details?.status !== 'SOLD' &&
         (l.remaining_quantity === undefined || l.remaining_quantity > 0)
       );
       setListings(activeListings);
-      
+
       // Fetch inspections for each listing
       activeListings.forEach(listing => {
         if (listing.batch_details?.id) {
           fetchInspections(listing.batch_details.id, listing.id);
         }
       });
-      
+
       setError(null);
     } catch (err) {
       console.error('Error fetching listings:', err);
@@ -173,12 +171,12 @@ const ConsumerDashboard = () => {
 
               {/* Right Actions */}
               <div className="flex items-center gap-3">
-                <button 
+                <button
                   onClick={() => setShowQRScanner(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors"
                 >
                   <ScanLine className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('dashboardCommon.scanQR')}</span>
+                  <span className="hidden sm:inline">Scan QR</span>
                 </button>
                 <button className="p-2 text-gray-500 hover:text-gray-700 relative">
                   <Bell className="w-5 h-5" />
@@ -196,7 +194,7 @@ const ConsumerDashboard = () => {
                       <User className="w-4 h-4" />
                       Profile
                     </Link>
-                    <button 
+                    <button
                       onClick={handleLogout}
                       className="flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-b-xl w-full"
                     >
@@ -284,8 +282,8 @@ const ConsumerDashboard = () => {
                 {searchTerm ? 'No matching produce found' : 'No verified produce available'}
               </h3>
               <p className="text-gray-500 max-w-md mx-auto">
-                {searchTerm 
-                  ? 'Try adjusting your search terms to find what you\'re looking for.' 
+                {searchTerm
+                  ? 'Try adjusting your search terms to find what you\'re looking for.'
                   : 'Check back soon as retailers add new verified batches to the platform.'}
               </p>
             </div>
@@ -302,10 +300,10 @@ const ConsumerDashboard = () => {
                 const location = getRetailerLocation(listing);
                 const qrCodeUrl = listing.batch_details?.qr_code_image;
                 const isPerishable = ['tomato', 'spinach', 'cauliflower', 'green beans', 'cucumber'].includes(cropType.toLowerCase());
-                
+
                 return (
-                  <div 
-                    key={listing.id} 
+                  <div
+                    key={listing.id}
                     className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
                   >
                     {/* Image Container - Use retailer inspection image if available */}

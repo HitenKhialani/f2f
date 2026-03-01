@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sprout, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useTranslation } from 'react-i18next';
+import { useDarkMode } from '../../hooks/useDarkMode';
 
 const LoginPage = () => {
-  const { t } = useTranslation();
+  const [isDark] = useDarkMode();
   const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
@@ -28,7 +28,7 @@ const LoginPage = () => {
 
     try {
       const { role } = await login(formData);
-      
+
       // Direct redirect to role-based dashboard (no KYC check)
       navigate(`/${role.toLowerCase()}/dashboard`);
     } catch (err) {
@@ -39,16 +39,16 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-cosmos-950 flex flex-col transition-colors duration-300">
       {/* Header */}
-      <nav className="bg-white border-b border-gray-200">
+      <nav className="bg-white dark:bg-cosmos-900 border-b border-gray-200 dark:border-cosmos-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center gap-2">
-              <div className="bg-primary p-1.5 rounded-lg">
+              <div className="bg-emerald-600 p-1.5 rounded-lg">
                 <Sprout className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-primary">{t('landing.appName')}</span>
+              <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">AgriChain</span>
             </Link>
           </div>
         </div>
@@ -56,16 +56,16 @@ const LoginPage = () => {
 
       {/* Main Content */}
       <main className="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="w-full max-w-[1000px] grid grid-cols-1 md:grid-cols-2 bg-white rounded-2xl shadow-2xl overflow-hidden min-h-[600px]">
+        <div className="w-full max-w-[1000px] grid grid-cols-1 md:grid-cols-2 bg-white dark:bg-cosmos-900 rounded-2xl shadow-2xl overflow-hidden min-h-[600px] border border-gray-100 dark:border-cosmos-800">
           {/* Left Side - Login Form */}
           <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-center">
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-4">
-                <Sprout className="w-8 h-8 text-primary" />
-                <span className="font-bold text-2xl tracking-tight text-primary">{t('landing.appName')}</span>
+                <Sprout className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                <span className="font-bold text-2xl tracking-tight text-emerald-600 dark:text-emerald-400">AgriChain</span>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('common.welcome')}</h1>
-              <p className="text-gray-500">{t('auth.email')} and {t('auth.password')}</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
+              <p className="text-gray-500 dark:text-cosmos-400">Please enter your email and password</p>
             </div>
 
             {error && (
@@ -76,12 +76,12 @@ const LoginPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('auth.email')}
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-cosmos-200 mb-2">
+                  Email Address
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                    <Mail className="h-5 w-5 text-gray-400 dark:text-cosmos-500" />
                   </div>
                   <input
                     id="email"
@@ -91,18 +91,18 @@ const LoginPage = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="kisan@example.com"
-                    className="input-field pl-10"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-cosmos-800 border border-gray-200 dark:border-cosmos-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('auth.password')}
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-cosmos-200 mb-2">
+                  Password
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                    <Lock className="h-5 w-5 text-gray-400 dark:text-cosmos-500" />
                   </div>
                   <input
                     id="password"
@@ -112,12 +112,12 @@ const LoginPage = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="input-field pl-10 pr-10"
+                    className="w-full pl-10 pr-12 py-3 bg-gray-50 dark:bg-cosmos-800 border border-gray-200 dark:border-cosmos-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-cosmos-300"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -130,38 +130,38 @@ const LoginPage = () => {
                     id="remember"
                     name="remember"
                     type="checkbox"
-                    className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                    className="h-4 w-4 text-emerald-600 border-gray-300 dark:border-cosmos-700 rounded focus:ring-emerald-500 bg-white dark:bg-cosmos-800"
                   />
-                  <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
+                  <label htmlFor="remember" className="ml-2 block text-sm text-gray-700 dark:text-cosmos-300">
                     Remember me
                   </label>
                 </div>
-                <Link to="/forgot-password" className="text-sm font-medium text-primary hover:text-primary-hover">
-                  {t('auth.forgotPassword')}
+                <Link to="/forgot-password" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium text-sm transition-colors">
+                  Forgot password?
                 </Link>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full btn-primary py-3 flex items-center justify-center gap-2"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>{t('common.loading')}</span>
+                    <span>Signing in...</span>
                   </>
                 ) : (
-                  <span>{t('auth.signIn')}</span>
+                  <span>Sign In</span>
                 )}
               </button>
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-sm text-gray-500">
-                {t('auth.dontHaveAccount')}{' '}
-                <Link to="/role-selection" className="font-medium text-primary hover:text-primary-hover">
-                  {t('auth.signUp')}
+              <p className="text-sm text-gray-500 dark:text-cosmos-400">
+                Don't have an account?{' '}
+                <Link to="/role-selection" className="font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+                  Sign Up
                 </Link>
               </p>
             </div>
@@ -181,7 +181,7 @@ const LoginPage = () => {
                   Secure Blockchain Node: v3.4.1
                 </div>
               </div>
-              
+
               <div className="space-y-6">
                 <h2 className="text-3xl font-bold">
                   Join India's Agricultural Revolution
@@ -189,7 +189,7 @@ const LoginPage = () => {
                 <p className="text-lg text-green-100">
                   AgriChain empowers farmers, makes supply chains transparent, and gives consumers confidence.
                 </p>
-                
+
                 <div className="grid grid-cols-2 gap-4 pt-4">
                   <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
                     <p className="text-2xl font-bold">Rs 500 Cr+</p>

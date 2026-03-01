@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Truck,
   Package,
@@ -71,7 +70,6 @@ const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
 );
 
 const TransporterDashboard = () => {
-  const { t } = useTranslation();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -149,47 +147,47 @@ const TransporterDashboard = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.transporterTitle')}</h1>
-            <p className="text-gray-600">{t('dashboardCommon.manageTrackShipments')}</p>
+            <h1 className="text-2xl font-bold text-gray-900">Transporter Dashboard</h1>
+            <p className="text-gray-600">Track and manage your shipments in real-time</p>
           </div>
         </div>
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <MetricCard
-            title={t('dashboardCommon.farmerShipments')}
+            title="Farmer Shipments"
             value={metrics.farmer_shipments || 0}
             icon={Package}
             color="bg-blue-500"
-            subtext={t('dashboardCommon.fromFarms')}
+            subtext="From Farms"
           />
           <MetricCard
-            title={t('dashboardCommon.distributorShipments')}
+            title="Distributor Shipments"
             value={metrics.distributor_shipments || 0}
             icon={Truck}
             color="bg-purple-500"
-            subtext={t('dashboardCommon.fromDistributors')}
+            subtext="From Distributors"
           />
           <MetricCard
-            title={t('dashboardCommon.inTransit')}
+            title="In Transit"
             value={metrics.in_transit || 0}
             icon={Navigation}
             color="bg-amber-500"
-            subtext={t('dashboardCommon.activeDeliveries')}
+            subtext="Active Deliveries"
           />
           <MetricCard
-            title={t('dashboardCommon.completed')}
+            title="Completed"
             value={metrics.completed || 0}
             icon={CheckCircle}
             color="bg-emerald-500"
-            subtext={t('dashboardCommon.finishedJobs')}
+            subtext="Finished Jobs"
           />
           <MetricCard
-            title={t('dashboardCommon.totalEarnings')}
+            title="Total Earnings"
             value={formatCurrency(metrics.total_earnings || 0)}
             icon={IndianRupee}
             color="bg-green-600"
-            subtext={t('dashboardCommon.revenueEarned')}
+            subtext="Revenue Earned"
           />
         </div>
 
@@ -197,7 +195,7 @@ const TransporterDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Status Distribution Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.deliveriesByStatus')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Deliveries by Status</h3>
             {statusChartData.length > 0 ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -228,7 +226,7 @@ const TransporterDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <Activity className="w-12 h-12 mx-auto mb-2" />
-                  <p>{t('dashboardCommon.noDeliveryData')}</p>
+                  <p>No delivery data available</p>
                 </div>
               </div>
             )}
@@ -236,25 +234,25 @@ const TransporterDashboard = () => {
 
           {/* Earnings Overview Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.earningsOverview')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Earnings Overview</h3>
             {earningsChartData.some(d => d.earnings > 0) ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={earningsChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis 
-                      dataKey="name" 
+                    <XAxis
+                      dataKey="name"
                       tick={{ fontSize: 12 }}
                       interval={0}
                       angle={-15}
                       textAnchor="end"
                       height={60}
                     />
-                    <YAxis 
-                      tickFormatter={(value) => `₹${value >= 1000 ? (value/1000) + 'k' : value}`}
+                    <YAxis
+                      tickFormatter={(value) => `₹${value >= 1000 ? (value / 1000) + 'k' : value}`}
                       tick={{ fontSize: 12 }}
                     />
-                    <Tooltip 
+                    <Tooltip
                       formatter={(value) => [`₹${value.toLocaleString()}`, 'Earnings']}
                       labelStyle={{ color: '#374151' }}
                     />
@@ -266,7 +264,7 @@ const TransporterDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <TrendingUp className="w-12 h-12 mx-auto mb-2" />
-                  <p>{t('dashboardCommon.noEarningsData')}</p>
+                  <p>No earnings data available</p>
                 </div>
               </div>
             )}
@@ -276,7 +274,7 @@ const TransporterDashboard = () => {
         {/* Monthly Trend Chart (Optional) */}
         {analytics?.monthly_trend && Object.keys(analytics.monthly_trend).length > 0 && (
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.shipmentActivityTrend')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Shipment Activity Trend</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
@@ -287,10 +285,10 @@ const TransporterDashboard = () => {
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="count" 
-                    stroke="#059669" 
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#059669"
                     strokeWidth={2}
                     dot={{ fill: '#059669', r: 4 }}
                   />

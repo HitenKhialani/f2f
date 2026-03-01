@@ -2,22 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Users,
-  Sprout,
-  Truck,
-  FileCheck,
-  ShoppingCart,
-  TrendingUp,
   Clock,
   CheckCircle,
   XCircle,
-  Search,
-  Filter,
-  Wheat,
   Package,
   Shield
 } from 'lucide-react';
 import { adminAPI } from '../../services/adminApi';
-import { kycAPI } from '../../services/api';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -26,8 +17,6 @@ const AdminDashboard = () => {
     approvedKYC: 0,
     rejectedKYC: 0,
     usersByRole: {},
-    totalBatches: 0,
-    totalTransportRequests: 0,
   });
   const [kycRecords, setKycRecords] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +29,6 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      // Fetch stats from admin API
       const statsResponse = await adminAPI.getDashboardStats();
       const data = statsResponse.data;
 
@@ -50,11 +38,8 @@ const AdminDashboard = () => {
         approvedKYC: data.approved_kyc || 0,
         rejectedKYC: data.rejected_kyc || 0,
         usersByRole: data.users_by_role || {},
-        totalBatches: data.total_batches || 0,
-        totalTransportRequests: data.total_transport_requests || 0,
       });
 
-      // Fetch pending KYC records
       const kycResponse = await adminAPI.getPendingKYC();
       setKycRecords(kycResponse.data);
     } catch (error) {
@@ -104,63 +89,51 @@ const AdminDashboard = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600">System overview and KYC management</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400">System overview and KYC management</p>
         </div>
         <button
           onClick={fetchDashboardData}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
         >
           Refresh Data
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm p-6 border border-emerald-100 dark:border-cosmos-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">KYC Pending</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.pendingKYC}</p>
+              <p className="text-sm text-gray-600 dark:text-cosmos-400 mb-1 font-medium">KYC Pending</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.pendingKYC}</p>
             </div>
-            <div className="bg-amber-100 p-3 rounded-lg">
-              <Clock className="w-6 h-6 text-amber-600" />
+            <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-lg">
+              <Clock className="w-6 h-6 text-amber-600 dark:text-amber-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
+        <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm p-6 border border-emerald-100 dark:border-cosmos-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Users</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.totalUsers}</p>
+              <p className="text-sm text-gray-600 dark:text-cosmos-400 mb-1 font-medium">Total Users</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalUsers}</p>
             </div>
-            <div className="bg-blue-100 p-3 rounded-lg">
-              <Users className="w-6 h-6 text-blue-600" />
+            <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
+              <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
+        <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm p-6 border border-emerald-100 dark:border-cosmos-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Approved KYC</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.approvedKYC}</p>
+              <p className="text-sm text-gray-600 dark:text-cosmos-400 mb-1 font-medium">Approved KYC</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.approvedKYC}</p>
             </div>
-            <div className="bg-green-100 p-3 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Crop Batches</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.totalBatches}</p>
-            </div>
-            <div className="bg-purple-100 p-3 rounded-lg">
-              <Package className="w-6 h-6 text-purple-600" />
+            <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
             </div>
           </div>
         </div>
@@ -169,7 +142,7 @@ const AdminDashboard = () => {
       {/* KYC Requests — Card Layout */}
       <div className="bg-white dark:bg-cosmos-800 rounded-2xl shadow-sm border border-emerald-100 dark:border-cosmos-700 overflow-hidden">
         <div className="p-4 md:p-6 border-b border-emerald-100 dark:border-cosmos-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">KYC Requests</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent KYC Requests</h2>
           <Link to="/admin/kyc" className="text-sm text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
             View All →
           </Link>

@@ -325,45 +325,31 @@ const KYCManagement = () => {
               Starts with data: {viewingDocument.url?.startsWith?.('data:')?.toString()} |
               Length: {viewingDocument.url?.length}
             </div>
-            <div className="border rounded-lg overflow-hidden bg-gray-50">
-              {/* Check for image data URI or file extension */}
+            <div className="border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center min-h-[400px]">
               {viewingDocument.url?.match(/data:image\/(jpeg|jpg|png|gif)/i) || viewingDocument.url?.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                 <img
                   src={viewingDocument.url}
                   alt={viewingDocument.type}
-                  className="w-full max-h-[60vh] object-contain"
+                  className="w-full max-h-[70vh] object-contain"
                 />
               ) : viewingDocument.url?.match(/data:application\/pdf/i) || viewingDocument.url?.match(/\.pdf$/i) ? (
-                <iframe
+                <embed
                   src={viewingDocument.url}
-                  className="w-full h-[60vh]"
-                  title={viewingDocument.type}
+                  type="application/pdf"
+                  className="w-full h-[70vh]"
                 />
-              ) : viewingDocument.url?.startsWith?.('data:') ? (
-                // Generic data URI - try to display as image first, then iframe
-                <>
-                  <img
-                    src={viewingDocument.url}
-                    alt={viewingDocument.type}
-                    className="w-full max-h-[60vh] object-contain"
-                    onError={(e) => {
-                      // If image fails, try iframe
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'block';
-                    }}
-                  />
-                  <iframe
-                    src={viewingDocument.url}
-                    className="w-full h-[60vh] hidden"
-                    title={viewingDocument.type}
-                  />
-                </>
               ) : (
-                <div className="p-8 text-center">
-                  <FileCheck className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-600">Document uploaded successfully</p>
-                  <p className="text-sm text-gray-400 mt-2">File type: {viewingDocument.type}</p>
-                  <p className="text-xs text-gray-400 mt-1">URL: {String(viewingDocument.url).substring(0, 50)}...</p>
+                <div className="p-12 text-center">
+                  <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FileCheck className="w-8 h-8 text-emerald-600" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Document Verified</h4>
+                  <p className="text-gray-600 max-w-sm mx-auto">
+                    The {viewingDocument.type} for {viewingDocument.user} has been uploaded and is ready for review.
+                  </p>
+                  <div className="mt-6 flex flex-col items-center gap-2">
+                    <span className="text-xs text-gray-400 font-mono break-all">{viewingDocument.url?.substring(0, 100)}...</span>
+                  </div>
                 </div>
               )}
             </div>

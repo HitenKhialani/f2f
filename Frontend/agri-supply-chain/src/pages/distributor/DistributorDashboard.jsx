@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Package,
+  ClipboardList,
   Boxes,
   Truck,
   IndianRupee,
@@ -47,7 +47,6 @@ const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
 );
 
 const DistributorDashboard = () => {
-  const { t } = useTranslation();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -72,10 +71,10 @@ const DistributorDashboard = () => {
   // Prepare chart data
   const inventoryChartData = analytics?.inventory_distribution
     ? Object.entries(analytics.inventory_distribution).map(([crop, data]) => ({
-        name: crop,
-        value: data.quantity,
-        count: data.count
-      }))
+      name: crop,
+      value: data.quantity,
+      count: data.count
+    }))
     : [];
 
   const monthlyActivityData = analytics?.monthly_activity?.months?.map((month, index) => ({
@@ -129,39 +128,39 @@ const DistributorDashboard = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.distributorTitle')}</h1>
-          <p className="text-gray-600">{t('dashboardCommon.analyzeMetrics')}</p>
+          <h1 className="text-2xl font-bold text-gray-900">Distributor Dashboard</h1>
+          <p className="text-gray-600">Overview of your storage and logistics operations</p>
         </div>
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
-            title={t('dashboardCommon.incomingBatches')}
+            title="Incoming Batches"
             value={metrics.incoming_batches || 0}
-            icon={Package}
+            icon={ClipboardList}
             color="bg-amber-500"
-            subtext={t('dashboardCommon.awaitingStorage')}
+            subtext="Awaiting Storage"
           />
           <MetricCard
-            title={t('dashboardCommon.currentInventory')}
+            title="Active Inventory"
             value={formatWeight(metrics.inventory_quantity || 0)}
             icon={Boxes}
             color="bg-emerald-500"
             subtext={`${metrics.inventory_count || 0} batches`}
           />
           <MetricCard
-            title={t('dashboardCommon.outgoingShipments')}
+            title="Outbound Shipments"
             value={metrics.outgoing_shipments || 0}
             icon={Truck}
             color="bg-blue-500"
-            subtext={t('dashboardCommon.activeTransports')}
+            subtext="En Route to Retailers"
           />
           <MetricCard
-            title={t('dashboard.totalRevenue')}
+            title="Total Revenue"
             value={formatCurrency(metrics.total_revenue || 0)}
             icon={IndianRupee}
             color="bg-green-600"
-            subtext={t('dashboardCommon.earningsToDate')}
+            subtext="Earnings to Date"
           />
         </div>
 
@@ -169,7 +168,7 @@ const DistributorDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Inventory Breakdown Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.inventoryBreakdown')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Inventory Breakdown</h3>
             {inventoryChartData.length > 0 ? (
               <div className="h-64 relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -188,8 +187,8 @@ const DistributorDashboard = () => {
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => [`${value.toFixed(2)} kg`, 'Quantity']} />
-                    <Legend 
-                      verticalAlign="middle" 
+                    <Legend
+                      verticalAlign="middle"
                       align="right"
                       layout="vertical"
                       formatter={(value, entry) => (
@@ -205,7 +204,7 @@ const DistributorDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <Store className="w-12 h-12 mx-auto mb-2" />
-                  <p>{t('dashboardCommon.noInventoryData')}</p>
+                  <p>No inventory data available</p>
                 </div>
               </div>
             )}
@@ -213,17 +212,17 @@ const DistributorDashboard = () => {
 
           {/* Monthly Activity Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.monthlyActivity')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Activity</h3>
             {monthlyActivityData.length > 0 ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyActivityData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis 
-                      dataKey="month" 
+                    <XAxis
+                      dataKey="month"
                       tick={{ fontSize: 12 }}
                     />
-                    <YAxis 
+                    <YAxis
                       tick={{ fontSize: 12 }}
                       label={{ value: '# of Batches', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' } }}
                     />
@@ -238,7 +237,7 @@ const DistributorDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <TrendingUp className="w-12 h-12 mx-auto mb-2" />
-                  <p>{t('dashboardCommon.noActivityData')}</p>
+                  <p>No activity data available</p>
                 </div>
               </div>
             )}
@@ -249,9 +248,9 @@ const DistributorDashboard = () => {
         {!metrics.inventory_count && !metrics.incoming_batches && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
             <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('dashboardCommon.noData')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Welcome to your Dashboard</h3>
             <p className="text-gray-600 max-w-md mx-auto">
-              {t('dashboardCommon.noDataDesc')}
+              Start by accepting incoming batches to see your storage metrics here.
             </p>
           </div>
         )}

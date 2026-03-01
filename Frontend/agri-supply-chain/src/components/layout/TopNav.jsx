@@ -2,27 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, User, ChevronDown, LogOut, Settings, Globe, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useTranslation } from 'react-i18next';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
 const TopNav = () => {
   const { user, role, logout } = useAuth();
-  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [isDark, setIsDark] = useDarkMode();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const userDropdownRef = useRef(null);
-  const languageDropdownRef = useRef(null);
-
-  const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'hi', name: 'हिन्दी' },
-    { code: 'mr', name: 'मराठी' },
-    { code: 'gu', name: 'ગુજરાતી' },
-    { code: 'pa', name: 'ਪੰਜਾਬੀ' },
-    { code: 'ta', name: 'தமிழ்' },
-  ];
 
   const getRoleBadgeColor = () => {
     const colors = {
@@ -38,12 +25,12 @@ const TopNav = () => {
 
   const getRoleLabel = () => {
     const labels = {
-      ADMIN: t('roles.admin', 'Admin'),
-      FARMER: t('roles.farmer', 'Farmer'),
-      DISTRIBUTOR: t('roles.distributor', 'Distributor'),
-      TRANSPORTER: t('roles.transporter', 'Transporter'),
-      RETAILER: t('roles.retailer', 'Retailer'),
-      CONSUMER: t('roles.consumer', 'Consumer'),
+      ADMIN: 'Admin',
+      FARMER: 'Farmer',
+      DISTRIBUTOR: 'Distributor',
+      TRANSPORTER: 'Transporter',
+      RETAILER: 'Retailer',
+      CONSUMER: 'Consumer',
     };
     return labels[role] || role;
   };
@@ -54,24 +41,15 @@ const TopNav = () => {
     navigate('/login');
   };
 
-  const handleLanguageChange = (lang) => {
-    i18n.changeLanguage(lang);
-    localStorage.setItem('appLanguage', lang);
-    setShowLanguageDropdown(false);
-  };
-
   const handleDarkModeToggle = () => {
     setIsDark(!isDark);
   };
 
-  // Click outside to close dropdowns
+  // Click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
         setShowUserDropdown(false);
-      }
-      if (languageDropdownRef.current && !languageDropdownRef.current.contains(event.target)) {
-        setShowLanguageDropdown(false);
       }
     };
 
@@ -88,40 +66,12 @@ const TopNav = () => {
             {getRoleLabel()}
           </div>
 
-          {/* Center - Empty for breadcrumb expansion */}
-          <div className="flex items-center gap-4">
-            {/* Placeholder for breadcrumb/title */}
-          </div>
-
-          {/* Right - User Actions */}
+          {/* Right - Actions */}
           <div className="flex items-center gap-2 md:gap-4">
-            {/* Language Switcher */}
-            <div className="relative" ref={languageDropdownRef}>
-              <button
-                onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-                className="p-2 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
-                title="Change language"
-              >
-                <Globe className="w-5 h-5" />
-              </button>
-
-              {showLanguageDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-cosmos-800 rounded-xl shadow-lg border border-emerald-100 dark:border-cosmos-700 py-2 z-50">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => handleLanguageChange(lang.code)}
-                      className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                        i18n.language === lang.code
-                          ? 'bg-emerald-100 dark:bg-cosmos-700 text-emerald-700 dark:text-cosmos-300 font-medium'
-                          : 'text-emerald-700 dark:text-cosmos-400 hover:bg-emerald-50 dark:hover:bg-cosmos-700/50'
-                      }`}
-                    >
-                      {lang.name}
-                    </button>
-                  ))}
-                </div>
-              )}
+            {/* Language Indicator (Static English as requested) */}
+            <div className="flex items-center gap-2 p-2 text-emerald-700 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-900/20 rounded-lg">
+              <Globe className="w-5 h-5" />
+              <span className="text-xs font-semibold hidden sm:block">EN</span>
             </div>
 
             {/* Dark Mode Toggle */}
@@ -130,11 +80,7 @@ const TopNav = () => {
               className="p-2 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
               title="Toggle dark mode"
             >
-              {isDark ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
             {/* Notifications */}
@@ -143,7 +89,7 @@ const TopNav = () => {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
 
-            {/* Settings Icon Link */}
+            {/* Settings */}
             <Link
               to="/settings"
               className="p-2 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
@@ -179,7 +125,7 @@ const TopNav = () => {
                     onClick={() => setShowUserDropdown(false)}
                   >
                     <User className="w-4 h-4" />
-                    {t('navbar.profile', 'Profile')}
+                    Profile
                   </Link>
                   <Link
                     to="/settings"
@@ -187,7 +133,7 @@ const TopNav = () => {
                     onClick={() => setShowUserDropdown(false)}
                   >
                     <Settings className="w-4 h-4" />
-                    {t('navbar.settings', 'Settings')}
+                    Settings
                   </Link>
                   <div className="border-t border-emerald-100 dark:border-cosmos-700 my-1"></div>
                   <button
@@ -195,7 +141,7 @@ const TopNav = () => {
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
-                    {t('navbar.logout', 'Logout')}
+                    Logout
                   </button>
                 </div>
               )}

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Truck,
   Package,
@@ -46,7 +45,6 @@ const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
 );
 
 const RetailerDashboard = () => {
-  const { t } = useTranslation();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -71,10 +69,10 @@ const RetailerDashboard = () => {
   // Prepare chart data
   const inventoryChartData = analytics?.inventory_distribution
     ? Object.entries(analytics.inventory_distribution).map(([crop, data]) => ({
-        name: crop,
-        value: data.value,
-        count: data.count
-      }))
+      name: crop,
+      value: data.value,
+      count: data.count
+    }))
     : [];
 
   const monthlySalesData = analytics?.monthly_sales?.months?.map((month, index) => ({
@@ -120,46 +118,46 @@ const RetailerDashboard = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.retailerTitle')}</h1>
-          <p className="text-gray-600">{t('dashboardCommon.analyzeInventorySales')}</p>
+          <h1 className="text-2xl font-bold text-gray-900">Retailer Dashboard</h1>
+          <p className="text-gray-600">Analyze your inventory, sales and listings performance</p>
         </div>
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <MetricCard
-            title={t('dashboardCommon.incomingShipments')}
+            title="Incoming Shipments"
             value={metrics.incoming_shipments || 0}
             icon={Truck}
             color="bg-amber-500"
-            subtext={t('dashboardCommon.awaitingConfirmation')}
+            subtext="Awaiting Confirmation"
           />
           <MetricCard
-            title={t('dashboardCommon.inventoryValue')}
+            title="Inventory Value"
             value={formatCurrency(metrics.inventory_value || 0)}
             icon={Package}
             color="bg-blue-500"
-            subtext={t('dashboardCommon.activeListingsWorth')}
+            subtext="Active Listings Worth"
           />
           <MetricCard
-            title={t('dashboardCommon.totalListings')}
+            title="Total Listings"
             value={metrics.active_listings || 0}
             icon={ShoppingCart}
             color="bg-purple-500"
-            subtext={t('dashboardCommon.activeForSale')}
+            subtext="Active for Sale"
           />
           <MetricCard
-            title={t('dashboardCommon.totalSalesRevenue')}
+            title="Total Sales Revenue"
             value={formatCurrency(metrics.total_sales_revenue || 0)}
             icon={IndianRupee}
             color="bg-green-600"
-            subtext={t('dashboardCommon.earningsToDate')}
+            subtext="Earnings to Date"
           />
           <MetricCard
-            title={t('dashboardCommon.unitsSold')}
+            title="Units Sold"
             value={metrics.units_sold || 0}
             icon={CheckCircle}
             color="bg-emerald-500"
-            subtext={t('dashboardCommon.completedSales')}
+            subtext="Completed Sales"
           />
         </div>
 
@@ -167,7 +165,7 @@ const RetailerDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Inventory Distribution Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.inventoryDistribution')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Inventory Distribution</h3>
             {inventoryChartData.length > 0 ? (
               <div className="h-64 relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -186,8 +184,8 @@ const RetailerDashboard = () => {
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => [formatCurrency(value), 'Value']} />
-                    <Legend 
-                      verticalAlign="middle" 
+                    <Legend
+                      verticalAlign="middle"
                       align="right"
                       layout="vertical"
                       formatter={(value, entry) => (
@@ -203,7 +201,7 @@ const RetailerDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <Store className="w-12 h-12 mx-auto mb-2" />
-                  <p>{t('dashboardCommon.noInventoryDataAvailable')}</p>
+                  <p>No inventory data available</p>
                 </div>
               </div>
             )}
@@ -211,19 +209,19 @@ const RetailerDashboard = () => {
 
           {/* Monthly Sales Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.monthlySales')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Sales</h3>
             {monthlySalesData.length > 0 ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlySalesData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis 
-                      dataKey="month" 
+                    <XAxis
+                      dataKey="month"
                       tick={{ fontSize: 12 }}
                     />
-                    <YAxis 
+                    <YAxis
                       tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => `₹${value >= 1000 ? (value/1000) + 'k' : value}`}
+                      tickFormatter={(value) => `₹${value >= 1000 ? (value / 1000) + 'k' : value}`}
                     />
                     <Tooltip formatter={(value) => [formatCurrency(value), 'Revenue']} />
                     <Bar dataKey="revenue" name="Sales Revenue" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
@@ -234,7 +232,7 @@ const RetailerDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <TrendingUp className="w-12 h-12 mx-auto mb-2" />
-                  <p>{t('dashboardCommon.noSalesDataAvailable')}</p>
+                  <p>No sales data available</p>
                 </div>
               </div>
             )}
@@ -245,9 +243,9 @@ const RetailerDashboard = () => {
         {!metrics.active_listings && !metrics.units_sold && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12">
             <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('dashboardCommon.welcomeToDashboard')}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Welcome to your Dashboard</h3>
             <p className="text-gray-600 max-w-md mx-auto">
-              {t('dashboardCommon.welcomeDesc')}
+              Start by listing your products or confirming incoming shipments to see your analytics here.
             </p>
           </div>
         )}

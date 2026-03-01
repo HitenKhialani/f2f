@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import {
   LayoutDashboard,
@@ -16,7 +15,6 @@ import {
 const AdminLayout = () => {
   const { user, logout, role } = useAuth();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -30,18 +28,18 @@ const AdminLayout = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('errors.unauthorized', 'Access Denied')}</h1>
-          <p className="text-gray-600">{t('auth.adminPortal', "You don't have permission to access the admin portal.")}</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-gray-600">You don't have permission to access the admin portal.</p>
         </div>
       </div>
     );
   }
 
   const navItems = [
-    { path: '/admin', icon: LayoutDashboard, label: t('sidebar.dashboard', 'Dashboard') },
-    { path: '/admin/kyc', icon: FileCheck, label: t('kyc.kycManagement', 'KYC Management') },
-    { path: '/admin/users', icon: Users, label: t('admin.userManagement', 'User Management') },
-    { path: '/admin/settings', icon: Settings, label: t('common.settings', 'Settings') },
+    { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/admin/kyc', icon: FileCheck, label: 'KYC Management' },
+    { path: '/admin/users', icon: Users, label: 'User Management' },
+    { path: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
   return (
@@ -50,7 +48,7 @@ const AdminLayout = () => {
       <div className="lg:hidden bg-white shadow-sm p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Shield className="w-8 h-8 text-green-600" />
-          <span className="text-xl font-bold text-gray-900">{t('auth.adminPortal', 'Admin Portal')}</span>
+          <span className="text-xl font-bold text-gray-900">Admin Portal</span>
         </div>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -63,15 +61,14 @@ const AdminLayout = () => {
       <div className="flex">
         {/* Sidebar */}
         <aside
-          className={`${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transition-transform duration-200 ease-in-out`}
+          className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transition-transform duration-200 ease-in-out`}
         >
           <div className="h-full flex flex-col">
             {/* Logo */}
             <div className="p-6 border-b hidden lg:flex items-center gap-2">
               <Shield className="w-8 h-8 text-green-600" />
-              <span className="text-xl font-bold text-gray-900">{t('auth.adminPortal', 'Admin Portal')}</span>
+              <span className="text-xl font-bold text-gray-900">Admin Portal</span>
             </div>
 
             {/* Navigation */}
@@ -83,10 +80,9 @@ const AdminLayout = () => {
                   end={item.path === '/admin'}
                   onClick={() => setSidebarOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-green-50 text-green-700 font-medium'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
+                      ? 'bg-green-50 text-green-700 font-medium'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`
                   }
                 >
@@ -108,7 +104,7 @@ const AdminLayout = () => {
                   <p className="text-sm font-medium text-gray-900 truncate">
                     {user?.username || 'Admin'}
                   </p>
-                  <p className="text-xs text-gray-500">{t('roles.admin', 'Administrator')}</p>
+                  <p className="text-xs text-gray-500">Administrator</p>
                 </div>
               </div>
               <button
@@ -116,7 +112,7 @@ const AdminLayout = () => {
                 className="flex items-center gap-3 w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
               >
                 <LogOut className="w-5 h-5" />
-                {t('navbar.logout', 'Logout')}
+                Logout
               </button>
             </div>
           </div>

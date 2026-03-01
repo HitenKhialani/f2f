@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sprout, Menu, X, User, Settings, Globe, Sun, Moon, LogOut } from 'lucide-react';
+import { Sprout, Menu, X, User, Settings, Sun, Moon, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useTranslation } from 'react-i18next';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import Sidebar from './Sidebar';
 import TopNav from './TopNav';
@@ -11,22 +10,10 @@ import MobileBottomNav from './MobileBottomNav';
 export default function MainLayout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
   const [isDark, setIsDark] = useDarkMode();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [showMobileUserDropdown, setShowMobileUserDropdown] = useState(false);
-  const [showMobileLangDropdown, setShowMobileLangDropdown] = useState(false);
   const userDropdownRef = useRef(null);
-  const langDropdownRef = useRef(null);
-
-  const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'hi', name: 'हिन्दी' },
-    { code: 'mr', name: 'मराठी' },
-    { code: 'gu', name: 'ગુજરાતી' },
-    { code: 'pa', name: 'ਪੰਜਾਬੀ' },
-    { code: 'ta', name: 'தமிழ்' },
-  ];
 
   const toggleMobileDrawer = () => {
     setMobileDrawerOpen(!mobileDrawerOpen);
@@ -47,9 +34,6 @@ export default function MainLayout({ children }) {
     const handleClickOutside = (event) => {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
         setShowMobileUserDropdown(false);
-      }
-      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target)) {
-        setShowMobileLangDropdown(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -108,32 +92,6 @@ export default function MainLayout({ children }) {
             <span className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">AgriChain</span>
           </div>
           <div className="flex items-center gap-1">
-            {/* Language Switcher */}
-            <div className="relative" ref={langDropdownRef}>
-              <button
-                onClick={() => { setShowMobileLangDropdown(!showMobileLangDropdown); setShowMobileUserDropdown(false); }}
-                className="p-2 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors text-emerald-600 dark:text-emerald-400"
-              >
-                <Globe className="w-5 h-5" />
-              </button>
-              {showMobileLangDropdown && (
-                <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-emerald-100 dark:border-emerald-900 py-2 z-50">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => { i18n.changeLanguage(lang.code); setShowMobileLangDropdown(false); }}
-                      className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/30 ${
-                        i18n.language === lang.code
-                          ? 'text-emerald-700 dark:text-emerald-300 font-semibold bg-emerald-50 dark:bg-emerald-900/20'
-                          : 'text-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      {lang.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
 
             {/* Dark Mode Toggle */}
             <button
@@ -154,7 +112,7 @@ export default function MainLayout({ children }) {
             {/* User Avatar Dropdown */}
             <div className="relative" ref={userDropdownRef}>
               <button
-                onClick={() => { setShowMobileUserDropdown(!showMobileUserDropdown); setShowMobileLangDropdown(false); }}
+                onClick={() => { setShowMobileUserDropdown(!showMobileUserDropdown); }}
                 className="w-8 h-8 rounded-full bg-emerald-600 dark:bg-emerald-700 flex items-center justify-center text-white font-semibold text-sm hover:bg-emerald-700 dark:hover:bg-emerald-600 transition-colors"
               >
                 {user?.username ? user.username.charAt(0).toUpperCase() : <User className="w-4 h-4" />}

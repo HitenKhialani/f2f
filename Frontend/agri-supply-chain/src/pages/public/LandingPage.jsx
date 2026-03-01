@@ -2,27 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import useLenis from '../../hooks/useLenis';
-import { useTranslation } from 'react-i18next';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import {
   Sprout, Menu, X, Truck, Shield, CheckCircle, QrCode, Package,
   ShoppingCart, Github, Twitter, ChevronDown, ArrowRight, Globe, Sun, Moon,
 } from 'lucide-react';
 
-const LANGUAGES = [
-  { code: 'en', name: 'English' },
-  { code: 'hi', name: 'हिन्दी' },
-  { code: 'mr', name: 'मराठी' },
-  { code: 'gu', name: 'ગુજરાતી' },
-  { code: 'pa', name: 'ਪੰਜਾਬੀ' },
-  { code: 'ta', name: 'தமிழ்' },
-];
-
-export default function LandingPage() {
+const LandingPage = () => {
   useLenis();
   const { isAuthenticated, role } = useAuth();
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
   const [isDark, setIsDark] = useDarkMode();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -112,22 +101,7 @@ export default function LandingPage() {
 
           {/* Desktop right: lang + dark + auth */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Language Switcher */}
-            <div className="relative" ref={langRef}>
-              <button onClick={() => setLangOpen(!langOpen)} className="p-2 rounded-lg hover:bg-emerald-50 text-emerald-700 transition-colors">
-                <Globe className="w-5 h-5" />
-              </button>
-              {langOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-emerald-100 py-2 z-50">
-                  {LANGUAGES.map(lang => (
-                    <button key={lang.code} onClick={() => { i18n.changeLanguage(lang.code); setLangOpen(false); }}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-emerald-50 transition-colors ${i18n.language === lang.code ? 'text-emerald-700 font-semibold' : 'text-gray-700'}`}>
-                      {lang.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Dark mode toggle */}
             {/* Dark mode toggle */}
             <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-lg hover:bg-emerald-50 text-emerald-700 transition-colors">
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -816,4 +790,6 @@ export default function LandingPage() {
       <div className="md:hidden h-20" />
     </div>
   );
-}
+};
+
+export default LandingPage;

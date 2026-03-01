@@ -10,11 +10,13 @@ import {
   Filter,
   Store,
   ClipboardCheck,
-  Eye
+  Eye,
+  Ban
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, distributorAPI, inspectionAPI } from '../../services/api';
 import { InspectionForm, InspectionTimeline } from '../../components/inspection';
+import SuspendModal from '../../components/common/SuspendModal';
 import { useToast } from '../../context/ToastContext';
 
 const Incoming = () => {
@@ -25,11 +27,12 @@ const Incoming = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showStoreModal, setShowStoreModal] = useState(false);
-  const [selectedBatch, setSelectedBatch] = useState(null);
-  const [storeMargin, setStoreMargin] = useState('0.00');
-  const [showInspectionModal, setShowInspectionModal] = useState(false);
   const [showInspectionTimeline, setShowInspectionTimeline] = useState(false);
+  const [showSuspendModal, setShowSuspendModal] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState(null);
+  const [batchToSuspend, setBatchToSuspend] = useState(null);
+  const [suspending, setSuspending] = useState(false);
+  const [storeMargin, setStoreMargin] = useState('0.00');
   const [batchInspections, setBatchInspections] = useState({});
 
   useEffect(() => {
@@ -120,15 +123,24 @@ const Incoming = () => {
     }
   };
 
-  const handleSuspendBatch = async (batchId) => {
-    if (!confirm('Are you sure you want to suspend this batch? This action will freeze all further operations on it.')) return;
+  const handleSuspendBatch = (batchId) => {
+    setBatchToSuspend(batchId);
+    setShowSuspendModal(true);
+  };
+
+  const confirmSuspend = async (batchId, reason) => {
     try {
-      await batchAPI.suspend(batchId);
+      setSuspending(true);
+      await batchAPI.suspend(batchId, reason);
       toast.success('Batch suspended successfully.');
+      setShowSuspendModal(false);
+      setBatchToSuspend(null);
       fetchData();
     } catch (error) {
       console.error('Error suspending batch:', error);
       toast.error(error.response?.data?.message || 'Failed to suspend batch');
+    } finally {
+      setSuspending(false);
     }
   };
 
@@ -455,6 +467,17 @@ const Incoming = () => {
             </div>
           </div>
         )}
+        {/* Suspend Modal */}
+        <SuspendModal
+          isOpen={showSuspendModal}
+          loading={suspending}
+          batchId={batchToSuspend}
+          onClose={() => {
+            setShowSuspendModal(false);
+            setBatchToSuspend(null);
+          }}
+          onConfirm={confirmSuspend}
+        />
       </div>
     </MainLayout>
   );

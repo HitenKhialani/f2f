@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sprout, Truck, Store, ShoppingCart, User, ArrowRight } from 'lucide-react';
+import PublicTopNav from '../../components/layout/PublicTopNav';
 
 const RoleSelection = () => {
   const navigate = useNavigate();
@@ -58,23 +59,9 @@ const RoleSelection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background-light">
-      {/* Header */}
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="bg-primary p-1.5 rounded-lg">
-                <Sprout className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-primary">AgriChain</span>
-            </Link>
-            <Link to="/login" className="text-primary font-semibold hover:opacity-80">
-              Already registered? Log in
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <PublicTopNav />
+      <div className="h-16"></div> {/* Spacer for fixed nav */}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -96,7 +83,7 @@ const RoleSelection = () => {
             >
               {/* Top Gradient Bar */}
               <div className={`h-2 bg-gradient-to-r ${role.color}`}></div>
-              
+
               <div className="p-6">
                 {/* Icon */}
                 <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${role.color} text-white mb-4 group-hover:scale-110 transition-transform`}>
@@ -133,8 +120,8 @@ const RoleSelection = () => {
           <p className="text-gray-600 mb-4">
             Already part of AgriChain?
           </p>
-          <Link 
-            to="/login" 
+          <Link
+            to="/login"
             className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
           >
             <span>Log in</span>

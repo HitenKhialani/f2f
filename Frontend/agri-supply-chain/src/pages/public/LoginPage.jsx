@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Sprout, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDarkMode } from '../../hooks/useDarkMode';
+import PublicTopNav from '../../components/layout/PublicTopNav';
 
 const LoginPage = () => {
   const [isDark] = useDarkMode();
@@ -39,20 +40,9 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-cosmos-950 flex flex-col transition-colors duration-300">
-      {/* Header */}
-      <nav className="bg-white dark:bg-cosmos-900 border-b border-gray-200 dark:border-cosmos-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="bg-emerald-600 p-1.5 rounded-lg">
-                <Sprout className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">AgriChain</span>
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col transition-colors duration-300">
+      <PublicTopNav />
+      <div className="h-16"></div> {/* Spacer for fixed nav */}
 
       {/* Main Content */}
       <main className="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">

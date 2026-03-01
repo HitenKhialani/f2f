@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Sprout, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
@@ -46,7 +48,7 @@ const LoginPage = () => {
               <div className="bg-primary p-1.5 rounded-lg">
                 <Sprout className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-primary">AgriChain</span>
+              <span className="text-xl font-bold text-primary">{t('landing.appName')}</span>
             </Link>
           </div>
         </div>
@@ -60,10 +62,10 @@ const LoginPage = () => {
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-4">
                 <Sprout className="w-8 h-8 text-primary" />
-                <span className="font-bold text-2xl tracking-tight text-primary">AgriChain</span>
+                <span className="font-bold text-2xl tracking-tight text-primary">{t('landing.appName')}</span>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-              <p className="text-gray-500">Please enter your email and password</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('common.welcome')}</h1>
+              <p className="text-gray-500">{t('auth.email')} and {t('auth.password')}</p>
             </div>
 
             {error && (
@@ -75,7 +77,7 @@ const LoginPage = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
+                  {t('auth.email')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -96,7 +98,7 @@ const LoginPage = () => {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
+                  {t('auth.password')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -135,7 +137,7 @@ const LoginPage = () => {
                   </label>
                 </div>
                 <Link to="/forgot-password" className="text-sm font-medium text-primary hover:text-primary-hover">
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </Link>
               </div>
 
@@ -147,19 +149,19 @@ const LoginPage = () => {
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Signing in...</span>
+                    <span>{t('common.loading')}</span>
                   </>
                 ) : (
-                  <span>Sign in to Dashboard</span>
+                  <span>{t('auth.signIn')}</span>
                 )}
               </button>
             </form>
 
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-500">
-                New to the platform?{' '}
+                {t('auth.dontHaveAccount')}{' '}
                 <Link to="/role-selection" className="font-medium text-primary hover:text-primary-hover">
-                  Create an account
+                  {t('auth.signUp')}
                 </Link>
               </p>
             </div>

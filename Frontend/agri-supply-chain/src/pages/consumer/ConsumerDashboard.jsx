@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Search,
   ScanLine,
@@ -53,6 +54,7 @@ const getRetailerLocation = (listing) => {
 };
 
 const ConsumerDashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [listings, setListings] = useState([]);
@@ -176,7 +178,7 @@ const ConsumerDashboard = () => {
                   className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors"
                 >
                   <ScanLine className="w-4 h-4" />
-                  <span className="hidden sm:inline">Scan QR</span>
+                  <span className="hidden sm:inline">{t('dashboardCommon.scanQR')}</span>
                 </button>
                 <button className="p-2 text-gray-500 hover:text-gray-700 relative">
                   <Bell className="w-5 h-5" />

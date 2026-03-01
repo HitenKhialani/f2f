@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Truck,
   Package,
@@ -70,6 +71,7 @@ const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
 );
 
 const TransporterDashboard = () => {
+  const { t } = useTranslation();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -147,47 +149,47 @@ const TransporterDashboard = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Transporter Dashboard</h1>
-            <p className="text-gray-600">Manage and track transport requests</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.transporterTitle')}</h1>
+            <p className="text-gray-600">{t('dashboardCommon.manageTrackShipments')}</p>
           </div>
         </div>
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <MetricCard
-            title="Farmer Shipments"
+            title={t('dashboardCommon.farmerShipments')}
             value={metrics.farmer_shipments || 0}
             icon={Package}
             color="bg-blue-500"
-            subtext="From farms"
+            subtext={t('dashboardCommon.fromFarms')}
           />
           <MetricCard
-            title="Distributor Shipments"
+            title={t('dashboardCommon.distributorShipments')}
             value={metrics.distributor_shipments || 0}
             icon={Truck}
             color="bg-purple-500"
-            subtext="From distributors"
+            subtext={t('dashboardCommon.fromDistributors')}
           />
           <MetricCard
-            title="In Transit"
+            title={t('dashboardCommon.inTransit')}
             value={metrics.in_transit || 0}
             icon={Navigation}
             color="bg-amber-500"
-            subtext="Active deliveries"
+            subtext={t('dashboardCommon.activeDeliveries')}
           />
           <MetricCard
-            title="Completed"
+            title={t('dashboardCommon.completed')}
             value={metrics.completed || 0}
             icon={CheckCircle}
             color="bg-emerald-500"
-            subtext="Finished jobs"
+            subtext={t('dashboardCommon.finishedJobs')}
           />
           <MetricCard
-            title="Total Earnings"
+            title={t('dashboardCommon.totalEarnings')}
             value={formatCurrency(metrics.total_earnings || 0)}
             icon={IndianRupee}
             color="bg-green-600"
-            subtext="Revenue earned"
+            subtext={t('dashboardCommon.revenueEarned')}
           />
         </div>
 
@@ -195,7 +197,7 @@ const TransporterDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Status Distribution Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Deliveries by Status</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.deliveriesByStatus')}</h3>
             {statusChartData.length > 0 ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -226,7 +228,7 @@ const TransporterDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <Activity className="w-12 h-12 mx-auto mb-2" />
-                  <p>No delivery data available</p>
+                  <p>{t('dashboardCommon.noDeliveryData')}</p>
                 </div>
               </div>
             )}
@@ -234,7 +236,7 @@ const TransporterDashboard = () => {
 
           {/* Earnings Overview Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Earnings Overview</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.earningsOverview')}</h3>
             {earningsChartData.some(d => d.earnings > 0) ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -264,7 +266,7 @@ const TransporterDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <TrendingUp className="w-12 h-12 mx-auto mb-2" />
-                  <p>No earnings data available</p>
+                  <p>{t('dashboardCommon.noEarningsData')}</p>
                 </div>
               </div>
             )}
@@ -274,7 +276,7 @@ const TransporterDashboard = () => {
         {/* Monthly Trend Chart (Optional) */}
         {analytics?.monthly_trend && Object.keys(analytics.monthly_trend).length > 0 && (
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Shipment Activity Trend</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.shipmentActivityTrend')}</h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart

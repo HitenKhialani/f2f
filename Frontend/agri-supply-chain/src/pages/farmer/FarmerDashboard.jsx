@@ -324,8 +324,8 @@ const FarmerDashboard = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.farmerTitle', 'Farmer Dashboard')}</h1>
-            <p className="text-gray-600">{t('dashboard.farmerSubtitle', 'Manage your crop batches and track production')}</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.farmerTitle')}</h1>
+            <p className="text-gray-600">{t('dashboardCommon.manageCropBatches')}</p>
           </div>
           <button
             onClick={() => setShowCreateForm(true)}

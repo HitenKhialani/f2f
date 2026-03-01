@@ -3,12 +3,35 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
     @apply border-border;
   }
-  
+
+  /* Light mode: soft green-tinted whites */
+  :root {
+    --color-bg: #eef5f0;
+    --color-surface: #f4faf6;
+    --color-border: #d1e8da;
+    --color-text: #1a2e22;
+    --color-text-muted: #4a6a55;
+  }
+
+  /* Dark mode: cosmos deep blue */
+  .dark {
+    --color-bg: #0d1b2a;
+    --color-surface: #132337;
+    --color-border: #1e4d7b;
+    --color-text: #e8f0fe;
+    --color-text-muted: #7eb3f0;
+  }
+
   body {
     @apply bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-100 font-display antialiased;
+    overscroll-behavior: none;
   }
 }
 
@@ -16,26 +39,68 @@
   .btn-primary {
     @apply bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-lg font-semibold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed;
   }
-  
+
   .btn-secondary {
-    @apply bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-all;
+    @apply bg-surface dark:bg-cosmos-800 border border-border dark:border-cosmos-700 text-gray-700 dark:text-cosmos-300 px-5 py-2.5 rounded-lg font-semibold hover:bg-emerald-50 dark:hover:bg-cosmos-700 transition-all;
   }
-  
+
+  /* Light mode: green-tinted white cards; Dark mode: cosmos blue cards */
   .card {
-    @apply bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-700;
+    @apply bg-surface dark:bg-cosmos-800 rounded-xl shadow-sm border border-border dark:border-cosmos-700;
   }
-  
+
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-200 dark:border-gray-700 dark:bg-background-dark/50 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors outline-none;
+    @apply w-full px-4 py-3 border border-border dark:border-cosmos-700 bg-white dark:bg-cosmos-900 rounded-lg focus:ring-2 focus:ring-primary dark:focus:ring-cosmos-400 focus:border-primary dark:focus:border-cosmos-400 transition-colors outline-none text-gray-800 dark:text-cosmos-300 placeholder-gray-400 dark:placeholder-cosmos-400;
   }
-  
+
   .sidebar-link {
-    @apply flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-primary/10 hover:text-primary dark:hover:text-primary rounded-lg transition-colors;
+    @apply flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-cosmos-300 hover:bg-emerald-100 dark:hover:bg-cosmos-700/50 hover:text-primary dark:hover:text-cosmos-300 rounded-lg transition-colors;
   }
-  
+
   .sidebar-link.active {
-    @apply bg-primary/10 text-primary font-medium;
+    @apply bg-emerald-100 dark:bg-cosmos-700 text-primary dark:text-cosmos-300 font-medium;
   }
+
+  /* Mobile card utility */
+  .mobile-card {
+    @apply rounded-2xl shadow-sm border border-border dark:border-cosmos-700 bg-surface dark:bg-cosmos-800 p-4;
+  }
+
+  /* Safe area support for notched devices */
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Glass card - light: frosted green; dark: frosted cosmos */
+  .glass-card {
+    background: rgba(244, 250, 246, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(209, 232, 218, 0.5);
+  }
+
+  .dark .glass-card {
+    background: rgba(19, 35, 55, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(30, 77, 123, 0.5);
+  }
+
+  /* Top nav & bottom nav themed */
+  .nav-surface {
+    @apply bg-emerald-50 dark:bg-cosmos-800 border-b border-emerald-200 dark:border-cosmos-700;
+  }
+
+  .nav-surface-bottom {
+    @apply bg-emerald-50/95 dark:bg-cosmos-800/95 border-t border-emerald-200 dark:border-cosmos-700 backdrop-blur-lg;
+  }
+}
+
+/* No scrollbar utility */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* Custom scrollbar */
@@ -77,4 +142,51 @@
 @keyframes toast-progress {
   from { width: 100%; }
   to { width: 0%; }
+}
+
+/* Landing page node pulse animation */
+@keyframes landing-node-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: drop-shadow(0 0 2px #14522d);
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.7;
+    filter: drop-shadow(0 0 6px #14522d);
+  }
+}
+
+.landing-node-pulse {
+  animation: landing-node-pulse 3s ease-in-out infinite;
+}
+
+/* Mobile table horizontal scroll */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0.75rem;
+}
+.table-container table {
+  min-width: 600px;
+}
+@media (max-width: 767px) {
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .overflow-x-auto::-webkit-scrollbar {
+    height: 4px;
+  }
+  .overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #6ee7b7;
+    border-radius: 2px;
+  }
+  /* Add visible scroll hint on mobile tables */
+  .overflow-x-auto::after {
+    content: '';
+    display: block;
+  }
 }

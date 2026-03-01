@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Truck,
   Package,
@@ -45,6 +46,7 @@ const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
 );
 
 const RetailerDashboard = () => {
+  const { t } = useTranslation();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -118,46 +120,46 @@ const RetailerDashboard = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Retailer Dashboard</h1>
-          <p className="text-gray-600">Analyze inventory and sales performance</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.retailerTitle')}</h1>
+          <p className="text-gray-600">{t('dashboardCommon.analyzeInventorySales')}</p>
         </div>
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <MetricCard
-            title="Incoming Shipments"
+            title={t('dashboardCommon.incomingShipments')}
             value={metrics.incoming_shipments || 0}
             icon={Truck}
             color="bg-amber-500"
-            subtext="Awaiting confirmation"
+            subtext={t('dashboardCommon.awaitingConfirmation')}
           />
           <MetricCard
-            title="Inventory Value"
+            title={t('dashboardCommon.inventoryValue')}
             value={formatCurrency(metrics.inventory_value || 0)}
             icon={Package}
             color="bg-blue-500"
-            subtext="Active listings worth"
+            subtext={t('dashboardCommon.activeListingsWorth')}
           />
           <MetricCard
-            title="Total Listings"
+            title={t('dashboardCommon.totalListings')}
             value={metrics.active_listings || 0}
             icon={ShoppingCart}
             color="bg-purple-500"
-            subtext="Active for sale"
+            subtext={t('dashboardCommon.activeForSale')}
           />
           <MetricCard
-            title="Total Sales Revenue"
+            title={t('dashboardCommon.totalSalesRevenue')}
             value={formatCurrency(metrics.total_sales_revenue || 0)}
             icon={IndianRupee}
             color="bg-green-600"
-            subtext="Earnings to date"
+            subtext={t('dashboardCommon.earningsToDate')}
           />
           <MetricCard
-            title="Units Sold"
+            title={t('dashboardCommon.unitsSold')}
             value={metrics.units_sold || 0}
             icon={CheckCircle}
             color="bg-emerald-500"
-            subtext="Completed sales"
+            subtext={t('dashboardCommon.completedSales')}
           />
         </div>
 
@@ -165,7 +167,7 @@ const RetailerDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Inventory Distribution Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Inventory Distribution</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.inventoryDistribution')}</h3>
             {inventoryChartData.length > 0 ? (
               <div className="h-64 relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -201,7 +203,7 @@ const RetailerDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <Store className="w-12 h-12 mx-auto mb-2" />
-                  <p>No inventory data available</p>
+                  <p>{t('dashboardCommon.noInventoryDataAvailable')}</p>
                 </div>
               </div>
             )}
@@ -209,7 +211,7 @@ const RetailerDashboard = () => {
 
           {/* Monthly Sales Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Sales</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.monthlySales')}</h3>
             {monthlySalesData.length > 0 ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -232,7 +234,7 @@ const RetailerDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <TrendingUp className="w-12 h-12 mx-auto mb-2" />
-                  <p>No sales data available</p>
+                  <p>{t('dashboardCommon.noSalesDataAvailable')}</p>
                 </div>
               </div>
             )}
@@ -243,9 +245,9 @@ const RetailerDashboard = () => {
         {!metrics.active_listings && !metrics.units_sold && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12">
             <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Welcome to Your Dashboard</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('dashboardCommon.welcomeToDashboard')}</h3>
             <p className="text-gray-600 max-w-md mx-auto">
-              Your dashboard will populate once you start receiving batches, creating listings, and making sales.
+              {t('dashboardCommon.welcomeDesc')}
             </p>
           </div>
         )}

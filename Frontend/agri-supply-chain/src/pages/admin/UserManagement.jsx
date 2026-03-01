@@ -96,7 +96,7 @@ const UserManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600">Manage system users and their roles</p>
@@ -110,14 +110,14 @@ const UserManagement = () => {
       </div>
 
       {/* Role Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-4">
         {Object.entries(roleStats).map(([role, count]) => (
-          <div key={role} className={`rounded-lg p-4 border ${getRoleColor(role)}`}>
+          <div key={role} className={`rounded-lg p-3 md:p-4 border ${getRoleColor(role)}`}>
             <div className="flex items-center gap-2 mb-1">
               {getRoleIcon(role)}
               <span className="text-xs font-medium capitalize">{role}s</span>
             </div>
-            <p className="text-2xl font-bold">{count}</p>
+            <p className="text-xl md:text-2xl font-bold">{count}</p>
           </div>
         ))}
       </div>
@@ -155,109 +155,55 @@ const UserManagement = () => {
         </div>
       </div>
 
-      {/* Users Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">User</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Role</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">KYC Status</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Joined</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="text-center py-8 text-gray-500">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-                  </td>
-                </tr>
-              ) : filteredUsers.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="text-center py-8 text-gray-500">
-                    No users found
-                  </td>
-                </tr>
-              ) : (
-                filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getRoleColor(user.stakeholderprofile?.role)}`}>
-                          {getRoleIcon(user.stakeholderprofile?.role)}
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{user.username}</p>
-                          <p className="text-sm text-gray-500">{user.email}</p>
-                          {user.stakeholderprofile?.organization && (
-                            <p className="text-xs text-gray-400">{user.stakeholderprofile.organization}</p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getRoleColor(user.stakeholderprofile?.role)}`}>
-                        {user.stakeholderprofile?.role || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        user.stakeholderprofile?.kyc_status === 'approved' 
-                          ? 'bg-green-100 text-green-700'
-                          : user.stakeholderprofile?.kyc_status === 'rejected'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-amber-100 text-amber-700'
-                      }`}>
-                        {user.stakeholderprofile?.kyc_status || 'pending'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        user.is_active 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-red-100 text-red-700'
-                      }`}>
-                        {user.is_active ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {user.date_joined ? new Date(user.date_joined).toLocaleDateString('hi-IN') : 'N/A'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setEditMode(true);
-                          }}
-                          className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
-                          title="Edit User"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleUpdateUser(user.id, { is_active: !user.is_active })}
-                          className={`p-2 rounded-lg ${
-                            user.is_active 
-                              ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-                              : 'bg-green-100 text-green-700 hover:bg-green-200'
-                          }`}
-                          title={user.is_active ? 'Deactivate' : 'Activate'}
-                        >
-                          {user.is_active ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* Users — Card Layout (no tables, no horizontal scroll) */}
+      <div className="space-y-3">
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="text-center py-12 bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700">
+            <Users className="w-12 h-12 text-gray-300 dark:text-cosmos-600 mx-auto mb-3" />
+            <p className="text-gray-500 dark:text-cosmos-400 font-medium">No users found</p>
+          </div>
+        ) : (
+          filteredUsers.map((user) => (
+            <div key={user.id} className="bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm p-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-sm ${getRoleColor(user.stakeholderprofile?.role)}`}>
+                  {(user.username || 'U').charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm">{user.username}</p>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${getRoleColor(user.stakeholderprofile?.role)}`}>
+                      {user.stakeholderprofile?.role || 'N/A'}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${user.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {user.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-cosmos-400 truncate mt-0.5">{user.email}</p>
+                  <div className="flex flex-wrap gap-3 mt-1 text-xs text-gray-400 dark:text-cosmos-400">
+                    <span>KYC: <span className={`font-medium ${user.stakeholderprofile?.kyc_status === 'approved' ? 'text-green-600' : user.stakeholderprofile?.kyc_status === 'rejected' ? 'text-red-600' : 'text-amber-600'}`}>{user.stakeholderprofile?.kyc_status || 'pending'}</span></span>
+                    <span>Joined: {user.date_joined ? new Date(user.date_joined).toLocaleDateString('en-IN') : 'N/A'}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button onClick={() => { setSelectedUser(user); setEditMode(true); }}
+                    className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 transition-colors" title="Edit">
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => handleUpdateUser(user.id, { is_active: !user.is_active })}
+                    className={`p-2 rounded-lg transition-colors ${user.is_active ? 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-200' : 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-200'}`}
+                    title={user.is_active ? 'Deactivate' : 'Activate'}>
+                    {user.is_active ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Edit Modal */}

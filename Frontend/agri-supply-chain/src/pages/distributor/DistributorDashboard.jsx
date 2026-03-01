@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Package,
   Boxes,
@@ -46,6 +47,7 @@ const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
 );
 
 const DistributorDashboard = () => {
+  const { t } = useTranslation();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -127,39 +129,39 @@ const DistributorDashboard = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Distributor Dashboard</h1>
-          <p className="text-gray-600">Analyze inventory metrics and activity</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.distributorTitle')}</h1>
+          <p className="text-gray-600">{t('dashboardCommon.analyzeMetrics')}</p>
         </div>
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
-            title="Incoming Batches"
+            title={t('dashboardCommon.incomingBatches')}
             value={metrics.incoming_batches || 0}
             icon={Package}
             color="bg-amber-500"
-            subtext="Awaiting storage"
+            subtext={t('dashboardCommon.awaitingStorage')}
           />
           <MetricCard
-            title="Current Inventory"
+            title={t('dashboardCommon.currentInventory')}
             value={formatWeight(metrics.inventory_quantity || 0)}
             icon={Boxes}
             color="bg-emerald-500"
             subtext={`${metrics.inventory_count || 0} batches`}
           />
           <MetricCard
-            title="Outgoing Shipments"
+            title={t('dashboardCommon.outgoingShipments')}
             value={metrics.outgoing_shipments || 0}
             icon={Truck}
             color="bg-blue-500"
-            subtext="Active transports"
+            subtext={t('dashboardCommon.activeTransports')}
           />
           <MetricCard
-            title="Total Revenue"
+            title={t('dashboard.totalRevenue')}
             value={formatCurrency(metrics.total_revenue || 0)}
             icon={IndianRupee}
             color="bg-green-600"
-            subtext="Earnings to date"
+            subtext={t('dashboardCommon.earningsToDate')}
           />
         </div>
 
@@ -167,7 +169,7 @@ const DistributorDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Inventory Breakdown Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Inventory Breakdown</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.inventoryBreakdown')}</h3>
             {inventoryChartData.length > 0 ? (
               <div className="h-64 relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -203,7 +205,7 @@ const DistributorDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <Store className="w-12 h-12 mx-auto mb-2" />
-                  <p>No inventory data available</p>
+                  <p>{t('dashboardCommon.noInventoryData')}</p>
                 </div>
               </div>
             )}
@@ -211,7 +213,7 @@ const DistributorDashboard = () => {
 
           {/* Monthly Activity Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Activity</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboardCommon.monthlyActivity')}</h3>
             {monthlyActivityData.length > 0 ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -236,7 +238,7 @@ const DistributorDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <TrendingUp className="w-12 h-12 mx-auto mb-2" />
-                  <p>No activity data available</p>
+                  <p>{t('dashboardCommon.noActivityData')}</p>
                 </div>
               </div>
             )}
@@ -247,9 +249,9 @@ const DistributorDashboard = () => {
         {!metrics.inventory_count && !metrics.incoming_batches && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
             <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Data Available</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('dashboardCommon.noData')}</h3>
             <p className="text-gray-600 max-w-md mx-auto">
-              Your dashboard will populate once you start receiving batches from farmers and sending shipments to retailers.
+              {t('dashboardCommon.noDataDesc')}
             </p>
           </div>
         )}

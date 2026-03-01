@@ -97,7 +97,7 @@ const KYCManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">KYC Management</h1>
           <p className="text-gray-600">Review and approve user KYC submissions</p>
@@ -141,143 +141,113 @@ const KYCManagement = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 md:gap-4">
         <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
           <p className="text-sm text-amber-700 mb-1">Pending</p>
-          <p className="text-2xl font-bold text-amber-800">
+          <p className="text-xl md:text-2xl font-bold text-amber-800">
             {kycRecords.filter(r => r.status?.toLowerCase() === 'pending').length}
           </p>
         </div>
         <div className="bg-green-50 rounded-lg p-4 border border-green-200">
           <p className="text-sm text-green-700 mb-1">Approved</p>
-          <p className="text-2xl font-bold text-green-800">
+          <p className="text-xl md:text-2xl font-bold text-green-800">
             {kycRecords.filter(r => r.status?.toLowerCase() === 'approved').length}
           </p>
         </div>
         <div className="bg-red-50 rounded-lg p-4 border border-red-200">
           <p className="text-sm text-red-700 mb-1">Rejected</p>
-          <p className="text-2xl font-bold text-red-800">
+          <p className="text-xl md:text-2xl font-bold text-red-800">
             {kycRecords.filter(r => r.status?.toLowerCase() === 'rejected').length}
           </p>
         </div>
       </div>
 
-      {/* KYC Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">User</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Role</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Document</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="text-center py-8 text-gray-500">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-                  </td>
-                </tr>
-              ) : filteredRecords.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="text-center py-8 text-gray-500">
-                    No KYC records found
-                  </td>
-                </tr>
-              ) : (
-                filteredRecords.map((record) => (
-                  <tr key={record.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                          <Users className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{record.profile_details?.user_details?.username || 'N/A'}</p>
-                          <p className="text-sm text-gray-500">{record.profile_details?.user_details?.email || 'N/A'}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 capitalize">
+      {/* KYC Records — Card Layout (no tables, no horizontal scroll) */}
+      <div className="space-y-3">
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
+          </div>
+        ) : filteredRecords.length === 0 ? (
+          <div className="text-center py-12 bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700">
+            <FileCheck className="w-12 h-12 text-gray-300 dark:text-cosmos-600 mx-auto mb-3" />
+            <p className="text-gray-500 dark:text-cosmos-400 font-medium">No KYC records found</p>
+          </div>
+        ) : (
+          filteredRecords.map((record) => (
+            <div key={record.id} className="bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm p-4">
+              {/* Row 1: Avatar + Name + Role + Date */}
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-emerald-100 dark:bg-cosmos-700 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-emerald-700 dark:text-cosmos-300">
+                    {(record.profile_details?.user_details?.username || 'U').charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                      {record.profile_details?.user_details?.username || 'N/A'}
+                    </p>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize bg-emerald-100 dark:bg-cosmos-700 text-emerald-700 dark:text-cosmos-300`}>
                       {record.profile_details?.role || 'N/A'}
-                    </td>
+                    </span>
+                    {getStatusBadge(record.status)}
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-cosmos-400 truncate">
+                    {record.profile_details?.user_details?.email || 'N/A'}
+                  </p>
+                  <div className="flex flex-wrap gap-3 mt-1 text-xs text-gray-400 dark:text-cosmos-400">
+                    <span>Submitted: {record.created_at ? new Date(record.created_at).toLocaleDateString('en-IN') : 'N/A'}</span>
+                    <span>Doc: {record.document_type || getRoleDocumentType(record.profile_details?.role)}</span>
+                  </div>
+                </div>
+              </div>
 
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      <div className="flex flex-col gap-1">
-                        <span className="font-medium text-gray-900">
-                          {record.document_type || getRoleDocumentType(record.profile_details?.role)}
-                        </span>
-                        {record.document_file ? (
-                          <button
-                            onClick={() => {
-                              console.log('View Document clicked:', {
-                                document_file: record.document_file,
-                                type: typeof record.document_file,
-                                hasDataUri: record.document_file?.startsWith?.('data:')
-                              });
-                              setViewingDocument({
-                                url: record.document_file,
-                                type: record.document_type || getRoleDocumentType(record.profile_details?.role),
-                                user: record.profile_details?.user_details?.username
-                              });
-                            }}
-                            className="flex items-center gap-1 text-emerald-600 hover:text-emerald-700 text-xs font-medium w-fit"
-                          >
-                            <Eye className="w-3 h-3" />
-                            View Document
-                          </button>
-                        ) : (
-                          <span className="text-xs text-gray-400">No document uploaded</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      {getStatusBadge(record.status)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {record.created_at ? new Date(record.created_at).toLocaleDateString('hi-IN') : 'N/A'}
-                    </td>
-                    <td className="px-6 py-4">
-                      {(record.status === 'PENDING' || record.status === 'pending') ? (
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              console.log('Approve button clicked for record:', record);
-                              setSelectedRecord(record);
-                            }}
-                            className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200"
-                            title="Approve"
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              console.log('Reject button clicked for record:', record);
-                              setSelectedRecord({ ...record, rejectMode: true });
-                            }}
-                            className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
-                            title="Reject"
-                          >
-                            <XCircle className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-500">
-                          {record.verified_by ? `By ${record.verified_by.user?.username}` : 'Processed'}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+              {/* Row 2: Document + Actions */}
+              <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-3 border-t border-emerald-50 dark:border-cosmos-700">
+                <div>
+                  {record.document_file ? (
+                    <button
+                      onClick={() => setViewingDocument({
+                        url: record.document_file,
+                        type: record.document_type || getRoleDocumentType(record.profile_details?.role),
+                        user: record.profile_details?.user_details?.username
+                      })}
+                      className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 text-xs font-medium"
+                    >
+                      <Eye className="w-3 h-3" />
+                      View Document
+                    </button>
+                  ) : (
+                    <span className="text-xs text-gray-400 dark:text-cosmos-400">No document uploaded</span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {(record.status === 'PENDING' || record.status === 'pending') ? (
+                    <>
+                      <button
+                        onClick={() => setSelectedRecord(record)}
+                        className="px-3 py-1.5 bg-emerald-600 text-white text-xs rounded-lg hover:bg-emerald-700 font-medium flex items-center gap-1"
+                      >
+                        <CheckCircle className="w-3 h-3" /> Approve
+                      </button>
+                      <button
+                        onClick={() => setSelectedRecord({ ...record, rejectMode: true })}
+                        className="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-lg hover:bg-red-100 font-medium border border-red-200 dark:border-red-800 flex items-center gap-1"
+                      >
+                        <XCircle className="w-3 h-3" /> Reject
+                      </button>
+                    </>
+                  ) : (
+                    <span className="text-xs text-gray-400 dark:text-cosmos-400 italic">
+                      {record.verified_by ? `Reviewed by ${record.verified_by.user?.username}` : 'Processed'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Decision Modal */}

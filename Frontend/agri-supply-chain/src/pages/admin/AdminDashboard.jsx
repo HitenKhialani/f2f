@@ -102,7 +102,7 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-600">System overview and KYC management</p>
@@ -116,8 +116,8 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">KYC Pending</p>
@@ -129,7 +129,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Total Users</p>
@@ -141,7 +141,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Approved KYC</p>
@@ -153,7 +153,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Crop Batches</p>
@@ -166,105 +166,59 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* KYC Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">KYC Requests</h2>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
-                <Filter className="w-4 h-4" />
-                Filter
-              </button>
-            </div>
-          </div>
+      {/* KYC Requests — Card Layout */}
+      <div className="bg-white dark:bg-cosmos-800 rounded-2xl shadow-sm border border-emerald-100 dark:border-cosmos-700 overflow-hidden">
+        <div className="p-4 md:p-6 border-b border-emerald-100 dark:border-cosmos-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">KYC Requests</h2>
+          <Link to="/admin/kyc" className="text-sm text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
+            View All →
+          </Link>
         </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">User</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Role</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Document</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="text-center py-8 text-gray-500">
-                    Loading...
-                  </td>
-                </tr>
-              ) : kycRecords.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="text-center py-8 text-gray-500">
-                    No KYC requests found
-                  </td>
-                </tr>
-              ) : (
-                kycRecords.map((record) => (
-                  <tr key={record.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                          <Users className="w-4 h-4 text-green-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{record.profile_details?.user_details?.username || 'N/A'}</p>
-                          <p className="text-sm text-gray-500">{record.profile_details?.user_details?.email || 'N/A'}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 capitalize">
-                      {record.profile_details?.role || 'N/A'}
-                    </td>
-
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {record.document_type || 'KYC Document'}
-                    </td>
-                    <td className="px-6 py-4">
-                      {getStatusBadge(record.status)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {record.created_at ? new Date(record.created_at).toLocaleDateString('hi-IN') : 'N/A'}
-                    </td>
-                    <td className="px-6 py-4">
-                      {(record.status === 'PENDING' || record.status === 'pending') && (
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleKYCAction(record.id, 'APPROVED')}
-                            className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200"
-                            title="Approve"
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleKYCAction(record.id, 'REJECTED')}
-                            className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
-                            title="Reject"
-                          >
-                            <XCircle className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        <div className="p-4 space-y-3">
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+            </div>
+          ) : kycRecords.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 dark:text-cosmos-400">No pending KYC requests</div>
+          ) : (
+            kycRecords.slice(0, 5).map((record) => (
+              <div key={record.id} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/50 dark:bg-cosmos-900 border border-emerald-100 dark:border-cosmos-700">
+                <div className="w-10 h-10 bg-emerald-100 dark:bg-cosmos-700 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-sm font-bold text-emerald-700 dark:text-cosmos-300">
+                    {(record.profile_details?.user_details?.username || 'U').charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                    {record.profile_details?.user_details?.username || 'N/A'}
+                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs text-gray-400 dark:text-cosmos-400 capitalize">{record.profile_details?.role || 'N/A'}</span>
+                    <span className="text-gray-300 dark:text-cosmos-600">·</span>
+                    <span className="text-xs text-gray-400 dark:text-cosmos-400">
+                      {record.created_at ? new Date(record.created_at).toLocaleDateString('en-IN') : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {getStatusBadge(record.status)}
+                  {(record.status === 'PENDING' || record.status === 'pending') && (
+                    <>
+                      <button onClick={() => handleKYCAction(record.id, 'APPROVED')}
+                        className="p-1.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-200 transition-colors" title="Approve">
+                        <CheckCircle className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleKYCAction(record.id, 'REJECTED')}
+                        className="p-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-200 transition-colors" title="Reject">
+                        <XCircle className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

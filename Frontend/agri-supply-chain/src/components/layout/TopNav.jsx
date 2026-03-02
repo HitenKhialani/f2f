@@ -3,13 +3,26 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Bell, User, ChevronDown, LogOut, Settings, Globe, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDarkMode } from '../../hooks/useDarkMode';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
+
+const LANGUAGES = [
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'hi', label: 'हिंदी', flag: '🇮🇳' },
+  { code: 'mr', label: 'मराठी', flag: '🇮🇳' },
+];
 
 const TopNav = () => {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isDark, setIsDark] = useDarkMode();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
   const userDropdownRef = useRef(null);
+  const langDropdownRef = useRef(null);
+
+  const currentLang = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
 
   const getRoleBadgeColor = () => {
     const colors = {
@@ -23,17 +36,7 @@ const TopNav = () => {
     return colors[role] || 'bg-gray-100 text-gray-700';
   };
 
-  const getRoleLabel = () => {
-    const labels = {
-      ADMIN: 'Admin',
-      FARMER: 'Farmer',
-      DISTRIBUTOR: 'Distributor',
-      TRANSPORTER: 'Transporter',
-      RETAILER: 'Retailer',
-      CONSUMER: 'Consumer',
-    };
-    return labels[role] || role;
-  };
+  const getRoleLabel = () => t(`roles.${role}`, role);
 
   const handleLogout = async () => {
     setShowUserDropdown(false);
@@ -41,18 +44,23 @@ const TopNav = () => {
     navigate('/login');
   };
 
-  const handleDarkModeToggle = () => {
-    setIsDark(!isDark);
+  const handleDarkModeToggle = () => setIsDark(!isDark);
+
+  const handleLanguageChange = (langCode) => {
+    i18n.changeLanguage(langCode);
+    localStorage.setItem('language', langCode);
+    setShowLangDropdown(false);
   };
 
-  // Click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
         setShowUserDropdown(false);
       }
+      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target)) {
+        setShowLangDropdown(false);
+      }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -67,24 +75,58 @@ const TopNav = () => {
           </div>
 
           {/* Right - Actions */}
-          <div className="flex items-center gap-2 md:gap-4">
-            {/* Language Indicator (Static English as requested) */}
-            <div className="flex items-center gap-2 p-2 text-emerald-700 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-900/20 rounded-lg">
-              <Globe className="w-5 h-5" />
-              <span className="text-xs font-semibold hidden sm:block">EN</span>
+          <div className="flex items-center gap-2 md:gap-3">
+
+            {/* Language Dropdown */}
+            <div className="relative" ref={langDropdownRef}>
+              <button
+                onClick={() => setShowLangDropdown(!showLangDropdown)}
+                className="flex items-center gap-1.5 p-2 text-emerald-700 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
+                title={t('navbar.language')}
+              >
+                <Globe className="w-5 h-5" />
+                <span className="text-xs font-semibold hidden sm:block">{currentLang.flag} {currentLang.code.toUpperCase()}</span>
+                <ChevronDown className="w-3 h-3 hidden sm:block" />
+              </button>
+
+              {showLangDropdown && (
+                <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-cosmos-800 rounded-xl shadow-lg border border-emerald-100 dark:border-cosmos-700 py-1 z-50">
+                  <div className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-cosmos-400 uppercase tracking-wider border-b border-emerald-50 dark:border-cosmos-700">
+                    {t('navbar.language')}
+                  </div>
+                  {LANGUAGES.map(lang => (
+                    <button
+                      key={lang.code}
+                      onClick={() => handleLanguageChange(lang.code)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
+                        i18n.language === lang.code
+                          ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-semibold'
+                          : 'text-gray-700 dark:text-cosmos-300 hover:bg-emerald-50 dark:hover:bg-cosmos-700/50'
+                      }`}
+                    >
+                      <span className="text-lg">{lang.flag}</span>
+                      <span>{lang.label}</span>
+                      {i18n.language === lang.code && <span className="ml-auto text-emerald-500">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Dark Mode Toggle */}
             <button
               onClick={handleDarkModeToggle}
               className="p-2 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
-              title="Toggle dark mode"
+              title={isDark ? t('navbar.lightMode') : t('navbar.darkMode')}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
             {/* Notifications */}
-            <button className="relative p-2 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors hidden md:flex">
+            <button
+              className="relative p-2 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors hidden md:flex"
+              title={t('navbar.notifications')}
+            >
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
@@ -93,7 +135,7 @@ const TopNav = () => {
             <Link
               to="/settings"
               className="p-2 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
-              title="Settings"
+              title={t('navbar.settings')}
             >
               <Settings className="w-5 h-5" />
             </Link>
@@ -125,7 +167,7 @@ const TopNav = () => {
                     onClick={() => setShowUserDropdown(false)}
                   >
                     <User className="w-4 h-4" />
-                    Profile
+                    {t('navbar.profile')}
                   </Link>
                   <Link
                     to="/settings"
@@ -133,7 +175,7 @@ const TopNav = () => {
                     onClick={() => setShowUserDropdown(false)}
                   >
                     <Settings className="w-4 h-4" />
-                    Settings
+                    {t('navbar.settings')}
                   </Link>
                   <div className="border-t border-emerald-100 dark:border-cosmos-700 my-1"></div>
                   <button
@@ -141,7 +183,7 @@ const TopNav = () => {
                     className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
-                    Logout
+                    {t('navbar.logout')}
                   </button>
                 </div>
               )}

@@ -5,12 +5,15 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Package,
-  Shield
+  Shield,
+  UserCheck,
+  UserX
 } from 'lucide-react';
 import { adminAPI } from '../../services/adminApi';
+import { useTranslation } from 'react-i18next';
 
 const AdminDashboard = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     pendingKYC: 0,
     totalUsers: 0,
@@ -89,23 +92,23 @@ const AdminDashboard = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-400">System overview and KYC management</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('dashboard.adminTitle')}</h1>
+          <p className="text-gray-600 dark:text-gray-400">{t('dashboard.adminSubtitle')}</p>
         </div>
         <button
           onClick={fetchDashboardData}
           className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
         >
-          Refresh Data
+          {t('buttons.refreshData')}
         </button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards — user details only */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm p-6 border border-emerald-100 dark:border-cosmos-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-cosmos-400 mb-1 font-medium">KYC Pending</p>
+              <p className="text-sm text-gray-600 dark:text-cosmos-400 mb-1 font-medium">{t('dashboard.kycPending')}</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.pendingKYC}</p>
             </div>
             <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-lg">
@@ -117,7 +120,7 @@ const AdminDashboard = () => {
         <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm p-6 border border-emerald-100 dark:border-cosmos-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-cosmos-400 mb-1 font-medium">Total Users</p>
+              <p className="text-sm text-gray-600 dark:text-cosmos-400 mb-1 font-medium">{t('dashboard.totalUsers')}</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalUsers}</p>
             </div>
             <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
@@ -129,7 +132,7 @@ const AdminDashboard = () => {
         <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm p-6 border border-emerald-100 dark:border-cosmos-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-cosmos-400 mb-1 font-medium">Approved KYC</p>
+              <p className="text-sm text-gray-600 dark:text-cosmos-400 mb-1 font-medium">{t('dashboard.approvedKYC')}</p>
               <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.approvedKYC}</p>
             </div>
             <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-lg">
@@ -139,12 +142,29 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Users by Role */}
+      {stats.usersByRole && Object.keys(stats.usersByRole).length > 0 && (
+        <div className="bg-white dark:bg-cosmos-800 rounded-2xl shadow-sm border border-emerald-100 dark:border-cosmos-700 overflow-hidden">
+          <div className="p-4 md:p-6 border-b border-emerald-100 dark:border-cosmos-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('users.title')}</h2>
+          </div>
+          <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            {Object.entries(stats.usersByRole).map(([role, count]) => (
+              <div key={role} className="bg-emerald-50 dark:bg-cosmos-900 rounded-xl p-4 text-center border border-emerald-100 dark:border-cosmos-700">
+                <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{count}</p>
+                <p className="text-xs text-gray-500 dark:text-cosmos-400 capitalize mt-1">{t(`roles.${role.toUpperCase()}`, role)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* KYC Requests — Card Layout */}
       <div className="bg-white dark:bg-cosmos-800 rounded-2xl shadow-sm border border-emerald-100 dark:border-cosmos-700 overflow-hidden">
         <div className="p-4 md:p-6 border-b border-emerald-100 dark:border-cosmos-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Recent KYC Requests</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('dashboard.recentKYC')}</h2>
           <Link to="/admin/kyc" className="text-sm text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
-            View All →
+            {t('buttons.viewAll')}
           </Link>
         </div>
         <div className="p-4 space-y-3">
@@ -153,7 +173,7 @@ const AdminDashboard = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
             </div>
           ) : kycRecords.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-cosmos-400">No pending KYC requests</div>
+            <div className="text-center py-8 text-gray-500 dark:text-cosmos-400">{t('dashboard.noKYC')}</div>
           ) : (
             kycRecords.slice(0, 5).map((record) => (
               <div key={record.id} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/50 dark:bg-cosmos-900 border border-emerald-100 dark:border-cosmos-700">

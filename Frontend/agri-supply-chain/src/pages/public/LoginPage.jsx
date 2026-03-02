@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sprout, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Sprout, Mail, Lock, Eye, EyeOff, Loader2, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import PublicTopNav from '../../components/layout/PublicTopNav';
 
 const LoginPage = () => {
-  const [isDark] = useDarkMode();
+  const [isDark, setIsDark] = useDarkMode();
   const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
@@ -40,7 +40,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col transition-colors duration-300">
+    <div className={`min-h-screen flex flex-col transition-colors duration-300 ${isDark ? 'dark bg-slate-950' : 'bg-gray-50'}`}>
       <PublicTopNav />
       <div className="h-16"></div> {/* Spacer for fixed nav */}
 

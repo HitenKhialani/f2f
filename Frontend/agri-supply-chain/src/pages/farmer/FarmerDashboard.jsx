@@ -460,101 +460,6 @@ const FarmerDashboard = () => {
                 title={t('dashboard.farmer.batchDistribution')}
               />
             </div>
-
-            {/* Recent Batches Section */}
-            <div className="space-y-4 mt-8">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('dashboard.farmer.recentBatches')}</h2>
-                <Link
-                  to="/farmer/batches"
-                  className="text-emerald-600 dark:text-emerald-400 text-sm font-bold flex items-center gap-1 hover:underline"
-                >
-                  {t('common.viewAll')}
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              {batches?.length > 0 ? (
-                <>
-                  {/* Desktop Table View */}
-                  <div className="hidden lg:block bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-emerald-50 dark:bg-cosmos-900 border-b border-emerald-100 dark:border-cosmos-700">
-                        <tr>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('dashboard.farmer.batchId')}</th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('dashboard.farmer.cropType')}</th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('dashboard.farmer.quantity')}</th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('dashboard.farmer.status')}</th>
-                          <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('dashboard.farmer.actions')}</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-emerald-50 dark:divide-cosmos-700">
-                        {batches.slice(0, 5).map((batch) => (
-                          <tr key={batch.id} className="hover:bg-emerald-50/30 dark:hover:bg-cosmos-900/50 transition-colors">
-                            <td className="px-6 py-4 text-sm font-mono text-gray-500 dark:text-cosmos-400">
-                              #{batch.public_batch_id || batch.id}
-                            </td>
-                            <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white capitalize">
-                              {batch.crop_type || 'N/A'}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-cosmos-300">
-                              {formatNumber(batch.quantity || 0)} {t('common.kg')}
-                            </td>
-                            <td className="px-6 py-4">
-                              {getStatusBadge(batch.status)}
-                            </td>
-                            <td className="px-6 py-4 text-right">
-                              <Link
-                                to="/farmer/batches"
-                                className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors inline-block"
-                                title="Manage"
-                              >
-                                <ChevronRight className="w-5 h-5" />
-                              </Link>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Mobile Card View */}
-                  <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {batches.slice(0, 4).map((batch) => (
-                      <div
-                        key={batch.id}
-                        className="bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm p-4"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-mono text-[10px] text-gray-400 dark:text-cosmos-400 bg-gray-50 dark:bg-cosmos-900 px-2 py-0.5 rounded">
-                            #{batch.public_batch_id || batch.id}
-                          </span>
-                          {getStatusBadge(batch.status)}
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="text-base font-bold text-gray-900 dark:text-white capitalize">
-                              {batch.crop_type}
-                            </h3>
-                            <p className="text-xs text-gray-500 dark:text-cosmos-400">{formatNumber(batch.quantity)} {t('common.kg')}</p>
-                          </div>
-                          <Link
-                            to="/farmer/batches"
-                            className="p-2 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 rounded-full"
-                          >
-                            <ChevronRight className="w-4 h-4" />
-                          </Link>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="text-center py-8 bg-white dark:bg-cosmos-800 rounded-2xl border border-dashed border-gray-200 dark:border-cosmos-700">
-                  <p className="text-gray-500 dark:text-cosmos-400 text-sm">No recent activity found.</p>
-                </div>
-              )}
-            </div>
           </>
         )}
 
@@ -593,8 +498,17 @@ const FarmerDashboard = () => {
                       type="date"
                       value={formData.harvest_date}
                       onChange={(e) => setFormData({ ...formData, harvest_date: e.target.value })}
+                      min={(() => {
+                        const d = new Date();
+                        d.setMonth(d.getMonth() - 3);
+                        return d.toISOString().split('T')[0];
+                      })()}
+                      max={(() => {
+                        return new Date().toISOString().split('T')[0];
+                      })()}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     />
+                    <p className="text-xs text-gray-500 mt-1">Select a date between 3 months ago and today</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Base Price per Unit (₹) *</label>

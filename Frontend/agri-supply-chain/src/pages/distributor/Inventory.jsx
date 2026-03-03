@@ -492,14 +492,14 @@ const Inventory = () => {
 
                 <div className="mb-4 p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-800">
-                    <strong>Parent Batch:</strong> {selectedBatch.crop_type} - {selectedBatch.quantity} kg
+                    <strong>{t('batch.parentBatch')}:</strong> {selectedBatch.crop_type} - {formatNumber(selectedBatch.quantity)} {t('common.kg')}
                   </p>
                   <div className="flex justify-between mt-2 pt-2 border-t border-blue-100">
                     <p className="text-sm font-semibold text-blue-900">
-                      Remaining: {(parseFloat(selectedBatch.quantity) - splitData.splits.reduce((sum, s) => sum + (parseFloat(s.quantity) || 0), 0)).toFixed(2)} kg
+                      {t('batch.remaining')}: {formatNumber(parseFloat(selectedBatch.quantity) - splitData.splits.reduce((sum, s) => sum + (parseFloat(s.quantity) || 0), 0))} {t('common.kg')}
                     </p>
                     <p className="text-sm font-semibold text-blue-900">
-                      Total: {splitData.splits.reduce((sum, s) => sum + (parseFloat(s.quantity) || 0), 0).toFixed(2)} / {selectedBatch.quantity} kg
+                      {t('common.total')}: {formatNumber(splitData.splits.reduce((sum, s) => sum + (parseFloat(s.quantity) || 0), 0))} / {formatNumber(selectedBatch.quantity)} {t('common.kg')}
                     </p>
                   </div>
                 </div>

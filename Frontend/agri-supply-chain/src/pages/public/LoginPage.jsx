@@ -118,23 +118,6 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember"
-                    name="remember"
-                    type="checkbox"
-                    className="h-4 w-4 text-emerald-600 border-gray-300 dark:border-cosmos-700 rounded focus:ring-emerald-500 bg-white dark:bg-cosmos-800"
-                  />
-                  <label htmlFor="remember" className="ml-2 block text-sm text-gray-700 dark:text-cosmos-300">
-                    {t('login.rememberMe')}
-                  </label>
-                </div>
-                <Link to="/forgot-password" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium text-sm transition-colors">
-                  {t('login.forgotPassword')}
-                </Link>
-              </div>
-
               <button
                 type="submit"
                 disabled={loading}

@@ -434,6 +434,7 @@
     "submitSplit": "Submit Split",
     "parentBatch": "Parent batch",
     "inactive": "inactive",
+    "remaining": "Remaining",
     "selectRetailer": "Select a retailer",
     "chooseRetailer": "Choose a retailer..."
   },
@@ -867,6 +868,27 @@
       "totalEarnings": "Total Earnings",
       "activeRoutes": "Active Routes"
     }
+  },
+
+  "retailerDashboard": {
+    "retailerTitle": "Retailer Dashboard",
+    "retailerSubtitle": "Manage your listings and sales",
+    "incomingShipments": "Incoming Shipments",
+    "inventoryValue": "Inventory Value",
+    "totalListings": "Total Listings",
+    "totalSalesRevenue": "Total Sales Revenue",
+    "unitsSold": "Units Sold",
+    "awaitingConfirmation": "Awaiting Confirmation",
+    "activeListingsWorth": "Active Listings Worth",
+    "activeForSale": "Active for Sale",
+    "earningsToDate": "Earnings to Date",
+    "completedSalesLabel": "Completed Sales",
+    "inventoryDistribution": "Inventory Distribution",
+    "monthlySales": "Monthly Sales",
+    "noInventoryData": "No inventory data available",
+    "noSalesData": "No sales data available",
+    "welcomeDashboard": "Welcome to your Dashboard",
+    "welcomeSubtext": "Start by creating your first listing"
   },
 
   "retailer": {

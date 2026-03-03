@@ -13,9 +13,13 @@ import MainLayout from '../../components/layout/MainLayout';
 import { retailAPI, retailerAPI, batchAPI } from '../../services/api';
 import SuspendModal from '../../components/common/SuspendModal';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 
 const Listed = () => {
   const toast = useToast();
+  const { t } = useTranslation();
+  const { formatNumber, formatCurrency } = useLocalizedNumber();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -206,12 +210,12 @@ const Listed = () => {
                           {listing.batch_details?.crop_type || 'Unknown'}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600 dark:text-cosmos-300">
-                          <span className="font-bold text-emerald-600 dark:text-emerald-400">{getRemainingQuantity(listing)}</span>
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatNumber(getRemainingQuantity(listing))}</span>
                           <span className="mx-1">/</span>
-                          <span>{listing.total_quantity || listing.batch_details?.quantity || 0} kg</span>
+                          <span>{formatNumber(listing.total_quantity || listing.batch_details?.quantity || 0)} {t('common.kg')}</span>
                         </td>
                         <td className="px-6 py-4 text-sm font-bold text-emerald-700 dark:text-emerald-400">
-                          ₹{listing.selling_price_per_unit?.toLocaleString('en-IN') || 0}/kg
+                          {formatCurrency(listing.selling_price_per_unit || 0)}/{t('common.kg')}
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -256,7 +260,7 @@ const Listed = () => {
                         {listing.batch_details?.product_batch_id || `L-${listing.id}`}
                       </span>
                       <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                        ₹{listing.selling_price_per_unit?.toLocaleString('en-IN')}/kg
+                        {formatCurrency(listing.selling_price_per_unit || 0)}/{t('common.kg')}
                       </span>
                     </div>
 
@@ -266,10 +270,10 @@ const Listed = () => {
                       </h3>
                       <div className="flex items-center justify-between mt-1">
                         <p className="text-sm text-gray-500 dark:text-cosmos-400">
-                          Remaining: <span className="font-bold text-emerald-600 dark:text-emerald-400">{getRemainingQuantity(listing)} kg</span>
+                          {t('batch.remaining')}: <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatNumber(getRemainingQuantity(listing))} {t('common.kg')}</span>
                         </p>
                         <p className="text-xs text-gray-400 dark:text-cosmos-500">
-                          Total: {listing.total_quantity || listing.batch_details?.quantity} kg
+                          {t('common.total')}: {formatNumber(listing.total_quantity || listing.batch_details?.quantity || 0)} {t('common.kg')}
                         </p>
                       </div>
                       <div className="w-full h-1.5 bg-gray-100 dark:bg-cosmos-900 rounded-full mt-2 overflow-hidden">

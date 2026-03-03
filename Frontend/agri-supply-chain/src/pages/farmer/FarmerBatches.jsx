@@ -340,40 +340,38 @@ const FarmerBatches = () => {
                         {getStatusBadge(batch.status)}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-2 flex-wrap">
                           {batch.status === 'CREATED' && !hasFarmerDescription(batch.id) && (
                             <button
                               onClick={() => { setSelectedBatch(batch); setShowDescriptionModal(true); }}
-                              className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                              title="Describe"
+                              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white text-xs rounded-lg hover:bg-emerald-700 font-medium"
                             >
-                              <ClipboardCheck className="w-4 h-4" />
+                              <ClipboardCheck className="w-3 h-3" />
+                              Describe
                             </button>
                           )}
                           {batch.status === 'CREATED' && (
                             <button
                               onClick={() => { setSelectedBatch(batch); setShowTransportModal(true); }}
-                              className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                              title="Request Transport"
+                              className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded-lg hover:bg-blue-100 font-medium border border-blue-200 dark:border-blue-800"
                             >
-                              <Package className="w-4 h-4" />
+                              Request Transport
                             </button>
                           )}
                           {['CREATED', 'TRANSPORT_REQUESTED', 'TRANSPORT_REJECTED'].includes(batch.status) && (
                             <button
                               onClick={() => handleSuspendBatch(batch.id)}
-                              className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                              title="Suspend"
+                              className="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-lg hover:bg-red-100 font-medium border border-red-200 dark:border-red-800"
                             >
-                              <Ban className="w-4 h-4" />
+                              Suspend
                             </button>
                           )}
                           <button
                             onClick={() => { setSelectedBatch(batch); setShowInspectionTimeline(true); }}
-                            className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                            title="History"
+                            className="flex items-center gap-1 px-3 py-1.5 text-gray-500 dark:text-cosmos-400 text-xs rounded-lg hover:bg-gray-100 dark:hover:bg-cosmos-700 border border-gray-200 dark:border-cosmos-600"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="w-3 h-3" />
+                            History
                           </button>
                         </div>
                       </td>
@@ -404,14 +402,14 @@ const FarmerBatches = () => {
                       </h3>
                       <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-cosmos-400 mt-0.5">
                         <Package className="w-3.5 h-3.5" />
-                        <span>{batch.quantity || 0} kg</span>
+                        <span>{formatNumber(batch.quantity || 0)} {t('common.kg')}</span>
                       </div>
                     </div>
                     {batch.farmer_base_price_per_unit && (
                       <div className="text-right">
-                        <p className="text-xs text-gray-400 dark:text-cosmos-400">Base Price</p>
+                        <p className="text-xs text-gray-400 dark:text-cosmos-400">{t('batch.basePrice')}</p>
                         <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-                          ₹{Number(batch.farmer_base_price_per_unit).toFixed(2)}/kg
+                          {formatCurrency(batch.farmer_base_price_per_unit)}/{t('common.kg')}
                         </p>
                       </div>
                     )}
@@ -427,7 +425,7 @@ const FarmerBatches = () => {
                     {batch.harvest_date && (
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3 flex-shrink-0" />
-                        {new Date(batch.harvest_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
+                        {new Date(batch.harvest_date).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: '2-digit' })}
                       </span>
                     )}
                   </div>

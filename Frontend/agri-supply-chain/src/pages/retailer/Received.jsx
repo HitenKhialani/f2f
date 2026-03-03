@@ -13,9 +13,13 @@ import {
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, inspectionAPI } from '../../services/api';
 import { InspectionForm, InspectionTimeline } from '../../components/inspection';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 
 const Received = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { formatNumber } = useLocalizedNumber();
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -182,8 +186,8 @@ const Received = () => {
                         {batch.crop_type || 'N/A'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500 flex justify-between md:table-cell">
-                        <span className="md:hidden font-bold">Quantity:</span>
-                        {batch.quantity || 0} kg
+                        <span className="md:hidden font-bold">{t('batch.quantity')}:</span>
+                        {formatNumber(batch.quantity || 0)} {t('common.kg')}
                       </td>
                       <td className="px-6 py-4 flex justify-between md:table-cell">
                         <span className="md:hidden font-bold">Status:</span>

@@ -13,38 +13,42 @@ export function useLocalizedNumber() {
   const { i18n } = useTranslation();
 
   const localeMap = {
-    en: 'en-IN',
-    hi: 'hi-IN',
-    mr: 'mr-IN',
-    pa: 'pa-IN',
-    gu: 'gu-IN',
+    en: { locale: 'en-IN', numberingSystem: 'latn' },
+    hi: { locale: 'hi-IN', numberingSystem: 'deva' },
+    mr: { locale: 'mr-IN', numberingSystem: 'deva' },
+    pa: { locale: 'pa-IN', numberingSystem: 'guru' },
+    gu: { locale: 'gu-IN', numberingSystem: 'gujr' },
   };
 
-  const locale = localeMap[i18n.language] || 'en-IN';
+  const config = localeMap[i18n.language] || localeMap.en;
 
   const formatNumber = (num) => {
     if (num === null || num === undefined || num === '') return '';
-    return new Intl.NumberFormat(locale).format(Number(num));
+    return new Intl.NumberFormat(config.locale, {
+      numberingSystem: config.numberingSystem
+    }).format(Number(num));
   };
 
   const formatCurrency = (num, currency = 'INR') => {
     if (num === null || num === undefined || num === '') return '';
-    return new Intl.NumberFormat(locale, {
+    return new Intl.NumberFormat(config.locale, {
       style: 'currency',
       currency,
       maximumFractionDigits: 2,
+      numberingSystem: config.numberingSystem
     }).format(Number(num));
   };
 
   const formatCompact = (num) => {
     if (num === null || num === undefined || num === '') return '';
-    return new Intl.NumberFormat(locale, {
+    return new Intl.NumberFormat(config.locale, {
       notation: 'compact',
       maximumFractionDigits: 1,
+      numberingSystem: config.numberingSystem
     }).format(Number(num));
   };
 
-  return { formatNumber, formatCurrency, formatCompact, locale };
+  return { formatNumber, formatCurrency, formatCompact, locale: config.locale };
 }
 
 export default useLocalizedNumber;

@@ -155,9 +155,11 @@ const Incoming = () => {
     incoming: [
       ...transportRequests.filter(tr =>
         tr.to_party_details?.role === 'distributor' &&
-        ['IN_TRANSIT_TO_DISTRIBUTOR', 'ARRIVED_AT_DISTRIBUTOR', 'ARRIVAL_CONFIRMED_BY_DISTRIBUTOR'].includes(tr.status)
+        ['IN_TRANSIT_TO_DISTRIBUTOR', 'ARRIVED_AT_DISTRIBUTOR', 'ARRIVAL_CONFIRMED_BY_DISTRIBUTOR', 'ARRIVED', 'IN_TRANSIT'].includes(tr.status)
       ),
-      ...batches.filter(b => b.status === 'IN_TRANSIT_TO_DISTRIBUTOR' || b.status === 'ARRIVED_AT_DISTRIBUTOR')
+      ...batches.filter(b =>
+        ['IN_TRANSIT_TO_DISTRIBUTOR', 'ARRIVED_AT_DISTRIBUTOR', 'DELIVERED_TO_DISTRIBUTOR', 'ARRIVAL_CONFIRMED_BY_DISTRIBUTOR'].includes(b.status)
+      )
     ]
   };
 
@@ -180,7 +182,6 @@ const Incoming = () => {
       'DELIVERED_TO_DISTRIBUTOR': 'bg-green-100 text-green-700',
       'IN_TRANSIT_TO_DISTRIBUTOR': 'bg-amber-100 text-amber-700',
       'ARRIVED': 'bg-indigo-100 text-indigo-700',
-      'ARRIVAL_CONFIRMED': 'bg-purple-100 text-purple-700',
     };
     const colorClass = statusColors[status] || 'bg-gray-100 text-gray-700';
     return (

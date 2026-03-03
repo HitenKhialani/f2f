@@ -46,8 +46,6 @@ const PublicTopNav = () => {
 
     const navLinks = [
         { name: 'Home', path: '/' },
-        { name: 'Features', path: '/#features' },
-        { name: 'How it Works', path: '/#how-it-works' },
         { name: 'Browse', path: '/consumer/portal' },
     ];
 

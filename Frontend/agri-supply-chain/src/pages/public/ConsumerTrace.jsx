@@ -126,7 +126,7 @@ const ConsumerTrace = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 overflow-y-auto">
       <PublicTopNav />
       <div className="h-20" /> {/* Spacer */}
 
@@ -156,7 +156,15 @@ const ConsumerTrace = () => {
 
               <div className="flex items-center gap-3 pt-4">
                 <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="text-sm font-black text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 px-4 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-800/50 uppercase tracking-widest">
+                <span className={`text-sm font-black px-4 py-1.5 rounded-full border uppercase tracking-widest ${
+                  searchResult.status === 'SOLD' 
+                    ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50'
+                    : searchResult.status === 'IN_TRANSIT'
+                    ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50'
+                    : searchResult.status === 'SUSPENDED'
+                    ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50'
+                    : 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50'
+                }`}>
                   {searchResult.status}
                 </span>
               </div>
@@ -220,7 +228,7 @@ const ConsumerTrace = () => {
         {/* C. STAKEHOLDER JOURNEY - Dynamic */}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 p-10">
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8 tracking-tight">Supply Chain Partners</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Farmer Card - Only show if data exists */}
             {(searchResult.origin?.farmer_name || searchResult.origin?.farm_location) && (
               <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 group hover:-translate-y-1 transition-transform">
@@ -241,6 +249,31 @@ const ConsumerTrace = () => {
                   <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
                     <span className="text-slate-500">Harvest Date</span>
                     <span className="text-slate-900 dark:text-white">{searchResult.origin?.harvest_date ? new Date(searchResult.origin.harvest_date).toLocaleDateString('en-IN') : 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Transporter Card - Only show if data exists */}
+            {(searchResult.transporter?.name || searchResult.transporter?.company_name) && (
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 group hover:-translate-y-1 transition-transform">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    <Truck className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Transporter</div>
+                    <div className="text-xl font-black text-slate-900 dark:text-white">{searchResult.transporter?.name || searchResult.transporter?.company_name || 'Transporter'}</div>
+                  </div>
+                </div>
+                <div className="space-y-4 font-bold text-sm">
+                  <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <span className="text-slate-500">Company</span>
+                    <span className="text-slate-900 dark:text-white truncate ml-4">{searchResult.transporter?.company_name || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <span className="text-slate-500">Pickup Date</span>
+                    <span className="text-slate-900 dark:text-white">{searchResult.transporter?.pickup_date ? new Date(searchResult.transporter.pickup_date).toLocaleDateString('en-IN') : 'Completed'}</span>
                   </div>
                 </div>
               </div>
@@ -315,10 +348,10 @@ const ConsumerTrace = () => {
                 <div key={index} className="flex items-start gap-4">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
                     event.status === 'COMPLETED' 
-                      ? 'bg-emerald-100 text-emerald-600' 
+                      ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' 
                       : event.status === 'IN_PROGRESS'
-                      ? 'bg-amber-100 text-amber-600'
-                      : 'bg-slate-100 text-slate-400'
+                      ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+                      : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
                   }`}>
                     {event.status === 'COMPLETED' ? (
                       <CheckCircle className="w-5 h-5" />
@@ -342,7 +375,7 @@ const ConsumerTrace = () => {
             <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
               {searchResult.status_history.map((status, index) => (
                 <div key={index} className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <CheckCircle className="w-5 h-5" />
                   </div>
                   <div className="flex-1">
@@ -365,7 +398,7 @@ const ConsumerTrace = () => {
         {/* E. INSPECTIONS */}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 p-10">
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8 tracking-tight">Quality Inspections</h2>
-          {inspections.length > 0 ? (
+          {inspections && inspections.length > 0 ? (
             <InspectionTimeline
               batchId={searchResult.batch_id}
               inspections={inspections}
@@ -377,21 +410,6 @@ const ConsumerTrace = () => {
             </div>
           )}
         </section>
-
-        <div className="flex justify-center">
-          <button
-            onClick={() => {
-              setSearchResult(null);
-              setBatchIdTerm('');
-              setError(null);
-              navigate('/consumer/dashboard');
-            }}
-            className="px-8 py-3 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center gap-2"
-          >
-            <Search className="w-5 h-5" />
-            Trace Another Batch
-          </button>
-        </div>
       </main>
     </div>
   );

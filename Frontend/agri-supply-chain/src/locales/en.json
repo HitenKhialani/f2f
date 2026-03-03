@@ -267,31 +267,6 @@
         "desc": "Register your harvest and track it from farm to consumer",
         "features": ["Create crop batches", "Upload certificates", "Connect with distributors"]
       },
-    "distributor": {
-      "title": "Distributor Dashboard",
-      "totalBatches": "Total Batches",
-      "pendingInspection": "Pending Inspection",
-      "approved": "Approved",
-      "totalValue": "Total Value",
-      "recentActivity": "Recent Activity",
-      "batchesInInventory": "Batches in Inventory"
-    },
-    "retailer": {
-      "title": "Retailer Dashboard",
-      "totalListings": "Total Listings",
-      "activeListing": "Active Listings",
-      "soldItems": "Sold Items",
-      "totalSales": "Total Sales",
-      "recentListings": "Recent Listings"
-    },
-    "transporter": {
-      "title": "Transporter Dashboard",
-      "totalShipments": "Total Shipments",
-      "inTransit": "In Transit",
-      "completed": "Completed",
-      "totalEarnings": "Total Earnings",
-      "activeRoutes": "Active Routes"
-    },
       "distributor": {
         "title": "Distributor",
         "subtitle": "Inspection & Storage Management",
@@ -317,7 +292,9 @@
         "features": ["Scan QR code", "View crop history", "Trusted purchases"]
       }
     }
-  },  "admin": {
+  },
+
+  "admin": {
     "title": "Admin Dashboard",
     "userManagement": "User Management",
     "kycManagement": "KYC Management",
@@ -388,8 +365,11 @@
     "statusDistribution": "Status Distribution",
     "revenueByMonth": "Revenue by Month",
     "earningsToDate": "Earnings to Date",
-    "welcomeMsg": "Welcome to your Dashboard",
-    "welcomeSubMsg": "Start by accepting incoming batches to see your storage metrics here.",
+    "activeInventory": "Active Inventory",
+    "awaitingConfirmation": "Awaiting Confirmation",
+    "outboundShipments": "Outbound Shipments",
+    "enRouteToRetailers": "En Route to Retailers",
+    "welcomeSubtextDistributor": "Start by accepting incoming batches to see your storage metrics here.",
     "noActivityData": "No activity data available",
     "noInventoryData": "No inventory data available",
     "noBatchesFound": "No batches found",
@@ -434,9 +414,7 @@
     "submitSplit": "Submit Split",
     "parentBatch": "Parent batch",
     "inactive": "inactive",
-    "remaining": "Remaining",
-    "selectRetailer": "Select a retailer",
-    "chooseRetailer": "Choose a retailer..."
+    "remaining": "Remaining"
   },
   "farmerBatches": {
     "batchId": "Batch ID",
@@ -780,94 +758,6 @@
     "traceBatch": "Trace Batch",
     "scanInstruction": "Enter the Batch ID from the QR code to trace the product journey.",
     "perKg": "/ kg"
-  },  "admin": {
-    "title": "Admin Dashboard",
-    "userManagement": "User Management",
-    "kycManagement": "KYC Management",
-    "allUsers": "All Users",
-    "searchUsers": "Search by name or email",
-    "name": "Name",
-    "email": "Email",
-    "role": "Role",
-    "kycStatus": "KYC Status",
-    "accountStatus": "Account Status",
-    "actions": "Actions",
-    "viewProfile": "View Profile",
-    "suspend": "Suspend",
-    "activate": "Activate",
-    "approve": "Approve",
-    "reject": "Reject",
-    "pending": "Pending",
-    "approved": "Approved",
-    "rejected": "Rejected",
-    "active": "Active",
-    "suspended": "Suspended",
-    "totalUsers": "Total Users",
-    "pendingKYC": "Pending KYC",
-    "approvedUsers": "Approved Users",
-    "suspendedUsers": "Suspended Users",
-    "kycRequests": "KYC Requests",
-    "submittedOn": "Submitted On",
-    "documents": "Documents",
-    "viewDocuments": "View Documents",
-    "noUsers": "No users found",
-    "noKYC": "No KYC requests found"
-  },
-  "dashboard": {
-    "farmer": {
-      "title": "Farmer Dashboard",
-      "welcome": "Welcome back",
-      "totalBatches": "Total Batches",
-      "activeBatches": "Active Batches",
-      "completedBatches": "Completed",
-      "totalRevenue": "Total Revenue",
-      "createBatch": "Create Batch",
-      "recentBatches": "Recent Batches",
-      "batchDistribution": "Batch Distribution by Crop",
-      "revenueOverTime": "Revenue Over Time",
-      "noDataAvailable": "No data available",
-      "createFirstBatch": "Create Your First Batch",
-      "noBatchesYet": "You haven't created any batches yet",
-      "getBatches": "Get started by creating your first batch",
-      "batchId": "Batch ID",
-      "cropType": "Crop Type",
-      "quantity": "Quantity",
-      "status": "Status",
-      "harvestDate": "Harvest Date",
-      "farmLocation": "Farm Location",
-      "basePrice": "Base Price",
-      "actions": "Actions",
-      "viewDetails": "View Details",
-      "suspend": "Suspend",
-      "requestTransport": "Request Transport",
-      "transportRequested": "Transport Requested",
-      "loadingDashboard": "Loading dashboard..."
-    },
-    "distributor": {
-      "title": "Distributor Dashboard",
-      "totalBatches": "Total Batches",
-      "pendingInspection": "Pending Inspection",
-      "approved": "Approved",
-      "totalValue": "Total Value",
-      "recentActivity": "Recent Activity",
-      "batchesInInventory": "Batches in Inventory"
-    },
-    "retailer": {
-      "title": "Retailer Dashboard",
-      "totalListings": "Total Listings",
-      "activeListing": "Active Listings",
-      "soldItems": "Sold Items",
-      "totalSales": "Total Sales",
-      "recentListings": "Recent Listings"
-    },
-    "transporter": {
-      "title": "Transporter Dashboard",
-      "totalShipments": "Total Shipments",
-      "inTransit": "In Transit",
-      "completed": "Completed",
-      "totalEarnings": "Total Earnings",
-      "activeRoutes": "Active Routes"
-    }
   },
 
   "retailerDashboard": {

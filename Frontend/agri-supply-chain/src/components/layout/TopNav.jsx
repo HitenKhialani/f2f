@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, User, ChevronDown, LogOut, Settings, Globe, Sun, Moon } from 'lucide-react';
+import { User, ChevronDown, LogOut, Globe, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import { useTranslation } from 'react-i18next';
@@ -122,16 +122,6 @@ const TopNav = () => {
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-
-            {/* Notifications */}
-            <button
-              className="relative p-2 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors hidden md:flex"
-              title={t('navbar.notifications')}
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-
 
             {/* User Dropdown */}
             <div className="relative" ref={userDropdownRef}>

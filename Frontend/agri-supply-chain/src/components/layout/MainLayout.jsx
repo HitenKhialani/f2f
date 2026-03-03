@@ -1,19 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sprout, Menu, X, User, Settings, Sun, Moon, LogOut } from 'lucide-react';
+import { Sprout, Menu, X, User, Settings, Sun, Moon, LogOut, Globe, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDarkMode } from '../../hooks/useDarkMode';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import Sidebar from './Sidebar';
 import TopNav from './TopNav';
 import MobileBottomNav from './MobileBottomNav';
 
+const LANGUAGES = [
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'hi', label: 'हिंदी', flag: '🇮🇳' },
+  { code: 'mr', label: 'मराठी', flag: '🇮🇳' },
+  { code: 'pa', label: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
+  { code: 'gu', label: 'ગુજરાતી', flag: '🇮🇳' },
+];
+
 export default function MainLayout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isDark, setIsDark] = useDarkMode();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [showMobileUserDropdown, setShowMobileUserDropdown] = useState(false);
+  const [showMobileLangDropdown, setShowMobileLangDropdown] = useState(false);
   const userDropdownRef = useRef(null);
+  const langDropdownRef = useRef(null);
+
+  const currentLang = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
 
   const toggleMobileDrawer = () => {
     setMobileDrawerOpen(!mobileDrawerOpen);
@@ -29,11 +44,20 @@ export default function MainLayout({ children }) {
     navigate('/login');
   };
 
+  const handleLanguageChange = (langCode) => {
+    i18n.changeLanguage(langCode);
+    localStorage.setItem('language', langCode);
+    setShowMobileLangDropdown(false);
+  };
+
   // Click outside to close mobile dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
         setShowMobileUserDropdown(false);
+      }
+      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target)) {
+        setShowMobileLangDropdown(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -93,6 +117,38 @@ export default function MainLayout({ children }) {
           </div>
           <div className="flex items-center gap-1">
 
+            {/* Language Dropdown */}
+            <div className="relative" ref={langDropdownRef}>
+              <button
+                onClick={() => setShowMobileLangDropdown(!showMobileLangDropdown)}
+                className="p-2 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors text-emerald-600 dark:text-emerald-400"
+                title={t('navbar.language')}
+              >
+                <Globe className="w-5 h-5" />
+              </button>
+              {showMobileLangDropdown && (
+                <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-emerald-100 dark:border-emerald-900 py-2 z-50">
+                  <div className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider border-b border-emerald-100 dark:border-emerald-900">
+                    {t('navbar.language')}
+                  </div>
+                  {LANGUAGES.map(lang => (
+                    <button
+                      key={lang.code}
+                      onClick={() => handleLanguageChange(lang.code)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${i18n.language === lang.code
+                        ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-semibold'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
+                        }`}
+                    >
+                      <span className="text-lg">{lang.flag}</span>
+                      <span>{lang.label}</span>
+                      {i18n.language === lang.code && <span className="ml-auto text-emerald-500">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Dark Mode Toggle */}
             <button
               onClick={() => setIsDark(!isDark)}
@@ -100,7 +156,6 @@ export default function MainLayout({ children }) {
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-
 
             {/* User Avatar Dropdown */}
             <div className="relative" ref={userDropdownRef}>
@@ -113,7 +168,7 @@ export default function MainLayout({ children }) {
               {showMobileUserDropdown && (
                 <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-emerald-100 dark:border-emerald-900 py-2 z-50">
                   <div className="px-4 py-2 border-b border-emerald-100 dark:border-emerald-900">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Signed in as</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('navbar.signedInAs')}</p>
                     <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{user?.username}</p>
                   </div>
                   <Link
@@ -122,7 +177,7 @@ export default function MainLayout({ children }) {
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
                   >
                     <User className="w-4 h-4" />
-                    Profile
+                    {t('navbar.profile')}
                   </Link>
                   <div className="border-t border-emerald-100 dark:border-emerald-900 mt-1 pt-1">
                     <button
@@ -130,7 +185,7 @@ export default function MainLayout({ children }) {
                       className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
-                      Logout
+                      {t('navbar.logout')}
                     </button>
                   </div>
                 </div>

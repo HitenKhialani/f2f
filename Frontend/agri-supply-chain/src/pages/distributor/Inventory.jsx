@@ -322,31 +322,31 @@ const Inventory = () => {
                               <>
                                 <button
                                   onClick={() => { setSelectedBatch(batch); setShowTransportModal(true); }}
-                                  className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                                  title={t('buttons.requestTransport')}
+                                  className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5"
                                 >
-                                  <Truck className="w-4 h-4" />
+                                  <Truck className="w-3.5 h-3.5" />
+                                  {t('buttons.requestTransport')}
                                 </button>
                                 <button
                                   onClick={() => handleSplitBatch(batch)}
-                                  className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                                  title={t('buttons.splitBatch')}
+                                  className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-medium rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-1.5"
                                 >
-                                  <Scissors className="w-4 h-4" />
+                                  <Scissors className="w-3.5 h-3.5" />
+                                  {t('buttons.splitBatch')}
                                 </button>
                                 <button
                                   onClick={() => { setSelectedBatch(batch); setShowInspectionTimeline(true); }}
-                                  className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                                  title={t('common.history')}
+                                  className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1.5"
                                 >
-                                  <Eye className="w-4 h-4" />
+                                  <Eye className="w-3.5 h-3.5" />
+                                  {t('common.history')}
                                 </button>
                                 <button
                                   onClick={() => handleSuspendBatch(batch.id)}
-                                  className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                                  title={t('common.suspend')}
+                                  className="px-3 py-1.5 bg-red-100 text-red-700 text-xs font-medium rounded-lg hover:bg-red-200 transition-colors flex items-center gap-1.5"
                                 >
-                                  <Ban className="w-4 h-4" />
+                                  <Ban className="w-3.5 h-3.5" />
+                                  {t('common.suspend')}
                                 </button>
                               </>
                             )}

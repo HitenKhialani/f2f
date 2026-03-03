@@ -3,6 +3,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import MainLayout from '../../components/layout/MainLayout';
 import { QRCodeSVG } from 'qrcode.react';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 import {
   CreditCard,
   Wallet,
@@ -18,6 +20,8 @@ import {
 const PaymentsPage = () => {
   const { role, user } = useAuth();
   const toast = useToast();
+  const { t, i18n } = useTranslation();
+  const { formatNumber, formatCurrency, locale } = useLocalizedNumber();
   const [payments, setPayments] = useState([]);
   const [summary, setSummary] = useState({});
   const [loading, setLoading] = useState(true);
@@ -182,11 +186,20 @@ const PaymentsPage = () => {
 
   const getStatusLabel = (s) => {
     switch (s) {
-      case 'PENDING': return 'Pending';
-      case 'AWAITING_CONFIRMATION': return 'Awaiting Confirmation';
-      case 'SETTLED': return 'Settled';
+      case 'PENDING': return t('payments.statusPending');
+      case 'AWAITING_CONFIRMATION': return t('payments.statusAwaitingConfirmation');
+      case 'SETTLED': return t('payments.statusSettled');
       default: return s;
     }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).format(date);
   };
 
   const getSummaryCards = () => {
@@ -195,21 +208,21 @@ const PaymentsPage = () => {
     if (roleLower === 'farmer') {
       return [
         {
-          title: 'Total Received',
+          title: t('payments.totalReceived'),
           value: summary.total_received || 0,
           icon: <Wallet className="w-6 h-6 text-green-600" />,
           color: 'bg-green-50 border-green-200',
           isCurrency: true,
         },
         {
-          title: 'Total Paid (Transport)',
+          title: t('payments.totalPaidTransport'),
           value: summary.total_paid_transport || 0,
           icon: <ArrowUpRight className="w-6 h-6 text-red-600" />,
           color: 'bg-red-50 border-red-200',
           isCurrency: true,
         },
         {
-          title: 'Pending Confirmations',
+          title: t('payments.pendingConfirmations'),
           value: summary.pending_confirmations || 0,
           icon: <Clock className="w-6 h-6 text-amber-600" />,
           color: 'bg-amber-50 border-amber-200',
@@ -219,21 +232,21 @@ const PaymentsPage = () => {
     } else if (roleLower === 'distributor') {
       return [
         {
-          title: 'Received from Retailers',
+          title: t('payments.receivedFromRetailers'),
           value: summary.total_received_from_retailers || 0,
           icon: <Wallet className="w-6 h-6 text-green-600" />,
           color: 'bg-green-50 border-green-200',
           isCurrency: true,
         },
         {
-          title: 'Paid to Farmers',
+          title: t('payments.paidToFarmers'),
           value: summary.total_paid_to_farmers || 0,
           icon: <ArrowUpRight className="w-6 h-6 text-red-600" />,
           color: 'bg-red-50 border-red-200',
           isCurrency: true,
         },
         {
-          title: 'Pending Payments',
+          title: t('payments.pendingPayments'),
           value: summary.pending_payments || 0,
           icon: <Clock className="w-6 h-6 text-amber-600" />,
           color: 'bg-amber-50 border-amber-200',
@@ -243,21 +256,21 @@ const PaymentsPage = () => {
     } else if (roleLower === 'transporter') {
       return [
         {
-          title: 'Total Earnings',
+          title: t('payments.totalEarningsLabel'),
           value: summary.total_earnings || 0,
           icon: <Wallet className="w-6 h-6 text-green-600" />,
           color: 'bg-green-50 border-green-200',
           isCurrency: true,
         },
         {
-          title: 'Pending Payments',
+          title: t('payments.pendingCount'),
           value: summary.pending_count || 0,
           icon: <Clock className="w-6 h-6 text-amber-600" />,
           color: 'bg-amber-50 border-amber-200',
           isCurrency: false,
         },
         {
-          title: 'Completed',
+          title: t('payments.settledCount'),
           value: summary.settled_count || 0,
           icon: <CheckCircle className="w-6 h-6 text-blue-600" />,
           color: 'bg-blue-50 border-blue-200',
@@ -267,21 +280,21 @@ const PaymentsPage = () => {
     } else if (roleLower === 'retailer') {
       return [
         {
-          title: 'Paid to Distributors',
+          title: t('payments.paidToDistributor'),
           value: summary.total_paid_to_distributor || 0,
           icon: <Wallet className="w-6 h-6 text-green-600" />,
           color: 'bg-green-50 border-green-200',
           isCurrency: true,
         },
         {
-          title: 'Paid (Transport)',
+          title: t('payments.paidTransport'),
           value: summary.total_paid_transport || 0,
           icon: <ArrowUpRight className="w-6 h-6 text-red-600" />,
           color: 'bg-red-50 border-red-200',
           isCurrency: true,
         },
         {
-          title: 'Pending Payments',
+          title: t('payments.pendingPayments'),
           value: summary.pending_payments || 0,
           icon: <Clock className="w-6 h-6 text-amber-600" />,
           color: 'bg-amber-50 border-amber-200',
@@ -302,16 +315,16 @@ const PaymentsPage = () => {
 
   const formatValue = (card) => {
     if (card.isCurrency) {
-      return `₹${Number(card.value).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+      return formatCurrency(card.value);
     }
-    return card.value;
+    return formatNumber(card.value);
   };
 
   if (loading) {
     return (
       <MainLayout>
         <div className="min-h-screen flex items-center justify-center">
-          <div className="text-gray-500">Loading payments...</div>
+          <div className="text-gray-500">{t('payments.loadingPayments')}</div>
         </div>
       </MainLayout>
     );
@@ -324,9 +337,9 @@ const PaymentsPage = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <CreditCard className="w-8 h-8 text-emerald-600" />
-            Payments
+            {t('payments.title')}
           </h1>
-          <p className="text-gray-600 mt-2">Manage your transactions and settlements</p>
+          <p className="text-gray-600 mt-2">{t('payments.manageTransactions')}</p>
         </div>
 
         {/* Summary Cards */}
@@ -351,27 +364,28 @@ const PaymentsPage = () => {
         {/* Transactions Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Transaction History</h2>
+            <h2 className="text-xl font-semibold text-gray-900">{t('payments.transactionHistory')}</h2>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Desktop Table View - Hidden on Mobile */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Batch ID</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Counterparty</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Type</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Amount</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Action</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('payments.batchId')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('payments.counterparty')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('payments.type')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('payments.amount')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('payments.status')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('payments.date')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('payments.action')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {payments.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
-                      No payments found
+                      {t('payments.noPaymentsFound')}
                     </td>
                   </tr>
                 ) : (
@@ -384,17 +398,17 @@ const PaymentsPage = () => {
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-sm text-gray-700">
-                          {payment.counterparty_name || 'Unknown'}
+                          {payment.counterparty_name || t('payments.unknown')}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-sm text-gray-700">
-                          {payment.payment_type === 'BATCH_PAYMENT' ? 'Batch Payment' : 'Transport Share'}
+                          {payment.payment_type === 'BATCH_PAYMENT' ? t('payments.batchPayment') : t('payments.transportShare')}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-sm font-medium text-gray-900">
-                          ₹{parseFloat(payment.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                          {formatCurrency(payment.amount)}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -407,7 +421,7 @@ const PaymentsPage = () => {
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-sm text-gray-600">
-                          {new Date(payment.created_at).toLocaleDateString('en-IN')}
+                          {formatDate(payment.created_at)}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -418,7 +432,7 @@ const PaymentsPage = () => {
                             className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors"
                           >
                             <ExternalLink className="w-4 h-4" />
-                            Pay Now
+                            {t('payments.payNow')}
                           </button>
                         )}
                         {/* AWAITING_CONFIRMATION + payee => Confirm Receipt */}
@@ -427,16 +441,16 @@ const PaymentsPage = () => {
                             onClick={() => handleSettlePayment(payment.id)}
                             className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
                           >
-                            Confirm Receipt
+                            {t('payments.confirmReceipt')}
                           </button>
                         )}
                         {/* AWAITING_CONFIRMATION + payer => waiting badge */}
                         {payment.status === 'AWAITING_CONFIRMATION' && isUserPayer(payment) && (
-                          <span className="text-xs text-blue-600 font-medium">Waiting for confirmation</span>
+                          <span className="text-xs text-blue-600 font-medium">{t('payments.waitingConfirmation')}</span>
                         )}
                         {/* SETTLED => completed */}
                         {payment.status === 'SETTLED' && (
-                          <span className="text-sm text-green-600 font-medium">Completed</span>
+                          <span className="text-sm text-green-600 font-medium">{t('payments.completed')}</span>
                         )}
                       </td>
                     </tr>
@@ -445,13 +459,98 @@ const PaymentsPage = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card View - Shown only on Mobile */}
+          <div className="md:hidden divide-y divide-gray-200">
+            {payments.length === 0 ? (
+              <div className="px-6 py-12 text-center text-gray-500">
+                {t('payments.noPaymentsFound')}
+              </div>
+            ) : (
+              payments.map((payment) => (
+                <div key={payment.id} className="p-4 hover:bg-gray-50 transition-colors">
+                  {/* Card Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      #{payment.batch_details?.product_batch_id || payment.batch}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      {getStatusIcon(payment.status)}
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(payment.status)}`}>
+                        {getStatusLabel(payment.status)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Card Content */}
+                  <div className="space-y-2 mb-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">{t('payments.counterparty')}:</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {payment.counterparty_name || t('payments.unknown')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">{t('payments.type')}:</span>
+                      <span className="text-sm text-gray-900">
+                        {payment.payment_type === 'BATCH_PAYMENT' ? t('payments.batchPayment') : t('payments.transportShare')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">{t('payments.amount')}:</span>
+                      <span className="text-base font-bold text-emerald-600">
+                        {formatCurrency(payment.amount)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">{t('payments.date')}:</span>
+                      <span className="text-sm text-gray-900">
+                        {formatDate(payment.created_at)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Card Actions */}
+                  <div className="pt-3 border-t border-gray-100">
+                    {payment.status === 'PENDING' && isUserPayer(payment) && (
+                      <button
+                        onClick={() => openUPILink(payment)}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        {t('payments.payNow')}
+                      </button>
+                    )}
+                    {payment.status === 'AWAITING_CONFIRMATION' && isUserPayee(payment) && (
+                      <button
+                        onClick={() => handleSettlePayment(payment.id)}
+                        className="w-full px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                      >
+                        {t('payments.confirmReceipt')}
+                      </button>
+                    )}
+                    {payment.status === 'AWAITING_CONFIRMATION' && isUserPayer(payment) && (
+                      <div className="text-center text-sm text-blue-600 font-medium py-2">
+                        {t('payments.waitingConfirmation')}
+                      </div>
+                    )}
+                    {payment.status === 'SETTLED' && (
+                      <div className="text-center text-sm text-green-600 font-medium py-2">
+                        {t('payments.completed')}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         {/* Payment Modal for Desktop — with UPI QR + Mark as Paid */}
         {showPaymentModal && selectedPayment && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('payments.paymentDetails')}</h3>
 
               {/* QR Code Section */}
               <div className="flex flex-col items-center mb-6">
@@ -464,44 +563,44 @@ const PaymentsPage = () => {
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-2 text-center">
-                  Scan with any UPI app (Google Pay, PhonePe, Paytm)
+                  {t('payments.scanQR')}
                 </p>
               </div>
 
-              <p className="text-sm text-gray-600 mb-4">Or use these details to make payment:</p>
+              <p className="text-sm text-gray-600 mb-4">{t('payments.orUseDetails')}</p>
 
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">Payee UPI ID:</span>
+                  <span className="text-sm text-gray-600">{t('payments.payeeUpiId')}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900">{selectedPayment.payee_upi_id || 'Not set'}</span>
+                    <span className="text-sm font-medium text-gray-900">{selectedPayment.payee_upi_id || t('payments.notSet')}</span>
                     {selectedPayment.payee_upi_id && (
                       <button
                         onClick={() => copyToClipboard(selectedPayment.payee_upi_id)}
                         className={`text-xs transition-colors ${copiedText === selectedPayment.payee_upi_id ? 'text-green-600' : 'text-blue-600 hover:text-blue-800'}`}
                       >
-                        {copiedText === selectedPayment.payee_upi_id ? 'Copied!' : 'Copy'}
+                        {copiedText === selectedPayment.payee_upi_id ? t('common.copied') : t('common.copy')}
                       </button>
                     )}
                   </div>
                 </div>
 
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">Payee Name:</span>
+                  <span className="text-sm text-gray-600">{t('payments.payeeName')}</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {selectedPayment.payee_details?.user_details?.first_name || selectedPayment.payee_details?.user_details?.username || 'Unknown'}
+                    {selectedPayment.payee_details?.user_details?.first_name || selectedPayment.payee_details?.user_details?.username || t('payments.unknown')}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg">
-                  <span className="text-sm text-gray-600">Amount:</span>
+                  <span className="text-sm text-gray-600">{t('payments.amountLabel')}</span>
                   <span className="text-lg font-bold text-emerald-700">
-                    ₹{parseFloat(selectedPayment.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {formatCurrency(selectedPayment.amount)}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">Reference:</span>
+                  <span className="text-sm text-gray-600">{t('payments.reference')}</span>
                   <span className="text-sm font-medium text-gray-900">
                     {selectedPayment.batch_details?.product_batch_id || selectedPayment.batch}_payment
                   </span>
@@ -516,7 +615,7 @@ const PaymentsPage = () => {
                   }}
                   className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
                 >
-                  Close
+                  {t('payments.close')}
                 </button>
                 <button
                   onClick={() => {
@@ -526,7 +625,7 @@ const PaymentsPage = () => {
                   }}
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
                 >
-                  Mark as Paid
+                  {t('payments.markAsPaid')}
                 </button>
               </div>
             </div>

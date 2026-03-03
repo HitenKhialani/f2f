@@ -25,6 +25,8 @@ import {
   LineChart,
   Line
 } from 'recharts';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 import MainLayout from '../../components/layout/MainLayout';
 import { dashboardAPI } from '../../services/api';
 
@@ -54,22 +56,28 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
-  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm text-gray-500 mb-1">{title}</p>
-        <p className="text-3xl font-bold text-gray-900">{value}</p>
-        {subtext && <p className="text-xs text-gray-400 mt-1">{subtext}</p>}
-      </div>
-      <div className={`${color} p-3 rounded-xl`}>
-        <Icon className="w-6 h-6 text-white" />
+const MetricCard = ({ title, value, icon: Icon, color, subtext }) => {
+  const { formatNumber } = useLocalizedNumber();
+  
+  return (
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-500 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-900">{typeof value === 'number' ? formatNumber(value) : value}</p>
+          {subtext && <p className="text-xs text-gray-400 mt-1">{subtext}</p>}
+        </div>
+        <div className={`${color} p-3 rounded-xl`}>
+          <Icon className="w-6 h-6 text-white" />
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const TransporterDashboard = () => {
+  const { t } = useTranslation();
+  const { formatNumber, formatCurrency } = useLocalizedNumber();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -106,11 +114,11 @@ const TransporterDashboard = () => {
     { name: 'Total Earnings', earnings: analytics.earnings_overview?.total_earnings || 0 },
   ] : [];
 
-  const formatCurrency = (value) => {
+  const formatCurrencyShort = (value) => {
     if (value >= 1000) {
       return `₹${(value / 1000).toFixed(1)}k`;
     }
-    return `₹${value.toFixed(0)}`;
+    return formatCurrency(value);
   };
 
   if (loading) {
@@ -218,7 +226,7 @@ const TransporterDashboard = () => {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="text-center -mt-32 mb-20">
-                  <p className="text-3xl font-bold text-gray-900">{analytics?.total_deliveries || 0}</p>
+                  <p className="text-3xl font-bold text-gray-900">{formatNumber(analytics?.total_deliveries || 0)}</p>
                   <p className="text-sm text-gray-500">Total</p>
                 </div>
               </div>
@@ -249,11 +257,11 @@ const TransporterDashboard = () => {
                       height={60}
                     />
                     <YAxis
-                      tickFormatter={(value) => `₹${value >= 1000 ? (value / 1000) + 'k' : value}`}
+                      tickFormatter={(value) => formatCurrencyShort(value)}
                       tick={{ fontSize: 12 }}
                     />
                     <Tooltip
-                      formatter={(value) => [`₹${value.toLocaleString()}`, 'Earnings']}
+                      formatter={(value) => [formatCurrency(value), 'Earnings']}
                       labelStyle={{ color: '#374151' }}
                     />
                     <Bar dataKey="earnings" fill="#10B981" radius={[4, 4, 0, 0]} />

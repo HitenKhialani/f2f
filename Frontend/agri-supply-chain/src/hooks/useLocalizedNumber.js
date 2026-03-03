@@ -2,11 +2,11 @@ import { useTranslation } from 'react-i18next';
 
 /**
  * Hook to format numbers according to the current language locale.
- * Hindi and Marathi use Devanagari numerals via Intl.NumberFormat.
+ * Hindi, Marathi, Punjabi and Gujarati use their respective numerals via Intl.NumberFormat.
  *
  * Usage:
  *   const { formatNumber, formatCurrency } = useLocalizedNumber();
- *   formatNumber(10)       // "10" in English, "१०" in Hindi/Marathi
+ *   formatNumber(10)       // "10" in English, "१०" in Hindi/Marathi, "੧੦" in Punjabi, "૧૦" in Gujarati
  *   formatCurrency(500)    // "₹500" localized
  */
 export function useLocalizedNumber() {
@@ -16,6 +16,8 @@ export function useLocalizedNumber() {
     en: 'en-IN',
     hi: 'hi-IN',
     mr: 'mr-IN',
+    pa: 'pa-IN',
+    gu: 'gu-IN',
   };
 
   const locale = localeMap[i18n.language] || 'en-IN';

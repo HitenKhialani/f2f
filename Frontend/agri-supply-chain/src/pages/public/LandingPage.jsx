@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import useLenis from '../../hooks/useLenis';
 import { useDarkMode } from '../../hooks/useDarkMode';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 import {
   Sprout, Truck, Shield, CheckCircle, QrCode, Package,
   ShoppingCart, Github, Twitter, ChevronDown, ArrowRight,
@@ -19,6 +21,8 @@ const LandingPage = () => {
   const { isAuthenticated, role } = useAuth();
   const navigate = useNavigate();
   const [isDark] = useDarkMode();
+  const { t } = useTranslation();
+  const { formatNumber } = useLocalizedNumber();
 
   useEffect(() => {
     if (isAuthenticated && role) navigate(`/${role.toLowerCase()}/dashboard`);
@@ -44,16 +48,16 @@ const LandingPage = () => {
         >
           <div className="inline-flex items-center gap-2 px-5 py-2 bg-white/10 backdrop-blur-md text-emerald-300 rounded-full text-[10px] md:text-xs font-black mb-8 border border-white/20 tracking-widest uppercase">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Trusted by 10,000+ Farmers Across India
+            {t('landing.trustedBy')}
           </div>
 
           <h1 className="text-4xl md:text-8xl font-black text-white leading-[1.1] mb-8 tracking-tighter">
-            From Farm to Fork,<br />
-            <span className="text-emerald-400">Every Step Verified</span>
+            {t('landing.heroTitle')}<br />
+            <span className="text-emerald-400">{t('landing.heroTitleHighlight')}</span>
           </h1>
 
           <p className="text-slate-200 text-base md:text-2xl max-w-3xl mx-auto mb-12 leading-relaxed font-medium opacity-90">
-            AgriChain creates unbreakable trust in India's agricultural supply chain. Track, verify, and prove the journey of every harvest with tamper-proof records.
+            {t('landing.heroDesc')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -61,14 +65,14 @@ const LandingPage = () => {
               to="/role-selection"
               className="group w-full sm:w-auto px-10 md:px-12 py-4 md:py-5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-2xl transition-all shadow-2xl shadow-emerald-600/40 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 text-lg"
             >
-              Get Started
+              {t('landing.getStarted')}
               <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               to="/login"
               className="group w-full sm:w-auto px-10 md:px-12 py-4 md:py-5 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-black rounded-2xl transition-all border border-white/20 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 text-lg"
             >
-              Log In
+              {t('landing.logIn')}
             </Link>
           </div>
         </motion.div>
@@ -88,24 +92,24 @@ const LandingPage = () => {
 
   const PipelineUI = () => {
     const steps = [
-      { id: 'farm', label: 'Farm', icon: Sprout, description: 'Harvest & Verification' },
-      { id: 'distributor', label: 'Distributor', icon: Package, description: 'Storage & Logistics' },
-      { id: 'retailer', label: 'Retailer', icon: ShoppingCart, description: 'Quality Check & Sales' },
-      { id: 'consumer', label: 'Consumer', icon: User, description: 'Trusted Purchase' },
-      { id: 'qr', label: 'QR Scan', icon: QrCode, description: 'Instant Traceability' },
+      { id: 'farm', label: t('landing.farm'), icon: Sprout, description: t('landing.farmDesc') },
+      { id: 'distributor', label: t('landing.distributor'), icon: Package, description: t('landing.distributorDesc') },
+      { id: 'retailer', label: t('landing.retailer'), icon: ShoppingCart, description: t('landing.retailerDesc') },
+      { id: 'consumer', label: t('landing.consumer'), icon: User, description: t('landing.consumerDesc') },
+      { id: 'qr', label: t('landing.qrScan'), icon: QrCode, description: t('landing.qrScanDesc') },
     ];
 
     return (
       <section className="py-24 bg-white dark:bg-slate-950 transition-colors duration-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
           <span className="inline-block px-4 py-1.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-emerald-200 dark:border-emerald-800/50 mb-6">
-            Supply Chain flow
+            {t('landing.supplyChainFlow')}
           </span>
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">
-            The Transparency <span className="text-emerald-600 dark:text-emerald-500">Pipeline</span>
+            {t('landing.transparencyPipeline')} <span className="text-emerald-600 dark:text-emerald-500">{t('landing.pipelineHighlight')}</span>
           </h2>
           <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium">
-            Tracking every single move from the roots to your table in real-time.
+            {t('landing.pipelineDesc')}
           </p>
         </div>
 
@@ -132,55 +136,55 @@ const LandingPage = () => {
   const VerticalTimeline = () => {
     const steps = [
       {
-        title: 'Harvest',
-        role: 'Farmer',
+        title: t('landing.timelineSteps.step1.title'),
+        role: t('landing.timelineSteps.step1.role'),
         icon: Sprout,
-        desc: 'Farmers create verified batches with images and location data. Every harvest is recorded with immutable proof of origin.',
+        desc: t('landing.timelineSteps.step1.desc'),
         color: 'bg-emerald-500',
         lightBg: 'bg-emerald-50',
         darkBg: 'bg-emerald-900/10'
       },
       {
-        title: 'Quality Inspection',
-        role: 'Inspector',
+        title: t('landing.timelineSteps.step2.title'),
+        role: t('landing.timelineSteps.step2.role'),
         icon: Shield,
-        desc: 'Certified inspectors verify quality and safety. Approval locks all previous records, ensuring data integrity.',
+        desc: t('landing.timelineSteps.step2.desc'),
         color: 'bg-blue-500',
         lightBg: 'bg-blue-50',
         darkBg: 'bg-blue-900/10'
       },
       {
-        title: 'Transport',
-        role: 'Transporter',
+        title: t('landing.timelineSteps.step3.title'),
+        role: t('landing.timelineSteps.step3.role'),
         icon: Truck,
-        desc: 'Transporters document pickup and delivery with timestamped images. Movement is tracked in real-time.',
+        desc: t('landing.timelineSteps.step3.desc'),
         color: 'bg-amber-500',
         lightBg: 'bg-amber-50',
         darkBg: 'bg-amber-900/10'
       },
       {
-        title: 'Storage & Processing',
-        role: 'Distributor',
+        title: t('landing.timelineSteps.step4.title'),
+        role: t('landing.timelineSteps.step4.role'),
         icon: Package,
-        desc: 'Storage conditions are monitored and recorded. Any handling is added to the product\'s permanent history.',
+        desc: t('landing.timelineSteps.step4.desc'),
         color: 'bg-purple-500',
         lightBg: 'bg-purple-50',
         darkBg: 'bg-purple-900/10'
       },
       {
-        title: 'Retail Distribution',
-        role: 'Retailer',
+        title: t('landing.timelineSteps.step5.title'),
+        role: t('landing.timelineSteps.step5.role'),
         icon: ShoppingCart,
-        desc: 'Retailers receive verified products with complete journey history. Pricing and shelf placement are logged.',
+        desc: t('landing.timelineSteps.step5.desc'),
         color: 'bg-pink-500',
         lightBg: 'bg-pink-50',
         darkBg: 'bg-pink-900/10'
       },
       {
-        title: 'Consumer Verification',
-        role: 'Consumer',
+        title: t('landing.timelineSteps.step6.title'),
+        role: t('landing.timelineSteps.step6.role'),
         icon: User,
-        desc: 'Consumers scan QR codes to see the complete journey. Trust is built through transparency and real data.',
+        desc: t('landing.timelineSteps.step6.desc'),
         color: 'bg-indigo-500',
         lightBg: 'bg-indigo-50',
         darkBg: 'bg-indigo-900/10'
@@ -192,13 +196,13 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20 md:mb-32">
             <span className="inline-block px-4 py-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-amber-200 dark:border-amber-800/50 mb-6">
-              Farm to Fork Journey
+              {t('landing.farmToForkJourney')}
             </span>
             <h2 className="text-4xl md:text-7xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
-              Every Step, <span className="text-amber-600 dark:text-amber-500">Verified & Trusted</span>
+              {t('landing.everyStepVerified')} <span className="text-amber-600 dark:text-amber-500">{t('landing.verifiedTrusted')}</span>
             </h2>
             <p className="mt-8 text-slate-600 dark:text-slate-400 text-base md:text-xl max-w-2xl mx-auto font-medium">
-              Follow your food's complete journey from farm to table. Each step is permanently recorded, creating an unbreakable chain of trust.
+              {t('landing.journeyDesc')}
             </p>
           </div>
 
@@ -226,7 +230,7 @@ const LandingPage = () => {
                             <step.icon className="w-6 h-6 md:w-8 md:h-8" />
                           </div>
                           <div>
-                            <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800/50">STEP {idx + 1}</span>
+                            <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest bg-amber-100 dark:bg-amber-900/30 px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800/50">{t('landing.step')} {formatNumber(idx + 1)}</span>
                             <h3 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white mt-2 leading-tight">{step.title}</h3>
                           </div>
                         </div>
@@ -235,7 +239,7 @@ const LandingPage = () => {
                         </p>
                         <div className="flex items-center gap-2 text-[10px] md:text-xs font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest">
                           <User className="w-3 h-3 md:w-4 md:h-4" />
-                          Primary Actor: {step.role}
+                          {t('landing.primaryActor')} {step.role}
                         </div>
                       </div>
                     </motion.div>
@@ -258,10 +262,10 @@ const LandingPage = () => {
 
   const StakeholdersSection = () => {
     const stakeholders = [
-      { role: 'Farmer', icon: Sprout, count: '5,000+', desc: 'Small-scale & marginal farmers digitized and empowered with blockchain records.' },
-      { role: 'Distributor', icon: Building, count: '120+', desc: 'Logistic hubs ensuring quality storage and efficient movement across state lines.' },
-      { role: 'Retailer', icon: Store, count: '800+', desc: 'Direct-to-consumer outlets providing verified, trust-stamped agricultural produce.' },
-      { role: 'Transporter', icon: Truck, count: '450+', desc: 'Temperature-controlled logistics partners ensuring safety from farm to warehouse.' }
+      { role: t('sidebar.farmer'), icon: Sprout, count: t('landing.stakeholderCounts.farmers'), desc: t('landing.stakeholderCounts.farmersDesc') },
+      { role: t('sidebar.distributor'), icon: Building, count: t('landing.stakeholderCounts.distributors'), desc: t('landing.stakeholderCounts.distributorsDesc') },
+      { role: t('sidebar.retailer'), icon: Store, count: t('landing.stakeholderCounts.retailers'), desc: t('landing.stakeholderCounts.retailersDesc') },
+      { role: t('sidebar.transporter'), icon: Truck, count: t('landing.stakeholderCounts.transporters'), desc: t('landing.stakeholderCounts.transportersDesc') }
     ];
 
     return (
@@ -269,10 +273,10 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="inline-block px-4 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-200 dark:border-indigo-800/50 mb-6 font-display">
-              Network Strength
+              {t('landing.networkStrength')}
             </span>
             <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">
-              Our Growing <span className="text-emerald-600">Ecosystem</span>
+              {t('landing.ecosystemTitle')} <span className="text-emerald-600">{t('landing.ecosystemHighlight')}</span>
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -299,10 +303,10 @@ const LandingPage = () => {
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-8 group">
               <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white font-black text-xl group-hover:scale-110 transition-transform shadow-xl shadow-emerald-600/20">F2F</div>
-              <span className="text-3xl font-black text-white tracking-tighter">AgriChain</span>
+              <span className="text-3xl font-black text-white tracking-tighter">{t('common.appName')}</span>
             </Link>
             <p className="text-slate-400 font-medium mb-10 leading-relaxed">
-              Empowering India's agriculture through blockchain transparency. From soil to soul, we verify every step.
+              {t('landing.footerTagline')}
             </p>
             <div className="flex gap-4">
               {[Github, Twitter].map((Icon, i) => (
@@ -314,43 +318,43 @@ const LandingPage = () => {
           </div>
 
           <div>
-            <h4 className="text-white font-black mb-8 uppercase tracking-[0.2em] text-xs">Platform</h4>
+            <h4 className="text-white font-black mb-8 uppercase tracking-[0.2em] text-xs">{t('landing.platform')}</h4>
             <ul className="space-y-4 text-slate-400 font-bold text-sm">
-              <li><Link to="/role-selection" className="hover:text-emerald-400 transition-colors">Stakeholders</Link></li>
-              <li><Link to="/consumer/portal" className="hover:text-emerald-400 transition-colors">Marketplace</Link></li>
+              <li><Link to="/role-selection" className="hover:text-emerald-400 transition-colors">{t('landing.stakeholders')}</Link></li>
+              <li><Link to="/consumer/portal" className="hover:text-emerald-400 transition-colors">{t('landing.marketplace')}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-black mb-8 uppercase tracking-[0.2em] text-xs">Legal</h4>
+            <h4 className="text-white font-black mb-8 uppercase tracking-[0.2em] text-xs">{t('landing.legal')}</h4>
             <ul className="space-y-4 text-slate-400 font-bold text-sm">
-              <li><Link to="#" className="hover:text-emerald-400 transition-colors">Privacy Policy</Link></li>
-              <li><Link to="#" className="hover:text-emerald-400 transition-colors">Terms of Service</Link></li>
-              <li><Link to="#" className="hover:text-emerald-400 transition-colors">Blockchain Ethics</Link></li>
+              <li><Link to="#" className="hover:text-emerald-400 transition-colors">{t('landing.privacy')}</Link></li>
+              <li><Link to="#" className="hover:text-emerald-400 transition-colors">{t('landing.terms')}</Link></li>
+              <li><Link to="#" className="hover:text-emerald-400 transition-colors">{t('landing.blockchainEthics')}</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-black mb-8 uppercase tracking-[0.2em] text-xs">Infrastructure</h4>
+            <h4 className="text-white font-black mb-8 uppercase tracking-[0.2em] text-xs">{t('landing.infrastructure')}</h4>
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-slate-400 text-sm font-bold">
-                <Globe className="w-4 h-4 text-emerald-500" /> Distributed Mainnet
+                <Globe className="w-4 h-4 text-emerald-500" /> {t('landing.distributedMainnet')}
               </div>
               <div className="flex items-center gap-3 text-slate-400 text-sm font-bold">
-                <Clock className="w-4 h-4 text-emerald-500" /> 99.9% Uptime
+                <Clock className="w-4 h-4 text-emerald-500" /> {t('landing.uptime')}
               </div>
               <div className="flex items-center gap-3 text-slate-400 text-sm font-bold">
-                <Award className="w-4 h-4 text-emerald-500" /> Certified Secure
+                <Award className="w-4 h-4 text-emerald-500" /> {t('landing.certifiedSecure')}
               </div>
             </div>
           </div>
         </div>
 
         <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-          <p className="text-slate-500 font-black text-sm tracking-tight italic">© 2024 F2F • Handcrafted for Bharat</p>
+          <p className="text-slate-500 font-black text-sm tracking-tight italic">{t('landing.copyright')}</p>
           <div className="flex gap-10 text-[10px] font-black uppercase text-slate-600 tracking-widest">
-            <Link to="#" className="hover:text-emerald-500">Security Audit</Link>
-            <Link to="#" className="hover:text-emerald-400">Node Status</Link>
+            <Link to="#" className="hover:text-emerald-500">{t('landing.securityAudit')}</Link>
+            <Link to="#" className="hover:text-emerald-400">{t('landing.nodeStatus')}</Link>
           </div>
         </div>
       </div>

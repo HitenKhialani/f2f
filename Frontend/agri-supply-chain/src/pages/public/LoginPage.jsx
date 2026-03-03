@@ -4,11 +4,15 @@ import { Sprout, Mail, Lock, Eye, EyeOff, Loader2, Sun, Moon } from 'lucide-reac
 import { useAuth } from '../../context/AuthContext';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import PublicTopNav from '../../components/layout/PublicTopNav';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 
 const LoginPage = () => {
   const [isDark, setIsDark] = useDarkMode();
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useTranslation();
+  const { formatNumber } = useLocalizedNumber();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -52,10 +56,10 @@ const LoginPage = () => {
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-4">
                 <Sprout className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
-                <span className="font-bold text-2xl tracking-tight text-emerald-600 dark:text-emerald-400">AgriChain</span>
+                <span className="font-bold text-2xl tracking-tight text-emerald-600 dark:text-emerald-400">{t('common.appName')}</span>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
-              <p className="text-gray-500 dark:text-cosmos-400">Please enter your email and password</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('login.welcomeBack')}</h1>
+              <p className="text-gray-500 dark:text-cosmos-400">{t('login.subtitle')}</p>
             </div>
 
             {error && (
@@ -67,7 +71,7 @@ const LoginPage = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-cosmos-200 mb-2">
-                  Email Address
+                  {t('login.emailLabel')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -80,7 +84,7 @@ const LoginPage = () => {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="kisan@example.com"
+                    placeholder={t('login.emailPlaceholder')}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-cosmos-800 border border-gray-200 dark:border-cosmos-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   />
                 </div>
@@ -88,7 +92,7 @@ const LoginPage = () => {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-cosmos-200 mb-2">
-                  Password
+                  {t('login.passwordLabel')}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -101,7 +105,7 @@ const LoginPage = () => {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="••••••••"
+                    placeholder={t('login.passwordPlaceholderDots')}
                     className="w-full pl-10 pr-12 py-3 bg-gray-50 dark:bg-cosmos-800 border border-gray-200 dark:border-cosmos-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   />
                   <button
@@ -123,11 +127,11 @@ const LoginPage = () => {
                     className="h-4 w-4 text-emerald-600 border-gray-300 dark:border-cosmos-700 rounded focus:ring-emerald-500 bg-white dark:bg-cosmos-800"
                   />
                   <label htmlFor="remember" className="ml-2 block text-sm text-gray-700 dark:text-cosmos-300">
-                    Remember me
+                    {t('login.rememberMe')}
                   </label>
                 </div>
                 <Link to="/forgot-password" className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium text-sm transition-colors">
-                  Forgot password?
+                  {t('login.forgotPassword')}
                 </Link>
               </div>
 
@@ -139,19 +143,19 @@ const LoginPage = () => {
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Signing in...</span>
+                    <span>{t('login.signingIn')}</span>
                   </>
                 ) : (
-                  <span>Sign In</span>
+                  <span>{t('login.signIn')}</span>
                 )}
               </button>
             </form>
 
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-500 dark:text-cosmos-400">
-                Don't have an account?{' '}
+                {t('login.dontHaveAccount')}{' '}
                 <Link to="/role-selection" className="font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
-                  Sign Up
+                  {t('login.signUp')}
                 </Link>
               </p>
             </div>
@@ -168,26 +172,26 @@ const LoginPage = () => {
             <div className="relative z-10 h-full flex flex-col justify-between p-12 text-white">
               <div className="flex justify-end">
                 <div className="bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium border border-white/20">
-                  Secure Blockchain Node: v3.4.1
+                  {t('login.blockchainNode')}
                 </div>
               </div>
 
               <div className="space-y-6">
                 <h2 className="text-3xl font-bold">
-                  Join India's Agricultural Revolution
+                  {t('login.join')}
                 </h2>
                 <p className="text-lg text-green-100">
-                  AgriChain empowers farmers, makes supply chains transparent, and gives consumers confidence.
+                  {t('login.description')}
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 pt-4">
                   <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                    <p className="text-2xl font-bold">Rs 500 Cr+</p>
-                    <p className="text-sm text-green-200">Farmer Earnings</p>
+                    <p className="text-2xl font-bold">{t('login.farmerEarningsValue')}</p>
+                    <p className="text-sm text-green-200">{t('login.farmerEarnings')}</p>
                   </div>
                   <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                    <p className="text-2xl font-bold">10,000+</p>
-                    <p className="text-sm text-green-200">Farmer Families</p>
+                    <p className="text-2xl font-bold">{t('login.farmerFamiliesValue')}</p>
+                    <p className="text-sm text-green-200">{t('login.farmerFamilies')}</p>
                   </div>
                 </div>
               </div>

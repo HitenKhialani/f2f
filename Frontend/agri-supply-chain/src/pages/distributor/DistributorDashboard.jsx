@@ -26,27 +26,35 @@ import {
   LineChart,
   Line
 } from 'recharts';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 import MainLayout from '../../components/layout/MainLayout';
 import { dashboardAPI } from '../../services/api';
 
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EF4444', '#06B6D4', '#EC4899'];
 
-const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
-  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm text-gray-500 mb-1">{title}</p>
-        <p className="text-3xl font-bold text-gray-900">{value}</p>
-        {subtext && <p className="text-xs text-gray-400 mt-1">{subtext}</p>}
-      </div>
-      <div className={`${color} p-3 rounded-xl`}>
-        <Icon className="w-6 h-6 text-white" />
+const MetricCard = ({ title, value, icon: Icon, color, subtext }) => {
+  const { formatNumber } = useLocalizedNumber();
+  
+  return (
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-500 mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-900">{typeof value === 'number' ? formatNumber(value) : value}</p>
+          {subtext && <p className="text-xs text-gray-400 mt-1">{subtext}</p>}
+        </div>
+        <div className={`${color} p-3 rounded-xl`}>
+          <Icon className="w-6 h-6 text-white" />
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const DistributorDashboard = () => {
+  const { t } = useTranslation();
+  const { formatNumber, formatCurrency: localizedFormatCurrency } = useLocalizedNumber();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -84,14 +92,14 @@ const DistributorDashboard = () => {
   })) || [];
 
   const formatCurrency = (value) => {
-    return `₹${value.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+    return localizedFormatCurrency(value);
   };
 
   const formatWeight = (kg) => {
     if (kg >= 1000) {
-      return `${(kg / 1000).toFixed(1)} tons`;
+      return `${formatNumber(kg / 1000)} ${t('common.tons') || 'tons'}`;
     }
-    return `${kg.toFixed(0)} kg`;
+    return `${formatNumber(kg)} ${t('common.kg')}`;
   };
 
   if (loading) {

@@ -15,6 +15,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI } from '../../services/api';
 import SuspendModal from '../../components/common/SuspendModal';
@@ -22,6 +24,8 @@ import { useToast } from '../../context/ToastContext';
 
 // Simple Donut Chart Component
 const DonutChart = ({ data, title, colors }) => {
+  const { t } = useTranslation();
+  const { formatNumber } = useLocalizedNumber();
   const total = data.reduce((sum, item) => sum + item.count, 0);
   let currentAngle = 0;
 
@@ -30,7 +34,7 @@ const DonutChart = ({ data, title, colors }) => {
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{title}</h3>
       {total === 0 ? (
         <div className="flex items-center justify-center h-48 text-gray-400">
-          <p>No data available</p>
+          <p>{t('dashboard.farmer.noDataAvailable')}</p>
         </div>
       ) : (
         <div className="flex items-center gap-6">
@@ -72,7 +76,7 @@ const DonutChart = ({ data, title, colors }) => {
               <circle cx="50" cy="50" r="25" fill="white" />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-xl font-bold text-gray-900">{total}</span>
+              <span className="text-xl font-bold text-gray-900">{formatNumber(total)}</span>
             </div>
           </div>
           <div className="flex-1 space-y-2">
@@ -87,7 +91,7 @@ const DonutChart = ({ data, title, colors }) => {
                     {item.label || item.crop_type}
                   </span>
                 </div>
-                <span className="font-medium text-gray-900">{item.count}</span>
+                <span className="font-medium text-gray-900">{formatNumber(item.count)}</span>
               </div>
             ))}
           </div>
@@ -99,6 +103,8 @@ const DonutChart = ({ data, title, colors }) => {
 
 // Bar Chart Component
 const BarChart = ({ data, title }) => {
+  const { t } = useTranslation();
+  const { formatNumber } = useLocalizedNumber();
   const maxCount = Math.max(...data.map(d => d.count), 1);
 
   return (
@@ -106,7 +112,7 @@ const BarChart = ({ data, title }) => {
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{title}</h3>
       {data.length === 0 ? (
         <div className="flex items-center justify-center h-48 text-gray-400">
-          <p>No data available</p>
+          <p>{t('dashboard.farmer.noDataAvailable')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -122,7 +128,7 @@ const BarChart = ({ data, title }) => {
                 />
               </div>
               <div className="w-8 text-sm font-medium text-gray-900 text-right">
-                {item.count}
+                {formatNumber(item.count)}
               </div>
             </div>
           ))}
@@ -184,6 +190,8 @@ const getStatusBadge = (batchStatus) => {
 
 const FarmerDashboard = () => {
   const toast = useToast();
+  const { t } = useTranslation();
+  const { formatNumber, formatCurrency } = useLocalizedNumber();
   const [batches, setBatches] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
   const [stats, setStats] = useState({
@@ -397,8 +405,8 @@ const FarmerDashboard = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Batches</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                    <p className="text-sm font-medium text-gray-600">{t('dashboard.farmer.totalBatches')}</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatNumber(stats.total)}</p>
                   </div>
                   <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
                     <Package className="w-6 h-6 text-blue-600" />
@@ -408,8 +416,8 @@ const FarmerDashboard = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Active Batches</p>
-                    <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+                    <p className="text-sm font-medium text-gray-600">{t('dashboard.farmer.activeBatches')}</p>
+                    <p className="text-2xl font-bold text-green-600">{formatNumber(stats.active)}</p>
                   </div>
                   <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
                     <Sprout className="w-6 h-6 text-green-600" />
@@ -419,8 +427,8 @@ const FarmerDashboard = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Completed Sales</p>
-                    <p className="text-2xl font-bold text-emerald-600">{stats.completed}</p>
+                    <p className="text-sm font-medium text-gray-600">{t('dashboard.farmer.completedBatches')}</p>
+                    <p className="text-2xl font-bold text-emerald-600">{formatNumber(stats.completed)}</p>
                   </div>
                   <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
                     <CheckCircle className="w-6 h-6 text-emerald-600" />
@@ -430,8 +438,8 @@ const FarmerDashboard = () => {
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                    <p className="text-2xl font-bold text-amber-600">₹{stats.revenue.toLocaleString('en-IN')}</p>
+                    <p className="text-sm font-medium text-gray-600">{t('dashboard.farmer.totalRevenue')}</p>
+                    <p className="text-2xl font-bold text-amber-600">{formatCurrency(stats.revenue)}</p>
                   </div>
                   <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center">
                     <IndianRupee className="w-6 h-6 text-amber-600" />
@@ -444,24 +452,24 @@ const FarmerDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <DonutChart
                 data={dashboardData?.status_distribution || []}
-                title="Batch Status Distribution"
+                title={t('dashboard.farmer.batchDistribution')}
                 colors={['#10B981', '#F59E0B', '#3B82F6', '#8B5CF6', '#EF4444', '#6B7280', '#EC4899']}
               />
               <BarChart
                 data={dashboardData?.crop_distribution || []}
-                title="Crop Type Distribution"
+                title={t('dashboard.farmer.batchDistribution')}
               />
             </div>
 
             {/* Recent Batches Section */}
             <div className="space-y-4 mt-8">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Recent Batches</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('dashboard.farmer.recentBatches')}</h2>
                 <Link
                   to="/farmer/batches"
                   className="text-emerald-600 dark:text-emerald-400 text-sm font-bold flex items-center gap-1 hover:underline"
                 >
-                  View All Batches
+                  {t('common.viewAll')}
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -473,11 +481,11 @@ const FarmerDashboard = () => {
                     <table className="w-full">
                       <thead className="bg-emerald-50 dark:bg-cosmos-900 border-b border-emerald-100 dark:border-cosmos-700">
                         <tr>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Batch ID</th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Crop</th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Quantity</th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Status</th>
-                          <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Actions</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('dashboard.farmer.batchId')}</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('dashboard.farmer.cropType')}</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('dashboard.farmer.quantity')}</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('dashboard.farmer.status')}</th>
+                          <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('dashboard.farmer.actions')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-emerald-50 dark:divide-cosmos-700">
@@ -490,7 +498,7 @@ const FarmerDashboard = () => {
                               {batch.crop_type || 'N/A'}
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-600 dark:text-cosmos-300">
-                              {batch.quantity || 0} kg
+                              {formatNumber(batch.quantity || 0)} {t('common.kg')}
                             </td>
                             <td className="px-6 py-4">
                               {getStatusBadge(batch.status)}
@@ -528,7 +536,7 @@ const FarmerDashboard = () => {
                             <h3 className="text-base font-bold text-gray-900 dark:text-white capitalize">
                               {batch.crop_type}
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-cosmos-400">{batch.quantity} kg</p>
+                            <p className="text-xs text-gray-500 dark:text-cosmos-400">{formatNumber(batch.quantity)} {t('common.kg')}</p>
                           </div>
                           <Link
                             to="/farmer/batches"

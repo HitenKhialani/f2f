@@ -10,6 +10,8 @@ const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'hi', label: 'हिंदी', flag: '🇮🇳' },
   { code: 'mr', label: 'मराठी', flag: '🇮🇳' },
+  { code: 'pa', label: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
+  { code: 'gu', label: 'ગુજરાતી', flag: '🇮🇳' },
 ];
 
 const TopNav = () => {
@@ -85,8 +87,8 @@ const TopNav = () => {
                 title={t('navbar.language')}
               >
                 <Globe className="w-5 h-5" />
-                <span className="text-xs font-semibold hidden sm:block">{currentLang.flag} {currentLang.code.toUpperCase()}</span>
-                <ChevronDown className="w-3 h-3 hidden sm:block" />
+                <span className="text-xs font-semibold hidden md:block">{currentLang.flag} {currentLang.code.toUpperCase()}</span>
+                <ChevronDown className="w-3 h-3 hidden md:block" />
               </button>
 
               {showLangDropdown && (

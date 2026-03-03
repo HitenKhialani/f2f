@@ -44,7 +44,6 @@ import ConsumerDashboard from './pages/consumer/ConsumerDashboard';
 import ProfilePage from './pages/ProfilePage';
 import PaymentsPage from './pages/payment/PaymentsPage';
 // Shared Pages
-import SettingsPage from './pages/common/Settings';
 
 // Admin Protected Route
 const AdminProtectedRoute = ({ children }) => {
@@ -128,7 +127,6 @@ function App() {
         <Route path="/role-selection" element={<PublicRoute><RoleSelection /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/consumer/portal" element={<ConsumerPortal />} />
-        <Route path="/consumer/trace" element={<ConsumerTrace />} />
         <Route path="/trace/:publicId" element={<ConsumerTrace />} />
 
         {/* Registration */}
@@ -334,14 +332,6 @@ function App() {
         />
 
         {/* Shared Protected Routes */}
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute allowedRoles={['FARMER', 'DISTRIBUTOR', 'TRANSPORTER', 'RETAILER', 'CONSUMER']}>
-              <SettingsPage />
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="/profile"
           element={

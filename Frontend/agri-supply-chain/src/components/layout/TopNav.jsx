@@ -66,7 +66,7 @@ const TopNav = () => {
   }, []);
 
   return (
-    <header className="bg-emerald-50 dark:bg-cosmos-800 border-b border-emerald-200 dark:border-cosmos-700 sticky top-0 z-40">
+    <header className="bg-white dark:bg-gray-900 border-b border-emerald-100 dark:border-slate-800 sticky top-0 z-40 shadow-sm">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left - Role Badge */}
@@ -98,11 +98,10 @@ const TopNav = () => {
                     <button
                       key={lang.code}
                       onClick={() => handleLanguageChange(lang.code)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
-                        i18n.language === lang.code
-                          ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-semibold'
-                          : 'text-gray-700 dark:text-cosmos-300 hover:bg-emerald-50 dark:hover:bg-cosmos-700/50'
-                      }`}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${i18n.language === lang.code
+                        ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-semibold'
+                        : 'text-gray-700 dark:text-cosmos-300 hover:bg-emerald-50 dark:hover:bg-cosmos-700/50'
+                        }`}
                     >
                       <span className="text-lg">{lang.flag}</span>
                       <span>{lang.label}</span>
@@ -131,14 +130,6 @@ const TopNav = () => {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
 
-            {/* Settings */}
-            <Link
-              to="/settings"
-              className="p-2 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
-              title={t('navbar.settings')}
-            >
-              <Settings className="w-5 h-5" />
-            </Link>
 
             {/* User Dropdown */}
             <div className="relative" ref={userDropdownRef}>
@@ -168,14 +159,6 @@ const TopNav = () => {
                   >
                     <User className="w-4 h-4" />
                     {t('navbar.profile')}
-                  </Link>
-                  <Link
-                    to="/settings"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-emerald-700 dark:text-cosmos-300 hover:bg-emerald-50 dark:hover:bg-cosmos-700/50 transition-colors"
-                    onClick={() => setShowUserDropdown(false)}
-                  >
-                    <Settings className="w-4 h-4" />
-                    {t('navbar.settings')}
                   </Link>
                   <div className="border-t border-emerald-100 dark:border-cosmos-700 my-1"></div>
                   <button

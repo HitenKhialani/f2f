@@ -112,7 +112,7 @@ const Sold = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 hidden md:table-header-group">
                 <tr>
                   <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Batch ID</th>
                   <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Crop Type</th>
@@ -139,29 +139,34 @@ const Sold = () => {
                   </tr>
                 ) : (
                   filteredListings.map((listing) => (
-                    <tr key={listing.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-mono text-gray-900">
+                    <tr key={listing.id} className="hover:bg-gray-50 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0">
+                      <td className="px-6 py-4 text-sm font-mono text-gray-900 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Batch ID:</span>
                         {listing.batch_details?.product_batch_id || `LISTING-${listing.id}`}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 capitalize">
+                      <td className="px-6 py-4 text-sm text-gray-900 capitalize flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Crop Type:</span>
                         {listing.batch_details?.crop_type || 'N/A'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className="px-6 py-4 text-sm text-gray-500 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Quantity:</span>
                         {listing.units_sold || 0} kg
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-emerald-600">
+                      <td className="px-6 py-4 text-sm font-medium text-emerald-600 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Sale Price:</span>
                         ₹{listing.total_price?.toLocaleString('en-IN') || 0}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Status:</span>
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                           <CheckCircle className="w-3 h-3 mr-1" />
                           SOLD
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 flex justify-end md:table-cell">
                         <button
                           onClick={() => window.open(`/trace/${listing.batch_details?.public_batch_id}`, '_blank')}
-                          className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium flex items-center gap-1"
+                          className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium flex items-center gap-1 w-full sm:w-auto"
                         >
                           <Eye className="w-4 h-4" />
                           View Trace

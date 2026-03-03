@@ -7,8 +7,14 @@ import {
   IndianRupee,
   TrendingUp,
   AlertCircle,
-  Ban
+  Ban,
+  Eye,
+  ClipboardCheck,
+  Calendar,
+  MapPin,
+  ChevronRight
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI } from '../../services/api';
 import SuspendModal from '../../components/common/SuspendModal';
@@ -20,8 +26,8 @@ const DonutChart = ({ data, title, colors }) => {
   let currentAngle = 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+    <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-cosmos-700">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{title}</h3>
       {total === 0 ? (
         <div className="flex items-center justify-center h-48 text-gray-400">
           <p>No data available</p>
@@ -96,8 +102,8 @@ const BarChart = ({ data, title }) => {
   const maxCount = Math.max(...data.map(d => d.count), 1);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+    <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-cosmos-700">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{title}</h3>
       {data.length === 0 ? (
         <div className="flex items-center justify-center h-48 text-gray-400">
           <p>No data available</p>
@@ -145,6 +151,34 @@ const EmptyState = ({ onCreateClick }) => {
         Create Your First Batch
       </button>
     </div>
+  );
+};
+
+const getStatusBadge = (batchStatus) => {
+  const statusColors = {
+    CREATED: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    TRANSPORT_REQUESTED: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+    TRANSPORT_REJECTED: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+    IN_TRANSIT_TO_DISTRIBUTOR: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    ARRIVED_AT_DISTRIBUTOR: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+    ARRIVAL_CONFIRMED_BY_DISTRIBUTOR: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
+    DELIVERED_TO_DISTRIBUTOR: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    STORED: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
+    TRANSPORT_REQUESTED_TO_RETAILER: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+    IN_TRANSIT_TO_RETAILER: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    ARRIVED_AT_RETAILER: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+    ARRIVAL_CONFIRMED_BY_RETAILER: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
+    DELIVERED_TO_RETAILER: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    LISTED: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+    SOLD: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    SUSPENDED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    FULLY_SPLIT: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+  };
+  const colorClass = statusColors[batchStatus] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
+  return (
+    <span className={`px-2 py-1 text-[10px] font-bold rounded-full border border-current opacity-80 ${colorClass}`}>
+      {batchStatus?.replace(/_/g, ' ') || 'CREATED'}
+    </span>
   );
 };
 
@@ -417,6 +451,101 @@ const FarmerDashboard = () => {
                 data={dashboardData?.crop_distribution || []}
                 title="Crop Type Distribution"
               />
+            </div>
+
+            {/* Recent Batches Section */}
+            <div className="space-y-4 mt-8">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Recent Batches</h2>
+                <Link
+                  to="/farmer/batches"
+                  className="text-emerald-600 dark:text-emerald-400 text-sm font-bold flex items-center gap-1 hover:underline"
+                >
+                  View All Batches
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              {batches?.length > 0 ? (
+                <>
+                  {/* Desktop Table View */}
+                  <div className="hidden lg:block bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm overflow-hidden">
+                    <table className="w-full">
+                      <thead className="bg-emerald-50 dark:bg-cosmos-900 border-b border-emerald-100 dark:border-cosmos-700">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Batch ID</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Crop</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Quantity</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Status</th>
+                          <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-emerald-50 dark:divide-cosmos-700">
+                        {batches.slice(0, 5).map((batch) => (
+                          <tr key={batch.id} className="hover:bg-emerald-50/30 dark:hover:bg-cosmos-900/50 transition-colors">
+                            <td className="px-6 py-4 text-sm font-mono text-gray-500 dark:text-cosmos-400">
+                              #{batch.public_batch_id || batch.id}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white capitalize">
+                              {batch.crop_type || 'N/A'}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-cosmos-300">
+                              {batch.quantity || 0} kg
+                            </td>
+                            <td className="px-6 py-4">
+                              {getStatusBadge(batch.status)}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <Link
+                                to="/farmer/batches"
+                                className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors inline-block"
+                                title="Manage"
+                              >
+                                <ChevronRight className="w-5 h-5" />
+                              </Link>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Card View */}
+                  <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {batches.slice(0, 4).map((batch) => (
+                      <div
+                        key={batch.id}
+                        className="bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm p-4"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-mono text-[10px] text-gray-400 dark:text-cosmos-400 bg-gray-50 dark:bg-cosmos-900 px-2 py-0.5 rounded">
+                            #{batch.public_batch_id || batch.id}
+                          </span>
+                          {getStatusBadge(batch.status)}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="text-base font-bold text-gray-900 dark:text-white capitalize">
+                              {batch.crop_type}
+                            </h3>
+                            <p className="text-xs text-gray-500 dark:text-cosmos-400">{batch.quantity} kg</p>
+                          </div>
+                          <Link
+                            to="/farmer/batches"
+                            className="p-2 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 rounded-full"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-8 bg-white dark:bg-cosmos-800 rounded-2xl border border-dashed border-gray-200 dark:border-cosmos-700">
+                  <p className="text-gray-500 dark:text-cosmos-400 text-sm">No recent activity found.</p>
+                </div>
+              )}
             </div>
           </>
         )}

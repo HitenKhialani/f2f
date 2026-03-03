@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CheckCircle, 
-  AlertCircle, 
-  AlertTriangle, 
-  User, 
+import {
+  CheckCircle,
+  AlertCircle,
+  AlertTriangle,
+  User,
   Calendar,
   ChevronDown,
   ChevronUp,
   Sprout,
   Warehouse,
-  Store
+  Store,
+  FileText
 } from 'lucide-react';
 import { inspectionAPI } from '../../services/api';
 
@@ -190,12 +191,11 @@ const InspectionTimeline = ({ batchId, inspections: propInspections }) => {
 
                 {/* Content card */}
                 <div className="flex-1 min-w-0">
-                  <div 
-                    className={`p-4 rounded-lg border transition-all cursor-pointer ${
-                      isExpanded 
-                        ? `${stageConfig.bgColor} ${stageConfig.borderColor} border-2` 
+                  <div
+                    className={`p-4 rounded-lg border transition-all cursor-pointer ${isExpanded
+                        ? `${stageConfig.bgColor} ${stageConfig.borderColor} border-2`
                         : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                     onClick={() => setExpandedId(isExpanded ? null : index)}
                   >
                     <div className="flex items-start justify-between">

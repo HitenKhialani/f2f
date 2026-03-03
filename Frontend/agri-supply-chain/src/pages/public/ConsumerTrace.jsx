@@ -12,7 +12,11 @@ import {
   User,
   ArrowRight,
   Warehouse,
-  Store
+  Store,
+  Building,
+  CalendarDays,
+  Activity,
+  Shield
 } from 'lucide-react';
 import { consumerAPI, inspectionAPI } from '../../services/api';
 import { InspectionTimeline } from '../../components/inspection';
@@ -142,11 +146,11 @@ const ConsumerTrace = () => {
               <div className="grid grid-cols-2 gap-8 pt-4">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Quantity</p>
-                  <p className="text-2xl font-black text-slate-900 dark:text-white">{searchResult.quantity}</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white">{searchResult.quantity || '0'} kg</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Retail Price</p>
-                  <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">₹{searchResult.retail_price} <span className="text-sm font-bold text-slate-400">/ kg</span></p>
+                  <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">₹{Number(searchResult.retail_price || 0).toFixed(2)} <span className="text-sm font-bold text-slate-400">/ kg</span></p>
                 </div>
               </div>
 
@@ -187,67 +191,178 @@ const ConsumerTrace = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-slate-50 dark:bg-slate-800/30 rounded-2xl p-6 border border-slate-100 dark:border-slate-700">
               <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Farmer Base</p>
-              <p className="text-2xl font-black text-slate-900 dark:text-white">₹{searchResult.price_breakdown?.farmer_price?.toFixed(2) || '0.00'}</p>
+              <p className="text-2xl font-black text-slate-900 dark:text-white">₹{Number(searchResult.price_breakdown?.farmer_price || 0).toFixed(2)}</p>
             </div>
             <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl p-6 border border-emerald-100 dark:border-emerald-800/50 relative">
               <div className="absolute -left-3 top-1/2 -translate-y-1/2 hidden lg:block">
                 <ArrowRight className="w-5 h-5 text-emerald-300" />
               </div>
               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2">Transport</p>
-              <p className="text-2xl font-black text-slate-900 dark:text-white">₹{(searchResult.price_breakdown?.transport_cost || 0).toFixed(2)}</p>
+              <p className="text-2xl font-black text-slate-900 dark:text-white">₹{Number(searchResult.price_breakdown?.transport_cost || 0).toFixed(2)}</p>
             </div>
             <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl p-6 border border-emerald-100 dark:border-emerald-800/50 relative">
               <div className="absolute -left-3 top-1/2 -translate-y-1/2 hidden lg:block">
                 <ArrowRight className="w-5 h-5 text-emerald-300" />
               </div>
               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2">Distributor</p>
-              <p className="text-2xl font-black text-slate-900 dark:text-white">₹{(searchResult.price_breakdown?.distributor_margin || 0).toFixed(2)}</p>
+              <p className="text-2xl font-black text-slate-900 dark:text-white">₹{Number(searchResult.price_breakdown?.distributor_margin || 0).toFixed(2)}</p>
             </div>
             <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl p-6 border border-emerald-100 dark:border-emerald-800/50 relative">
               <div className="absolute -left-3 top-1/2 -translate-y-1/2 hidden lg:block">
                 <ArrowRight className="w-5 h-5 text-emerald-300" />
               </div>
               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2">Retailer</p>
-              <p className="text-2xl font-black text-slate-900 dark:text-white">₹{(searchResult.price_breakdown?.retailer_margin || 0).toFixed(2)}</p>
+              <p className="text-2xl font-black text-slate-900 dark:text-white">₹{Number(searchResult.price_breakdown?.retailer_margin || 0).toFixed(2)}</p>
             </div>
           </div>
         </section>
 
-        {/* C. ORIGIN - Compact */}
+        {/* C. STAKEHOLDER JOURNEY - Dynamic */}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 p-10">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8 tracking-tight">Origin & Verification</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
-                  <Sprout className="w-6 h-6" />
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8 tracking-tight">Supply Chain Partners</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Farmer Card - Only show if data exists */}
+            {(searchResult.origin?.farmer_name || searchResult.origin?.farm_location) && (
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 group hover:-translate-y-1 transition-transform">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    <Sprout className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Farmer Partner</div>
+                    <div className="text-xl font-black text-slate-900 dark:text-white">{searchResult.origin?.farmer_name || 'Farmer'}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Farmer Partner</div>
-                  <div className="text-xl font-black text-slate-900 dark:text-white">{searchResult.origin?.farmer_name || 'Verified Farmer'}</div>
+                <div className="space-y-4 font-bold text-sm">
+                  <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <span className="text-slate-500">Location</span>
+                    <span className="text-slate-900 dark:text-white truncate ml-4">{searchResult.origin?.farm_location || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <span className="text-slate-500">Harvest Date</span>
+                    <span className="text-slate-900 dark:text-white">{searchResult.origin?.harvest_date ? new Date(searchResult.origin.harvest_date).toLocaleDateString('en-IN') : 'N/A'}</span>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-4 font-bold text-sm">
-                <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
-                  <span className="text-slate-500">Farm Location</span>
-                  <span className="text-slate-900 dark:text-white">{searchResult.origin?.farm_location || 'Bhopal, MP'}</span>
-                </div>
-                <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
-                  <span className="text-slate-500">Harvest Date</span>
-                  <span className="text-slate-900 dark:text-white">{searchResult.origin?.harvest_date ? new Date(searchResult.origin.harvest_date).toLocaleDateString() : 'N/A'}</span>
-                </div>
-              </div>
-            </div>
+            )}
 
-            <div className="bg-slate-900 p-8 rounded-[2rem] border border-slate-800 flex flex-col justify-center items-center text-center">
-              <Shield className="w-16 h-16 text-emerald-500 mb-4 animate-pulse" />
+            {/* Distributor Card - Only show if data exists */}
+            {(searchResult.distributor?.name || searchResult.distributor?.location) && (
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 group hover:-translate-y-1 transition-transform">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    <Building className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Distributor</div>
+                    <div className="text-xl font-black text-slate-900 dark:text-white">{searchResult.distributor?.name || 'Distributor'}</div>
+                  </div>
+                </div>
+                <div className="space-y-4 font-bold text-sm">
+                  <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <span className="text-slate-500">Facility</span>
+                    <span className="text-slate-900 dark:text-white truncate ml-4">{searchResult.distributor?.location || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <span className="text-slate-500">In-Storage</span>
+                    <span className="text-slate-900 dark:text-white">{searchResult.distributor?.date ? new Date(searchResult.distributor.date).toLocaleDateString('en-IN') : 'Verified'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Retailer Card - Only show if data exists */}
+            {(searchResult.retailer?.name || searchResult.retailer?.location) && (
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 group hover:-translate-y-1 transition-transform">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    <Store className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Retailer</div>
+                    <div className="text-xl font-black text-slate-900 dark:text-white">{searchResult.retailer?.name || 'Retailer'}</div>
+                  </div>
+                </div>
+                <div className="space-y-4 font-bold text-sm">
+                  <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <span className="text-slate-500">Store</span>
+                    <span className="text-slate-900 dark:text-white truncate ml-4">{searchResult.retailer?.location || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <span className="text-slate-500">Listed Date</span>
+                    <span className="text-slate-900 dark:text-white">{searchResult.retailer?.date ? new Date(searchResult.retailer.date).toLocaleDateString('en-IN') : 'Available'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-8 bg-slate-900 p-8 rounded-[2rem] border border-slate-800 flex flex-col md:flex-row justify-center items-center text-center md:text-left gap-6">
+            <Shield className="w-16 h-16 text-emerald-500 animate-pulse shrink-0" />
+            <div>
               <h3 className="text-white text-xl font-black mb-2">E2E Blockchain Proof</h3>
-              <p className="text-slate-500 text-sm font-medium">This batch is cryptographically signed and stored on the immutable ledger.</p>
+              <p className="text-slate-500 text-sm font-medium">This supply chain journey is cryptographically signed at every handoff and stored on an immutable ledger. Every stakeholder above has verified their part of the process.</p>
             </div>
           </div>
         </section>
 
-        {/* D. INSPECTIONS */}
+        {/* D. BATCH STATUS TIMELINE */}
+        <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 p-10">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8 tracking-tight">Batch Status</h2>
+          {searchResult.timeline && searchResult.timeline.length > 0 ? (
+            <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
+              {searchResult.timeline.map((event, index) => (
+                <div key={index} className="flex items-start gap-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                    event.status === 'COMPLETED' 
+                      ? 'bg-emerald-100 text-emerald-600' 
+                      : event.status === 'IN_PROGRESS'
+                      ? 'bg-amber-100 text-amber-600'
+                      : 'bg-slate-100 text-slate-400'
+                  }`}>
+                    {event.status === 'COMPLETED' ? (
+                      <CheckCircle className="w-5 h-5" />
+                    ) : event.status === 'IN_PROGRESS' ? (
+                      <Activity className="w-5 h-5" />
+                    ) : (
+                      <span className="text-sm font-bold">{index + 1}</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-slate-900 dark:text-white">{event.stage}</h4>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{event.description}</p>
+                    {event.date && (
+                      <p className="text-xs text-slate-400 mt-1">{new Date(event.date).toLocaleDateString('en-IN')}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : searchResult.status_history && searchResult.status_history.length > 0 ? (
+            <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
+              {searchResult.status_history.map((status, index) => (
+                <div key={index} className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                    <CheckCircle className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-slate-900 dark:text-white">{status.status?.replace(/_/g, ' ')}</h4>
+                    {status.date && (
+                      <p className="text-xs text-slate-400 mt-1">{new Date(status.date).toLocaleDateString('en-IN')}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">
+              <Activity className="w-10 h-10 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 font-bold tracking-tight">No status timeline available.</p>
+            </div>
+          )}
+        </section>
+
+        {/* E. INSPECTIONS */}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 p-10">
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8 tracking-tight">Quality Inspections</h2>
           {inspections.length > 0 ? (
@@ -263,6 +378,20 @@ const ConsumerTrace = () => {
           )}
         </section>
 
+        <div className="flex justify-center">
+          <button
+            onClick={() => {
+              setSearchResult(null);
+              setBatchIdTerm('');
+              setError(null);
+              navigate('/consumer/dashboard');
+            }}
+            className="px-8 py-3 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center gap-2"
+          >
+            <Search className="w-5 h-5" />
+            Trace Another Batch
+          </button>
+        </div>
       </main>
     </div>
   );

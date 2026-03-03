@@ -271,99 +271,158 @@ const Inventory = () => {
           </div>
         </div>
 
-        {/* Inventory Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Batch ID</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Crop Type</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredBatches.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" className="text-center py-12">
-                      <div className="flex flex-col items-center">
-                        <Archive className="w-12 h-12 text-gray-300 mb-3" />
-                        <p className="text-gray-500 font-medium">
-                          {searchTerm ? 'No batches match your search' : 'No inventory found'}
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredBatches.map((batch) => (
-                    <tr key={batch.id} className={`hover:bg-gray-50 transition-colors ${batch.is_child_batch ? 'bg-gray-50' : ''}`}>
-                      <td className="px-6 py-4 text-sm font-mono text-gray-900">
-                        <div className="flex items-center">
-                          {batch.is_child_batch && <span className="text-gray-400 mr-2">└─</span>}
-                          {batch.product_batch_id}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 capitalize">
-                        {batch.crop_type || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {batch.quantity || 0} kg
-                      </td>
-                      <td className="px-6 py-4">
-                        {getStatusBadge(batch.status)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2 flex-wrap">
-                          {batch.status === 'STORED' && (
-                            <>
-                              <button
-                                onClick={() => {
-                                  setSelectedBatch(batch);
-                                  setShowTransportModal(true);
-                                }}
-                                className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-                              >
-                                <Truck className="w-3 h-3 inline mr-1" />
-                                Request Transport
-                              </button>
-                              <button
-                                onClick={() => handleSplitBatch(batch)}
-                                className="px-3 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700"
-                              >
-                                <Scissors className="w-3 h-3 inline mr-1" />
-                                Split
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setSelectedBatch(batch);
-                                  setShowInspectionTimeline(true);
-                                }}
-                                className="p-1 text-gray-400 hover:text-blue-600"
-                                title="View Inspection Timeline"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleSuspendBatch(batch.id)}
-                                className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
-                              >
-                                Suspend
-                              </button>
-                            </>
-                          )}
-                          {batch.status === 'FULLY_SPLIT' && (
-                            <span className="text-gray-400 italic text-xs">Parent batch (inactive)</span>
-                          )}
-                        </div>
-                      </td>
+        {/* Inventory Table — Hybrid Layout */}
+        <div className="space-y-4">
+          {filteredBatches.length === 0 ? (
+            <div className="bg-white dark:bg-cosmos-800 rounded-2xl border border-dashed border-gray-200 dark:border-cosmos-700 p-12 text-center">
+              <Archive className="w-12 h-12 text-gray-300 dark:text-cosmos-600 mx-auto mb-3" />
+              <p className="text-gray-500 dark:text-cosmos-400 font-medium">
+                {searchTerm ? 'No batches match your search' : 'No inventory found'}
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-emerald-50 dark:bg-cosmos-900 border-b border-emerald-100 dark:border-cosmos-700">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Batch ID</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Crop Type</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Quantity</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Actions</th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-emerald-50 dark:divide-cosmos-700">
+                    {filteredBatches.map((batch) => (
+                      <tr key={batch.id} className={`hover:bg-emerald-50/30 dark:hover:bg-cosmos-900/50 transition-colors ${batch.is_child_batch ? 'bg-gray-50/50 dark:bg-cosmos-900/30' : ''}`}>
+                        <td className="px-6 py-4 text-sm font-mono text-gray-500 dark:text-cosmos-400">
+                          <div className="flex items-center">
+                            {batch.is_child_batch && <span className="text-gray-400 mr-2">└─</span>}
+                            {batch.product_batch_id}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white capitalize">
+                          {batch.crop_type || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-cosmos-300">
+                          {batch.quantity || 0} kg
+                        </td>
+                        <td className="px-6 py-4">
+                          {getStatusBadge(batch.status)}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {batch.status === 'STORED' && (
+                              <>
+                                <button
+                                  onClick={() => { setSelectedBatch(batch); setShowTransportModal(true); }}
+                                  className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                                  title="Request Transport"
+                                >
+                                  <Truck className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleSplitBatch(batch)}
+                                  className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                                  title="Split Batch"
+                                >
+                                  <Scissors className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => { setSelectedBatch(batch); setShowInspectionTimeline(true); }}
+                                  className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                                  title="View History"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleSuspendBatch(batch.id)}
+                                  className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                                  title="Suspend"
+                                >
+                                  <Ban className="w-4 h-4" />
+                                </button>
+                              </>
+                            )}
+                            {batch.status === 'FULLY_SPLIT' && (
+                              <span className="text-xs text-gray-400 italic">Parent batch</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredBatches.map((batch) => (
+                  <div
+                    key={batch.id}
+                    className="bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm p-4"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-mono text-[10px] text-gray-400 dark:text-cosmos-400 bg-gray-50 dark:bg-cosmos-900 px-2 py-0.5 rounded">
+                        {batch.is_child_batch && 'Child: '}#{batch.product_batch_id}
+                      </span>
+                      {getStatusBadge(batch.status)}
+                    </div>
+
+                    <div className="mb-4">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white capitalize">
+                        {batch.crop_type || 'Unknown'}
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-cosmos-400 font-medium">
+                        {batch.quantity || 0} kg
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {batch.status === 'STORED' && (
+                        <>
+                          <button
+                            onClick={() => { setSelectedBatch(batch); setShowTransportModal(true); }}
+                            className="flex-1 px-3 py-2 bg-blue-600 text-white text-xs rounded-lg font-bold flex items-center justify-center gap-1"
+                          >
+                            <Truck className="w-3 h-3" />
+                            Transport
+                          </button>
+                          <button
+                            onClick={() => handleSplitBatch(batch)}
+                            className="flex-1 px-3 py-2 bg-emerald-600 text-white text-xs rounded-lg font-bold flex items-center justify-center gap-1"
+                          >
+                            <Scissors className="w-3 h-3" />
+                            Split
+                          </button>
+                          <div className="w-full flex gap-2">
+                            <button
+                              onClick={() => { setSelectedBatch(batch); setShowInspectionTimeline(true); }}
+                              className="flex-1 px-3 py-2 bg-gray-100 dark:bg-cosmos-700 text-gray-700 dark:text-cosmos-300 text-xs rounded-lg font-bold flex items-center justify-center gap-1"
+                            >
+                              <Eye className="w-3 h-3" />
+                              History
+                            </button>
+                            <button
+                              onClick={() => handleSuspendBatch(batch.id)}
+                              className="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs rounded-lg font-bold"
+                            >
+                              <Ban className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </>
+                      )}
+                      {batch.status === 'FULLY_SPLIT' && (
+                        <p className="text-sm text-gray-400 italic w-full text-center py-2">Parent batch (inactive)</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Transport Modal */}

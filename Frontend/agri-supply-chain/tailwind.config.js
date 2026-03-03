@@ -35,7 +35,7 @@ export default {
         border: '#d1e8da',   // green-tinted border
       },
       fontFamily: {
-        display: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Mukta', 'Inter', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         DEFAULT: '0.25rem',

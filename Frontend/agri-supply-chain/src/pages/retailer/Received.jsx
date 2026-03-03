@@ -36,8 +36,8 @@ const Received = () => {
       const data = Array.isArray(response.data) ? response.data : response.data.results || [];
       setBatches(data);
       // Fetch inspections for received batches
-      const receivedBatches = data.filter(b => 
-        b.status === 'DELIVERED_TO_RETAILER' || 
+      const receivedBatches = data.filter(b =>
+        b.status === 'DELIVERED_TO_RETAILER' ||
         b.status === 'ARRIVED_AT_RETAILER' ||
         b.status === 'ARRIVAL_CONFIRMED_BY_RETAILER' ||
         b.status === 'LISTED'
@@ -146,7 +146,7 @@ const Received = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 hidden md:table-header-group">
                 <tr>
                   <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Batch ID</th>
                   <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Crop Type</th>
@@ -172,21 +172,25 @@ const Received = () => {
                   </tr>
                 ) : (
                   filteredBatches.map((batch) => (
-                    <tr key={batch.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-mono text-gray-900">
+                    <tr key={batch.id} className="hover:bg-gray-50 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0">
+                      <td className="px-6 py-4 text-sm font-mono text-gray-900 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Batch ID:</span>
                         {batch.product_batch_id}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 capitalize">
+                      <td className="px-6 py-4 text-sm text-gray-900 capitalize flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Crop Type:</span>
                         {batch.crop_type || 'N/A'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className="px-6 py-4 text-sm text-gray-500 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Quantity:</span>
                         {batch.quantity || 0} kg
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Status:</span>
                         {getStatusBadge(batch.status)}
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2 flex-wrap">
+                      <td className="px-6 py-4 flex flex-col md:table-cell">
+                        <div className="flex gap-2 flex-wrap justify-end md:justify-start">
                           {/* Inspection button for retailer stage */}
                           {!hasRetailerInspection(batch.id) && (
                             <button
@@ -194,7 +198,7 @@ const Received = () => {
                                 setSelectedBatch(batch);
                                 setShowInspectionModal(true);
                               }}
-                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center gap-1"
+                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 flex items-center gap-1 w-full sm:w-auto"
                               title="Inspect Batch"
                             >
                               <ClipboardCheck className="w-3 h-3" />
@@ -209,7 +213,7 @@ const Received = () => {
                           )}
                           <button
                             onClick={() => navigate('/retailer/listing/new')}
-                            className="px-3 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 flex items-center gap-1"
+                            className="px-3 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700 flex items-center gap-1 w-full sm:w-auto"
                           >
                             <ShoppingCart className="w-3 h-3" />
                             Create Listing
@@ -219,7 +223,7 @@ const Received = () => {
                               setSelectedBatch(batch);
                               setShowInspectionTimeline(true);
                             }}
-                            className="p-1 text-gray-400 hover:text-blue-600"
+                            className="p-1 text-gray-400 hover:text-blue-600 ml-auto md:ml-0"
                             title="View Inspection Timeline"
                           >
                             <Eye className="w-4 h-4" />
@@ -270,7 +274,7 @@ const Received = () => {
                   <span className="text-gray-500">✕</span>
                 </button>
               </div>
-              <InspectionTimeline 
+              <InspectionTimeline
                 batchId={selectedBatch.id}
                 inspections={batchInspections[selectedBatch.id]}
               />

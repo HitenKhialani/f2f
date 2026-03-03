@@ -21,11 +21,13 @@ import {
   CreditCard
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { role, logout } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     logout();
@@ -35,41 +37,41 @@ const Sidebar = () => {
   const getMenuItems = () => {
     const items = {
       ADMIN: [
-        { path: '/admin/dashboard', icon: <Shield className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/admin/kyc', icon: <FileCheck className="w-5 h-5" />, label: 'KYC Requests' },
-        { path: '/admin/users', icon: <Users className="w-5 h-5" />, label: 'Users' },
+        { path: '/admin/dashboard', icon: <Shield className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/admin/kyc', icon: <FileCheck className="w-5 h-5" />, label: t('nav.kyc') },
+        { path: '/admin/users', icon: <Users className="w-5 h-5" />, label: t('nav.users') },
       ],
       FARMER: [
-        { path: '/farmer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/farmer/batches', icon: <Boxes className="w-5 h-5" />, label: 'My Batches' },
-        { path: '/farmer/payments', icon: <CreditCard className="w-5 h-5" />, label: 'Payments' },
+        { path: '/farmer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/farmer/batches', icon: <Boxes className="w-5 h-5" />, label: t('nav.batches') },
+        { path: '/farmer/payments', icon: <CreditCard className="w-5 h-5" />, label: t('nav.payments') },
       ],
       DISTRIBUTOR: [
-        { path: '/distributor/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/distributor/incoming', icon: <Package className="w-5 h-5" />, label: 'Incoming' },
-        { path: '/distributor/inventory', icon: <Boxes className="w-5 h-5" />, label: 'Inventory' },
-        { path: '/distributor/outgoing', icon: <Truck className="w-5 h-5" />, label: 'Outgoing' },
-        { path: '/distributor/payments', icon: <CreditCard className="w-5 h-5" />, label: 'Payments' },
+        { path: '/distributor/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/distributor/incoming', icon: <Package className="w-5 h-5" />, label: t('nav.incoming') },
+        { path: '/distributor/inventory', icon: <Boxes className="w-5 h-5" />, label: t('nav.inventory') },
+        { path: '/distributor/outgoing', icon: <Truck className="w-5 h-5" />, label: t('nav.outgoing') },
+        { path: '/distributor/payments', icon: <CreditCard className="w-5 h-5" />, label: t('nav.payments') },
       ],
       TRANSPORTER: [
-        { path: '/transporter/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/transporter/farmer-shipments', icon: <Package className="w-5 h-5" />, label: 'Farmer Shipments' },
-        { path: '/transporter/distributor-shipments', icon: <Truck className="w-5 h-5" />, label: 'Distributor Shipments' },
-        { path: '/transporter/in-transit', icon: <Navigation className="w-5 h-5" />, label: 'In Transit' },
-        { path: '/transporter/completed', icon: <CheckCircle className="w-5 h-5" />, label: 'Completed' },
-        { path: '/transporter/payments', icon: <CreditCard className="w-5 h-5" />, label: 'Payments' },
+        { path: '/transporter/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/transporter/farmer-shipments', icon: <Package className="w-5 h-5" />, label: t('nav.farmer_shipments') },
+        { path: '/transporter/distributor-shipments', icon: <Truck className="w-5 h-5" />, label: t('nav.distributor_shipments') },
+        { path: '/transporter/in-transit', icon: <Navigation className="w-5 h-5" />, label: t('nav.in_transit') },
+        { path: '/transporter/completed', icon: <CheckCircle className="w-5 h-5" />, label: t('nav.completed') },
+        { path: '/transporter/payments', icon: <CreditCard className="w-5 h-5" />, label: t('nav.payments') },
       ],
       RETAILER: [
-        { path: '/retailer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/retailer/incoming', icon: <Truck className="w-5 h-5" />, label: 'Incoming Transport' },
-        { path: '/retailer/received', icon: <PackageCheck className="w-5 h-5" />, label: 'Received' },
-        { path: '/retailer/listed', icon: <ShoppingCart className="w-5 h-5" />, label: 'Listed' },
-        { path: '/retailer/sold', icon: <CheckCircle className="w-5 h-5" />, label: 'Sold' },
-        { path: '/retailer/listing/new', icon: <PlusCircle className="w-5 h-5" />, label: 'New Listing' },
-        { path: '/retailer/payments', icon: <CreditCard className="w-5 h-5" />, label: 'Payments' },
+        { path: '/retailer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/retailer/incoming', icon: <Truck className="w-5 h-5" />, label: t('nav.incoming') },
+        { path: '/retailer/received', icon: <PackageCheck className="w-5 h-5" />, label: t('nav.received') },
+        { path: '/retailer/listed', icon: <ShoppingCart className="w-5 h-5" />, label: t('nav.listed') },
+        { path: '/retailer/sold', icon: <CheckCircle className="w-5 h-5" />, label: t('nav.sold') },
+        { path: '/retailer/listing/new', icon: <PlusCircle className="w-5 h-5" />, label: t('nav.new_listing') },
+        { path: '/retailer/payments', icon: <CreditCard className="w-5 h-5" />, label: t('nav.payments') },
       ],
       CONSUMER: [
-        { path: '/consumer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
+        { path: '/consumer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav.dashboard') },
       ],
     };
     return items[role] || [];
@@ -78,15 +80,7 @@ const Sidebar = () => {
   const menuItems = getMenuItems();
 
   const getRoleLabel = () => {
-    const labels = {
-      ADMIN: 'Administrator',
-      FARMER: 'Farmer',
-      DISTRIBUTOR: 'Distributor',
-      TRANSPORTER: 'Transporter',
-      RETAILER: 'Retailer',
-      CONSUMER: 'Consumer',
-    };
-    return labels[role] || role;
+    return t(`roles.${role?.toLowerCase()}`, { defaultValue: role });
   };
 
   return (
@@ -115,8 +109,8 @@ const Sidebar = () => {
             key={item.path}
             to={item.path}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${location.pathname === item.path
-                ? 'bg-emerald-600 dark:bg-cosmos-600 text-white'
-                : 'text-emerald-700 dark:text-cosmos-400 hover:bg-emerald-100 dark:hover:bg-cosmos-700 hover:text-emerald-900 dark:hover:text-cosmos-300'
+              ? 'bg-emerald-600 dark:bg-cosmos-600 text-white'
+              : 'text-emerald-700 dark:text-cosmos-400 hover:bg-emerald-100 dark:hover:bg-cosmos-700 hover:text-emerald-900 dark:hover:text-cosmos-300'
               }`}
           >
             <span className={location.pathname === item.path ? 'text-white' : 'text-emerald-500 dark:text-cosmos-400'}>
@@ -130,18 +124,18 @@ const Sidebar = () => {
       {/* Bottom Section */}
       <div className="p-4 border-t border-emerald-200 dark:border-cosmos-700 space-y-2 bg-emerald-50/80 dark:bg-cosmos-900/50">
         <Link
-          to="/settings"
+          to="/profile"
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-emerald-700 dark:text-cosmos-400 hover:bg-emerald-100 dark:hover:bg-cosmos-700 hover:text-emerald-900 dark:hover:text-cosmos-300 transition-colors"
         >
           <User className="w-5 h-5 text-emerald-500 dark:text-cosmos-400" />
-          <span>Profile & Settings</span>
+          <span>{t('nav.profile')}</span>
         </Link>
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 transition-colors"
         >
           <LogOut className="w-5 h-5" />
-          <span>Log Out</span>
+          <span>{t('nav.logout')}</span>
         </button>
       </div>
     </aside>

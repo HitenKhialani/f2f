@@ -101,13 +101,6 @@ export default function MainLayout({ children }) {
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            {/* Settings Icon Link */}
-            <Link
-              to="/settings"
-              className="p-2 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors text-emerald-600 dark:text-emerald-400"
-            >
-              <Settings className="w-5 h-5" />
-            </Link>
 
             {/* User Avatar Dropdown */}
             <div className="relative" ref={userDropdownRef}>
@@ -130,14 +123,6 @@ export default function MainLayout({ children }) {
                   >
                     <User className="w-4 h-4" />
                     Profile
-                  </Link>
-                  <Link
-                    to="/settings"
-                    onClick={() => setShowMobileUserDropdown(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Settings
                   </Link>
                   <div className="border-t border-emerald-100 dark:border-emerald-900 mt-1 pt-1">
                     <button

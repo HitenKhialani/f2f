@@ -133,7 +133,7 @@ const IncomingTransport = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 hidden md:table-header-group">
                 <tr>
                   <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Transport ID</th>
                   <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Batch</th>
@@ -157,12 +157,14 @@ const IncomingTransport = () => {
                   </tr>
                 ) : (
                   filteredItems.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-mono text-gray-900">
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0">
+                      <td className="px-6 py-4 text-sm font-mono text-gray-900 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Transport ID:</span>
                         TR-{item.id}
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="space-y-1">
+                      <td className="px-6 py-4 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Batch:</span>
+                        <div className="space-y-1 text-right md:text-left">
                           <span className="text-sm font-medium text-gray-900 block">
                             {item.batch_details?.product_batch_id || 'N/A'}
                           </span>
@@ -171,28 +173,31 @@ const IncomingTransport = () => {
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      <td className="px-6 py-4 text-sm text-gray-700 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Source:</span>
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4 text-gray-400" />
                           <span>{item.from_party_details?.organization || item.from_party_details?.user_details?.username || 'Unknown'}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      <td className="px-6 py-4 text-sm text-gray-700 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Transporter:</span>
                         {item.transporter_details ? (
                           <span>{item.transporter_details.user_details?.username || 'Assigned'}</span>
                         ) : (
                           <span className="text-gray-400 italic">Pending assignment</span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Status:</span>
                         {getStatusBadge(item.status)}
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-6 py-4 flex flex-col md:table-cell">
+                        <div className="flex items-center gap-2 justify-end md:justify-start">
                           {(item.status === 'ARRIVED_AT_RETAILER' || item.status === 'ARRIVED') && (
                             <button
                               onClick={() => handleConfirmArrival(item.id)}
-                              className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
+                              className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 w-full md:w-auto"
                             >
                               <CheckCircle className="w-3 h-3 inline mr-1" />
                               Confirm Arrival

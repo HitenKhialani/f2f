@@ -170,110 +170,147 @@ const Listed = () => {
           </div>
         </div>
 
-        {/* Listings Grid */}
-        {filteredListings.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-            <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 font-medium">
-              {searchTerm ? 'No listings match your search' : 'No active listings found'}
-            </p>
-            <p className="text-gray-400 text-sm mt-1">
-              Create a new listing to start selling
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredListings.map((listing) => (
-              <div key={listing.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 mb-2">
-                        LISTED FOR SALE
-                      </span>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {listing.batch_details?.crop_type || 'Unknown Crop'}
-                      </h3>
-                      <p className="text-sm text-gray-500 font-mono">
-                        {listing.batch_details?.product_batch_id || `LISTING-${listing.id}`}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-emerald-600">
-                        ₹{listing.total_price?.toLocaleString('en-IN') || 0}
-                      </p>
-                      <p className="text-xs text-gray-500">Total Price</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 mb-4">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Total Quantity:</span>
-                      <span className="font-medium">{listing.total_quantity || listing.batch_details?.quantity || 0} kg</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Remaining:</span>
-                      <span className="font-medium text-emerald-600">
-                        {getRemainingQuantity(listing)} kg
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Units Sold:</span>
-                      <span className="font-medium text-blue-600">{listing.units_sold || 0} kg</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Price per kg:</span>
-                      <span className="font-medium">₹{listing.selling_price_per_unit?.toLocaleString('en-IN') || listing.total_price?.toLocaleString('en-IN') || 0}</span>
-                    </div>
-                    <div className="border-t pt-2 mt-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Farmer Price:</span>
-                        <span className="font-medium">₹{listing.farmer_base_price || 0}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Transport:</span>
-                        <span className="font-medium">₹{listing.transport_fees || 0}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Distributor Margin:</span>
-                        <span className="font-medium">₹{listing.distributor_margin || 0}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Retailer Margin:</span>
-                        <span className="font-medium">₹{listing.retailer_margin || 0}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => window.open(`/trace/${listing.batch_details?.public_batch_id}`, '_blank')}
-                      className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium flex items-center justify-center gap-1"
-                    >
-                      <Eye className="w-4 h-4" />
-                      View Trace
-                    </button>
-                    <button
-                      onClick={() => handleMarkSoldOut(listing)}
-                      className="flex-1 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium flex items-center justify-center gap-1"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                      Mark as Sold Out
-                    </button>
-                    <button
-                      onClick={() => handleSuspendBatch(listing.batch || listing.batch_details?.id)}
-                      className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm font-medium"
-                      title="Suspend Batch"
-                    >
-                      <Ban className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+        {/* Listings — Hybrid Layout */}
+        <div className="space-y-4">
+          {filteredListings.length === 0 ? (
+            <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm border border-dashed border-gray-200 dark:border-cosmos-700 p-12 text-center">
+              <ShoppingCart className="w-12 h-12 text-gray-300 dark:text-cosmos-600 mx-auto mb-3" />
+              <p className="text-gray-500 dark:text-cosmos-400 font-medium">
+                {searchTerm ? 'No listings match your search' : 'No active listings found'}
+              </p>
+              <p className="text-gray-400 dark:text-cosmos-500 text-sm mt-1">
+                Create a new listing to start selling
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-emerald-50 dark:bg-cosmos-900 border-b border-emerald-100 dark:border-cosmos-700">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Batch ID</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Crop</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Quantity (Rem/Total)</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Selling Price</th>
+                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-emerald-50 dark:divide-cosmos-700">
+                    {filteredListings.map((listing) => (
+                      <tr key={listing.id} className="hover:bg-emerald-50/30 dark:hover:bg-cosmos-900/50 transition-colors">
+                        <td className="px-6 py-4 text-sm font-mono text-gray-500 dark:text-cosmos-400">
+                          {listing.batch_details?.product_batch_id || `LISTING-${listing.id}`}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white capitalize">
+                          {listing.batch_details?.crop_type || 'Unknown'}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-cosmos-300">
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400">{getRemainingQuantity(listing)}</span>
+                          <span className="mx-1">/</span>
+                          <span>{listing.total_quantity || listing.batch_details?.quantity || 0} kg</span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-emerald-700 dark:text-emerald-400">
+                          ₹{listing.selling_price_per_unit?.toLocaleString('en-IN') || 0}/kg
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => window.open(`/trace/${listing.batch_details?.public_batch_id}`, '_blank')}
+                              className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                              title="View Trace"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleMarkSoldOut(listing)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white text-xs rounded-lg hover:bg-emerald-700 font-bold"
+                            >
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              Mark Sold
+                            </button>
+                            <button
+                              onClick={() => handleSuspendBatch(listing.batch || listing.batch_details?.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                              title="Suspend"
+                            >
+                              <Ban className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
-        )}
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filteredListings.map((listing) => (
+                  <div
+                    key={listing.id}
+                    className="bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm p-4 overflow-hidden"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-mono text-[10px] text-gray-400 dark:text-cosmos-400 bg-gray-50 dark:bg-cosmos-900 px-2 py-0.5 rounded">
+                        {listing.batch_details?.product_batch_id || `L-${listing.id}`}
+                      </span>
+                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                        ₹{listing.selling_price_per_unit?.toLocaleString('en-IN')}/kg
+                      </span>
+                    </div>
+
+                    <div className="mb-4">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white capitalize">
+                        {listing.batch_details?.crop_type || 'Unknown'}
+                      </h3>
+                      <div className="flex items-center justify-between mt-1">
+                        <p className="text-sm text-gray-500 dark:text-cosmos-400">
+                          Remaining: <span className="font-bold text-emerald-600 dark:text-emerald-400">{getRemainingQuantity(listing)} kg</span>
+                        </p>
+                        <p className="text-xs text-gray-400 dark:text-cosmos-500">
+                          Total: {listing.total_quantity || listing.batch_details?.quantity} kg
+                        </p>
+                      </div>
+                      <div className="w-full h-1.5 bg-gray-100 dark:bg-cosmos-900 rounded-full mt-2 overflow-hidden">
+                        <div
+                          className="h-full bg-emerald-500 rounded-full"
+                          style={{
+                            width: `${Math.min(100, (getRemainingQuantity(listing) / (listing.total_quantity || listing.batch_details?.quantity || 1)) * 100)}%`
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => window.open(`/trace/${listing.batch_details?.public_batch_id}`, '_blank')}
+                        className="flex-1 px-3 py-2 bg-gray-50 dark:bg-cosmos-700 text-gray-700 dark:text-cosmos-300 text-xs rounded-lg font-bold flex items-center justify-center gap-1"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        Trace
+                      </button>
+                      <button
+                        onClick={() => handleMarkSoldOut(listing)}
+                        className="flex-[2] px-3 py-2 bg-emerald-600 text-white text-xs rounded-lg font-bold flex items-center justify-center gap-1"
+                      >
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        Mark Sold Out
+                      </button>
+                      <button
+                        onClick={() => handleSuspendBatch(listing.batch || listing.batch_details?.id)}
+                        className="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs rounded-lg font-bold"
+                      >
+                        <Ban className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
         {/* Suspend Modal */}
         <SuspendModal
           isOpen={showSuspendModal}

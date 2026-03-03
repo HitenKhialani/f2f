@@ -6,54 +6,53 @@ import {
   PlusCircle, User, Shield, FileCheck, Users, Settings
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 const MobileBottomNav = () => {
   const location = useLocation();
   const { role } = useAuth();
+  const { t } = useTranslation();
 
   const getNavItems = () => {
     const baseItems = {
       FARMER: [
-        { path: '/farmer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/farmer/batches', icon: <Boxes className="w-5 h-5" />, label: 'Batches' },
-        { path: '/farmer/payments', icon: <CreditCard className="w-5 h-5" />, label: 'Payments' },
-        { path: '/profile', icon: <User className="w-5 h-5" />, label: 'Profile' },
+        { path: '/farmer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/farmer/batches', icon: <Boxes className="w-5 h-5" />, label: t('nav.batches') },
+        { path: '/farmer/payments', icon: <CreditCard className="w-5 h-5" />, label: t('nav.payments') },
+        { path: '/profile', icon: <User className="w-5 h-5" />, label: t('nav.profile') },
       ],
       DISTRIBUTOR: [
-        { path: '/distributor/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/distributor/incoming', icon: <Package className="w-5 h-5" />, label: 'Incoming' },
-        { path: '/distributor/inventory', icon: <Boxes className="w-5 h-5" />, label: 'Inventory' },
-        { path: '/distributor/outgoing', icon: <Truck className="w-5 h-5" />, label: 'Outgoing' },
+        { path: '/distributor/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/distributor/incoming', icon: <Package className="w-5 h-5" />, label: t('nav.incoming') },
+        { path: '/distributor/inventory', icon: <Boxes className="w-5 h-5" />, label: t('nav.inventory') },
+        { path: '/distributor/outgoing', icon: <Truck className="w-5 h-5" />, label: t('nav.outgoing') },
       ],
       TRANSPORTER: [
-        { path: '/transporter/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/transporter/farmer-shipments', icon: <Package className="w-5 h-5" />, label: 'Farmer' },
-        { path: '/transporter/in-transit', icon: <Navigation className="w-5 h-5" />, label: 'Transit' },
-        { path: '/transporter/completed', icon: <CheckCircle className="w-5 h-5" />, label: 'Done' },
+        { path: '/transporter/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/transporter/farmer-shipments', icon: <Package className="w-5 h-5" />, label: t('nav.farmer') },
+        { path: '/transporter/in-transit', icon: <Navigation className="w-5 h-5" />, label: t('nav.transit') },
+        { path: '/transporter/completed', icon: <CheckCircle className="w-5 h-5" />, label: t('nav.done') },
       ],
       RETAILER: [
-        { path: '/retailer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/retailer/incoming', icon: <Truck className="w-5 h-5" />, label: 'Incoming' },
-        { path: '/retailer/listed', icon: <ShoppingCart className="w-5 h-5" />, label: 'Listed' },
-        { path: '/retailer/sold', icon: <CheckCircle className="w-5 h-5" />, label: 'Sold' },
+        { path: '/retailer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/retailer/incoming', icon: <Truck className="w-5 h-5" />, label: t('nav.incoming') },
+        { path: '/retailer/listed', icon: <ShoppingCart className="w-5 h-5" />, label: t('nav.listed') },
+        { path: '/retailer/sold', icon: <CheckCircle className="w-5 h-5" />, label: t('nav.sold') },
       ],
       CONSUMER: [
-        { path: '/consumer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/profile', icon: <User className="w-5 h-5" />, label: 'Profile' },
+        { path: '/consumer/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/profile', icon: <User className="w-5 h-5" />, label: t('nav.profile') },
       ],
       ADMIN: [
-        { path: '/admin/dashboard', icon: <Shield className="w-5 h-5" />, label: 'Dashboard' },
-        { path: '/admin/kyc', icon: <FileCheck className="w-5 h-5" />, label: 'KYC' },
-        { path: '/admin/users', icon: <Users className="w-5 h-5" />, label: 'Users' },
+        { path: '/admin/dashboard', icon: <Shield className="w-5 h-5" />, label: t('nav.dashboard') },
+        { path: '/admin/kyc', icon: <FileCheck className="w-5 h-5" />, label: t('nav.kyc') },
+        { path: '/admin/users', icon: <Users className="w-5 h-5" />, label: t('nav.users') },
+        { path: '/profile', icon: <User className="w-5 h-5" />, label: t('nav.profile') },
       ],
     };
 
     const items = baseItems[role] || [];
 
-    // Add Settings at the end for all roles
-    return [
-      ...items,
-      { path: '/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' }
-    ];
+    return baseItems[role] || [];
   };
 
   const navItems = getNavItems();

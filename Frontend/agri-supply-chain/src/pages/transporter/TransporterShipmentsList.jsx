@@ -274,7 +274,7 @@ const TransporterShipmentsList = ({
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 hidden md:table-header-group">
                 <tr>
                   <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Batch / Crop</th>
                   <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
@@ -301,9 +301,10 @@ const TransporterShipmentsList = ({
                   </tr>
                 ) : (
                   displayedRequests.map((request) => (
-                    <tr key={request.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="space-y-1">
+                    <tr key={request.id} className="hover:bg-gray-50 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0">
+                      <td className="px-6 py-4 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Batch / Crop:</span>
+                        <div className="space-y-1 text-right md:text-left">
                           <span className="font-mono text-sm font-medium text-gray-900 block">
                             {request.batch_details?.product_batch_id || 'N/A'}
                           </span>
@@ -312,7 +313,8 @@ const TransporterShipmentsList = ({
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Type:</span>
                         <div className="flex items-center gap-2">
                           {getTypeIcon(request.from_party_details?.role)}
                           <span className="text-sm text-gray-700">
@@ -320,9 +322,10 @@ const TransporterShipmentsList = ({
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Route:</span>
                         <div className="flex items-center gap-1 text-sm text-gray-700">
-                          <div className="flex flex-col">
+                          <div className="flex flex-col items-end md:items-start">
                             <span className="truncate max-w-[120px]" title={request.from_party_details?.address}>
                               {request.from_party_details?.organization || 'Unknown'}
                             </span>
@@ -331,7 +334,7 @@ const TransporterShipmentsList = ({
                             </span>
                           </div>
                           <ArrowRight className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                          <div className="flex flex-col">
+                          <div className="flex flex-col items-end md:items-start">
                             <span className="truncate max-w-[120px]" title={request.to_party_details?.address}>
                               {request.to_party_details?.organization || 'Unknown'}
                             </span>
@@ -341,18 +344,22 @@ const TransporterShipmentsList = ({
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm font-medium text-gray-900">
-                          ₹{parseFloat(request.transporter_fee_per_unit || 0).toLocaleString()}
-                        </span>
-                        <span className="text-xs text-gray-400 block">per unit</span>
+                      <td className="px-6 py-4 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Fee:</span>
+                        <div className="text-right md:text-left">
+                          <span className="text-sm font-medium text-gray-900">
+                            ₹{parseFloat(request.transporter_fee_per_unit || 0).toLocaleString()}
+                          </span>
+                          <span className="text-xs text-gray-400 block">per unit</span>
+                        </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 flex justify-between md:table-cell">
+                        <span className="md:hidden font-bold">Status:</span>
                         <StatusBadge status={request.status} />
                       </td>
                       {showActions && (
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col gap-2">
+                        <td className="px-6 py-4 flex flex-col md:table-cell">
+                          <div className="flex flex-col gap-2 items-end md:items-start">
                             <ActionButton
                               status={request.status}
                               onAccept={() => handleStatusUpdate(request.id, 'ACCEPTED')}

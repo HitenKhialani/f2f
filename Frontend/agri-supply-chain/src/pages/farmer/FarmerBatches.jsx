@@ -289,101 +289,175 @@ const FarmerBatches = () => {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filteredBatches.map((batch) => (
-              <div
-                key={batch.id}
-                className="bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm p-4 hover:shadow-md transition-shadow"
-              >
-                {/* Row 1: Batch ID + Status */}
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-mono text-xs text-gray-400 dark:text-cosmos-400 bg-gray-50 dark:bg-cosmos-900 px-2 py-0.5 rounded">
-                    #{batch.public_batch_id || batch.id}
-                  </span>
-                  {getStatusBadge(batch.status)}
-                </div>
+          <div className="space-y-4">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-emerald-50 dark:bg-cosmos-900 border-b border-emerald-100 dark:border-cosmos-700">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Batch ID</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Crop</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Quantity</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Price/kg</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-emerald-50 dark:divide-cosmos-700">
+                  {filteredBatches.map((batch) => (
+                    <tr key={batch.id} className="hover:bg-emerald-50/30 dark:hover:bg-cosmos-900/50 transition-colors">
+                      <td className="px-6 py-4 text-sm font-mono text-gray-500 dark:text-cosmos-400">
+                        #{batch.public_batch_id || batch.id}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white capitalize">
+                        {batch.crop_type || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-cosmos-300">
+                        {batch.quantity || 0} kg
+                      </td>
+                      <td className="px-6 py-4 text-sm text-emerald-700 dark:text-emerald-400 font-bold">
+                        ₹{Number(batch.farmer_base_price_per_unit || 0).toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4">
+                        {getStatusBadge(batch.status)}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          {batch.status === 'CREATED' && !hasFarmerDescription(batch.id) && (
+                            <button
+                              onClick={() => { setSelectedBatch(batch); setShowDescriptionModal(true); }}
+                              className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                              title="Describe"
+                            >
+                              <ClipboardCheck className="w-4 h-4" />
+                            </button>
+                          )}
+                          {batch.status === 'CREATED' && (
+                            <button
+                              onClick={() => { setSelectedBatch(batch); setShowTransportModal(true); }}
+                              className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                              title="Request Transport"
+                            >
+                              <Package className="w-4 h-4" />
+                            </button>
+                          )}
+                          {['CREATED', 'TRANSPORT_REQUESTED', 'TRANSPORT_REJECTED'].includes(batch.status) && (
+                            <button
+                              onClick={() => handleSuspendBatch(batch.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                              title="Suspend"
+                            >
+                              <Ban className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => { setSelectedBatch(batch); setShowInspectionTimeline(true); }}
+                            className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                            title="History"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-                {/* Row 2: Crop + Quantity */}
-                <div className="flex items-end justify-between mb-3">
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white capitalize">
-                      {batch.crop_type || 'Unknown Crop'}
-                    </h3>
-                    <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-cosmos-400 mt-0.5">
-                      <Package className="w-3.5 h-3.5" />
-                      <span>{batch.quantity || 0} kg</span>
-                    </div>
+            {/* Mobile Card View */}
+            <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredBatches.map((batch) => (
+                <div
+                  key={batch.id}
+                  className="bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-xs text-gray-400 dark:text-cosmos-400 bg-gray-50 dark:bg-cosmos-900 px-2 py-0.5 rounded">
+                      #{batch.public_batch_id || batch.id}
+                    </span>
+                    {getStatusBadge(batch.status)}
                   </div>
-                  {batch.farmer_base_price_per_unit && (
-                    <div className="text-right">
-                      <p className="text-xs text-gray-400 dark:text-cosmos-400">Base Price</p>
-                      <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-                        ₹{batch.farmer_base_price_per_unit}/kg
-                      </p>
+
+                  <div className="flex items-end justify-between mb-3">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white capitalize">
+                        {batch.crop_type || 'Unknown Crop'}
+                      </h3>
+                      <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-cosmos-400 mt-0.5">
+                        <Package className="w-3.5 h-3.5" />
+                        <span>{batch.quantity || 0} kg</span>
+                      </div>
                     </div>
-                  )}
-                </div>
+                    {batch.farmer_base_price_per_unit && (
+                      <div className="text-right">
+                        <p className="text-xs text-gray-400 dark:text-cosmos-400">Base Price</p>
+                        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                          ₹{Number(batch.farmer_base_price_per_unit).toFixed(2)}/kg
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
-                {/* Row 3: Location + Date */}
-                <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-cosmos-400 mb-3 pb-3 border-b border-gray-100 dark:border-cosmos-700">
-                  {batch.farm_location && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 flex-shrink-0" />
-                      <span className="truncate max-w-[120px]">{batch.farm_location}</span>
-                    </span>
-                  )}
-                  {batch.harvest_date && (
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3 flex-shrink-0" />
-                      {new Date(batch.harvest_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
-                    </span>
-                  )}
-                </div>
+                  <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-cosmos-400 mb-3 pb-3 border-b border-gray-100 dark:border-cosmos-700">
+                    {batch.farm_location && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate max-w-[120px]">{batch.farm_location}</span>
+                      </span>
+                    )}
+                    {batch.harvest_date && (
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3 flex-shrink-0" />
+                        {new Date(batch.harvest_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}
+                      </span>
+                    )}
+                  </div>
 
-                {/* Row 4: Actions */}
-                <div className="flex flex-wrap gap-2">
-                  {batch.status === 'CREATED' && !hasFarmerDescription(batch.id) && (
+                  <div className="flex flex-wrap gap-2">
+                    {batch.status === 'CREATED' && !hasFarmerDescription(batch.id) && (
+                      <button
+                        onClick={() => { setSelectedBatch(batch); setShowDescriptionModal(true); }}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white text-xs rounded-lg hover:bg-emerald-700 font-medium"
+                      >
+                        <ClipboardCheck className="w-3 h-3" />
+                        Describe
+                      </button>
+                    )}
+                    {batch.status === 'CREATED' && hasFarmerDescription(batch.id) && (
+                      <span className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 dark:bg-cosmos-700 text-emerald-700 dark:text-emerald-400 text-xs rounded-lg font-medium">
+                        <ClipboardCheck className="w-3 h-3" />
+                        Described ✓
+                      </span>
+                    )}
+                    {batch.status === 'CREATED' && (
+                      <button
+                        onClick={() => { setSelectedBatch(batch); setShowTransportModal(true); }}
+                        className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded-lg hover:bg-blue-100 font-medium border border-blue-200 dark:border-blue-800"
+                      >
+                        Request Transport
+                      </button>
+                    )}
+                    {['CREATED', 'TRANSPORT_REQUESTED', 'TRANSPORT_REJECTED'].includes(batch.status) && (
+                      <button
+                        onClick={() => handleSuspendBatch(batch.id)}
+                        className="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-lg hover:bg-red-100 font-medium border border-red-200 dark:border-red-800"
+                      >
+                        Suspend
+                      </button>
+                    )}
                     <button
-                      onClick={() => { setSelectedBatch(batch); setShowDescriptionModal(true); }}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white text-xs rounded-lg hover:bg-emerald-700 font-medium"
+                      onClick={() => { setSelectedBatch(batch); setShowInspectionTimeline(true); }}
+                      className="ml-auto flex items-center gap-1 px-3 py-1.5 text-gray-500 dark:text-cosmos-400 text-xs rounded-lg hover:bg-gray-100 dark:hover:bg-cosmos-700 border border-gray-200 dark:border-cosmos-600"
+                      title="View Inspection Timeline"
                     >
-                      <ClipboardCheck className="w-3 h-3" />
-                      Describe
+                      <Eye className="w-3 h-3" />
+                      History
                     </button>
-                  )}
-                  {batch.status === 'CREATED' && hasFarmerDescription(batch.id) && (
-                    <span className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 dark:bg-cosmos-700 text-emerald-700 dark:text-emerald-400 text-xs rounded-lg font-medium">
-                      <ClipboardCheck className="w-3 h-3" />
-                      Described ✓
-                    </span>
-                  )}
-                  {batch.status === 'CREATED' && (
-                    <button
-                      onClick={() => { setSelectedBatch(batch); setShowTransportModal(true); }}
-                      className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded-lg hover:bg-blue-100 font-medium border border-blue-200 dark:border-blue-800"
-                    >
-                      Request Transport
-                    </button>
-                  )}
-                  {['CREATED', 'TRANSPORT_REQUESTED', 'TRANSPORT_REJECTED'].includes(batch.status) && (
-                    <button
-                      onClick={() => handleSuspendBatch(batch.id)}
-                      className="px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-lg hover:bg-red-100 font-medium border border-red-200 dark:border-red-800"
-                    >
-                      Suspend
-                    </button>
-                  )}
-                  <button
-                    onClick={() => { setSelectedBatch(batch); setShowInspectionTimeline(true); }}
-                    className="ml-auto flex items-center gap-1 px-3 py-1.5 text-gray-500 dark:text-cosmos-400 text-xs rounded-lg hover:bg-gray-100 dark:hover:bg-cosmos-700 border border-gray-200 dark:border-cosmos-600"
-                    title="View Inspection Timeline"
-                  >
-                    <Eye className="w-3 h-3" />
-                    History
-                  </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 

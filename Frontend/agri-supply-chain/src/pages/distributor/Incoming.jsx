@@ -27,6 +27,8 @@ const Incoming = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showStoreModal, setShowStoreModal] = useState(false);
+  const [showInspectionModal, setShowInspectionModal] = useState(false);
   const [showInspectionTimeline, setShowInspectionTimeline] = useState(false);
   const [showSuspendModal, setShowSuspendModal] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
@@ -144,18 +146,20 @@ const Incoming = () => {
     }
   };
 
-  // Filter incoming items
-  const incomingItems = [
-    // Transport requests incoming to distributor (not yet delivered)
-    ...transportRequests.filter(tr =>
-      tr.to_party_details?.role === 'distributor' &&
-      !['DELIVERED', 'REJECTED', 'PENDING'].includes(tr.status)
-    ),
-    // Batches already delivered but not yet stored
-    ...batches.filter(b => b.status === 'DELIVERED_TO_DISTRIBUTOR')
-  ];
+  // Categorize items - only show incoming
+  const CATEGORIES = {
+    incoming: [
+      ...transportRequests.filter(tr =>
+        tr.to_party_details?.role === 'distributor' &&
+        ['IN_TRANSIT_TO_DISTRIBUTOR', 'ARRIVED_AT_DISTRIBUTOR', 'ARRIVAL_CONFIRMED_BY_DISTRIBUTOR'].includes(tr.status)
+      ),
+      ...batches.filter(b => b.status === 'IN_TRANSIT_TO_DISTRIBUTOR' || b.status === 'ARRIVED_AT_DISTRIBUTOR')
+    ]
+  };
 
-  const filteredItems = incomingItems.filter(item => {
+  const currentItems = CATEGORIES.incoming || [];
+
+  const filteredItems = currentItems.filter(item => {
     const searchLower = searchTerm.toLowerCase();
     const batchId = item.batch_details?.product_batch_id || item.product_batch_id || '';
     const cropType = item.batch_details?.crop_type || item.crop_type || '';
@@ -211,8 +215,8 @@ const Incoming = () => {
           </div>
         )}
 
-        {/* Filters */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        {/* Search */}
+        <div className="bg-white dark:bg-cosmos-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-cosmos-700">
           <div className="flex items-center gap-2">
             <Search className="w-5 h-5 text-gray-400" />
             <input
@@ -220,50 +224,48 @@ const Incoming = () => {
               placeholder="Search by batch ID or crop type..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-cosmos-600 dark:bg-cosmos-900 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:text-white"
             />
           </div>
         </div>
 
-        {/* Incoming Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm border border-gray-100 dark:border-cosmos-700 overflow-hidden">
+          {/* Desktop Table */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-cosmos-900 border-b border-gray-100 dark:border-cosmos-700">
                 <tr>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Batch ID</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Crop Type</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="text-left px-6 py-4 text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Batch ID</th>
+                  <th className="text-left px-6 py-4 text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Crop</th>
+                  <th className="text-left px-6 py-4 text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Quantity</th>
+                  <th className="text-left px-6 py-4 text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Source</th>
+                  <th className="text-left px-6 py-4 text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Status</th>
+                  <th className="text-right px-6 py-4 text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-cosmos-700">
                 {filteredItems.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="text-center py-12">
                       <div className="flex flex-col items-center">
                         <Package className="w-12 h-12 text-gray-300 mb-3" />
-                        <p className="text-gray-500 font-medium">
-                          {searchTerm ? 'No batches match your search' : 'No incoming batches found'}
-                        </p>
+                        <p className="text-gray-500 dark:text-cosmos-400 font-medium">No batches found</p>
                       </div>
                     </td>
                   </tr>
                 ) : (
                   filteredItems.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-mono text-gray-900">
+                    <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-cosmos-900/50 transition-colors">
+                      <td className="px-6 py-4 text-sm font-mono text-gray-900 dark:text-cosmos-300">
                         {item.batch_details?.product_batch_id || item.product_batch_id || `TR-${item.id}`}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 capitalize">
+                      <td className="px-6 py-4 text-sm text-gray-900 dark:text-white capitalize font-bold">
                         {item.batch_details?.crop_type || item.crop_type || 'N/A'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className="px-6 py-4 text-sm text-gray-500 dark:text-cosmos-400">
                         {item.quantity || item.batch_details?.quantity || 0} kg
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      <td className="px-6 py-4 text-sm text-gray-700 dark:text-cosmos-400">
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4 text-gray-400" />
                           <span>{item.from_party_details?.organization || item.from_party_details?.user_details?.username || 'Unknown'}</span>
@@ -272,92 +274,51 @@ const Incoming = () => {
                       <td className="px-6 py-4">
                         {getStatusBadge(item.status)}
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2 flex-wrap items-center">
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
                           {(item.status === 'ARRIVED_AT_DISTRIBUTOR' || item.status === 'ARRIVED') && (
                             <button
                               onClick={() => handleConfirmArrival(item.id)}
-                              className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700"
+                              className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700"
                             >
                               Confirm Arrival
                             </button>
                           )}
                           {item.status === 'DELIVERED_TO_DISTRIBUTOR' && (
                             <>
-                              {/* Inspection button - shows first for visibility */}
-                              {(item.batch || item.batch_details?.id || item.id) && (
-                                !hasDistributorInspection(item.batch || item.batch_details?.id || item.id) ? (
-                                  <button
-                                    onClick={() => {
-                                      setSelectedBatch(item);
-                                      setShowInspectionModal(true);
-                                    }}
-                                    className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md"
-                                    title="Inspect Batch"
-                                  >
-                                    <ClipboardCheck className="w-4 h-4" />
-                                    Inspect
-                                  </button>
-                                ) : (
-                                  <span className="px-3 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-lg flex items-center gap-2">
-                                    <ClipboardCheck className="w-4 h-4" />
-                                    Inspected
-                                  </span>
-                                )
+                              {!hasDistributorInspection(item.batch || item.batch_details?.id || item.id) ? (
+                                <button
+                                  onClick={() => { setSelectedBatch(item); setShowInspectionModal(true); }}
+                                  className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                                  title="Inspect"
+                                >
+                                  <ClipboardCheck className="w-4 h-4" />
+                                </button>
+                              ) : (
+                                <span className="p-2 text-emerald-600" title="Inspected">
+                                  <CheckCircle className="w-4 h-4" />
+                                </span>
                               )}
                               <button
-                                onClick={() => {
-                                  setSelectedBatch(item);
-                                  setShowStoreModal(true);
-                                }}
-                                className="px-3 py-1 bg-emerald-600 text-white text-xs rounded hover:bg-emerald-700"
+                                onClick={() => { setSelectedBatch(item); setShowStoreModal(true); }}
+                                className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                                title="Store"
                               >
-                                <Store className="w-3 h-3 inline mr-1" />
-                                Store
+                                <Store className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => handleSuspendBatch(item.id)}
-                                className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                                className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                                title="Suspend"
                               >
-                                Suspend
+                                <Ban className="w-4 h-4" />
                               </button>
                             </>
                           )}
-                          {item.status === 'STORED' && (
-                            <>
-                              {/* Inspection button for stored batches */}
-                              {(item.batch || item.batch_details?.id || item.id) && (
-                                !hasDistributorInspection(item.batch || item.batch_details?.id || item.id) ? (
-                                  <button
-                                    onClick={() => {
-                                      setSelectedBatch(item);
-                                      setShowInspectionModal(true);
-                                    }}
-                                    className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-md"
-                                    title="Inspect Batch"
-                                  >
-                                    <ClipboardCheck className="w-4 h-4" />
-                                    Inspect
-                                  </button>
-                                ) : (
-                                  <span className="px-3 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-lg flex items-center gap-2">
-                                    <ClipboardCheck className="w-4 h-4" />
-                                    Inspected
-                                  </span>
-                                )
-                              )}
-                            </>
-                          )}
-                          {(item.status === 'ARRIVED' || item.status === 'ARRIVAL_CONFIRMED' || item.status?.includes('IN_TRANSIT')) && (
-                            <span className="text-xs text-gray-500 italic">Tracking Transport</span>
-                          )}
                           <button
-                            onClick={() => {
-                              setSelectedBatch(item);
-                              setShowInspectionTimeline(true);
-                            }}
-                            className="p-1 text-gray-400 hover:text-blue-600"
-                            title="View Inspection Timeline"
+                            onClick={() => { setSelectedBatch(item); setShowInspectionTimeline(true); }}
+                            className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                            title="History"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -368,6 +329,70 @@ const Incoming = () => {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden divide-y divide-gray-100 dark:divide-cosmos-700">
+            {filteredItems.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">No batches found</div>
+            ) : (
+              filteredItems.map((item) => (
+                <div key={item.id} className="p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <span className="font-mono text-xs text-gray-400 dark:text-cosmos-400 bg-gray-50 dark:bg-cosmos-900 px-2 py-0.5 rounded">
+                      #{item.batch_details?.product_batch_id || item.product_batch_id || `TR-${item.id}`}
+                    </span>
+                    {getStatusBadge(item.status)}
+                  </div>
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white capitalize">
+                        {item.batch_details?.crop_type || item.crop_type || 'N/A'}
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-cosmos-400">{item.quantity || item.batch_details?.quantity || 0} kg</p>
+                    </div>
+                    <div className="text-right text-xs text-gray-400 dark:text-cosmos-400">
+                      <div className="flex items-center gap-1 justify-end">
+                        <MapPin className="w-3 h-3" />
+                        <span className="truncate max-w-[150px]">{item.from_party_details?.organization || 'Unknown'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <button
+                      onClick={() => { setSelectedBatch(item); setShowInspectionTimeline(true); }}
+                      className="px-3 py-1.5 border border-gray-200 dark:border-cosmos-600 text-gray-600 dark:text-cosmos-400 rounded-lg text-xs"
+                    >
+                      History
+                    </button>
+                    {(item.status === 'ARRIVED_AT_DISTRIBUTOR' || item.status === 'ARRIVED') && (
+                      <button
+                        onClick={() => handleConfirmArrival(item.id)}
+                        className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg"
+                      >
+                        Confirm Arrival
+                      </button>
+                    )}
+                    {item.status === 'DELIVERED_TO_DISTRIBUTOR' && (
+                      <>
+                        <button
+                          onClick={() => { setSelectedBatch(item); setShowInspectionModal(true); }}
+                          className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs"
+                        >
+                          Inspect
+                        </button>
+                        <button
+                          onClick={() => { setSelectedBatch(item); setShowStoreModal(true); }}
+                          className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs"
+                        >
+                          Store
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

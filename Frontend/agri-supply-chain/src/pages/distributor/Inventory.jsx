@@ -19,10 +19,14 @@ import { batchAPI, stakeholderAPI, distributorAPI, batchSplitAPI, inspectionAPI 
 import { InspectionForm, InspectionTimeline } from '../../components/inspection';
 import SuspendModal from '../../components/common/SuspendModal';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 
 const Inventory = () => {
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useTranslation();
+  const { formatNumber } = useLocalizedNumber();
   const [batches, setBatches] = useState([]);
   const [retailers, setRetailers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +65,7 @@ const Inventory = () => {
       setError(null);
     } catch (error) {
       console.error('Error fetching data:', error);
-      setError('Failed to load inventory');
+      setError(t('errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -69,12 +73,12 @@ const Inventory = () => {
 
   const handleRequestTransport = async () => {
     if (selectedBatch?.is_locked) {
-      toast.warning('Please complete all pending payments before proceeding.');
+      toast.warning(t('toast.paymentPending'));
       return;
     }
 
     if (!selectedBatch || !selectedRetailer) {
-      toast.warning('Please select a retailer');
+      toast.warning(t('toast.selectDistributor'));
       return;
     }
 
@@ -83,20 +87,20 @@ const Inventory = () => {
         batch_id: selectedBatch.id,
         retailer_id: selectedRetailer,
       });
-      toast.success('Transport request sent successfully');
+      toast.success(t('toast.transportRequested'));
       setShowTransportModal(false);
       setSelectedBatch(null);
       setSelectedRetailer('');
       fetchData();
     } catch (error) {
       console.error('Error requesting transport:', error);
-      toast.error(error.response?.data?.message || 'Failed to request transport');
+      toast.error(error.response?.data?.message || t('toast.transportFailed'));
     }
   };
 
   const handleSplitBatch = (batch) => {
     if (batch.is_locked) {
-      toast.warning('Please complete all pending payments before proceeding.');
+      toast.warning(t('toast.paymentPending'));
       return;
     }
 
@@ -150,13 +154,13 @@ const Inventory = () => {
         }))
       });
 
-      toast.success(`Batch ${selectedBatch.product_batch_id} split into ${splitData.splits.length} child batches successfully!`);
+      toast.success(t('toast.splitCreated', { id: selectedBatch.product_batch_id, count: splitData.splits.length }));
       setShowSplitModal(false);
       setSelectedBatch(null);
       fetchData();
     } catch (error) {
       console.error('Error splitting batch:', error);
-      toast.error(error.response?.data?.message || 'Failed to split batch');
+      toast.error(error.response?.data?.message || t('toast.splitFailed'));
     }
   };
 
@@ -169,13 +173,13 @@ const Inventory = () => {
     try {
       setSuspending(true);
       await batchAPI.suspend(batchId, reason);
-      toast.success('Batch suspended successfully.');
+      toast.success(t('toast.suspendSuccess'));
       setShowSuspendModal(false);
       setBatchToSuspend(null);
       fetchData();
     } catch (error) {
       console.error('Error suspending batch:', error);
-      toast.error(error.response?.data?.message || 'Failed to suspend batch');
+      toast.error(error.response?.data?.message || t('toast.suspendError'));
     } finally {
       setSuspending(false);
     }
@@ -244,8 +248,8 @@ const Inventory = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
-            <p className="text-gray-600">Manage stored batches and request transport to retailers</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('distributor.inventory')}</h1>
+            <p className="text-gray-600">{t('distributor.inventorySubtitle')}</p>
           </div>
         </div>
 
@@ -263,7 +267,7 @@ const Inventory = () => {
             <Search className="w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by batch ID or crop type..."
+              placeholder={t('batch.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
@@ -277,7 +281,7 @@ const Inventory = () => {
             <div className="bg-white dark:bg-cosmos-800 rounded-2xl border border-dashed border-gray-200 dark:border-cosmos-700 p-12 text-center">
               <Archive className="w-12 h-12 text-gray-300 dark:text-cosmos-600 mx-auto mb-3" />
               <p className="text-gray-500 dark:text-cosmos-400 font-medium">
-                {searchTerm ? 'No batches match your search' : 'No inventory found'}
+                {searchTerm ? t('batch.noMatchSearch') : t('distributor.noInventory')}
               </p>
             </div>
           ) : (
@@ -287,11 +291,11 @@ const Inventory = () => {
                 <table className="w-full">
                   <thead className="bg-emerald-50 dark:bg-cosmos-900 border-b border-emerald-100 dark:border-cosmos-700">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Batch ID</th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Crop Type</th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Quantity</th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('batch.batchId')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('batch.cropType')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('batch.quantity')}</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('common.status')}</th>
+                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">{t('common.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-emerald-50 dark:divide-cosmos-700">
@@ -307,7 +311,7 @@ const Inventory = () => {
                           {batch.crop_type || 'N/A'}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600 dark:text-cosmos-300">
-                          {batch.quantity || 0} kg
+                          {formatNumber(batch.quantity || 0)} {t('common.kg')}
                         </td>
                         <td className="px-6 py-4">
                           {getStatusBadge(batch.status)}
@@ -319,35 +323,35 @@ const Inventory = () => {
                                 <button
                                   onClick={() => { setSelectedBatch(batch); setShowTransportModal(true); }}
                                   className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                                  title="Request Transport"
+                                  title={t('buttons.requestTransport')}
                                 >
                                   <Truck className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => handleSplitBatch(batch)}
                                   className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                                  title="Split Batch"
+                                  title={t('buttons.splitBatch')}
                                 >
                                   <Scissors className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => { setSelectedBatch(batch); setShowInspectionTimeline(true); }}
                                   className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                                  title="View History"
+                                  title={t('common.history')}
                                 >
                                   <Eye className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => handleSuspendBatch(batch.id)}
                                   className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
-                                  title="Suspend"
+                                  title={t('common.suspend')}
                                 >
                                   <Ban className="w-4 h-4" />
                                 </button>
                               </>
                             )}
                             {batch.status === 'FULLY_SPLIT' && (
-                              <span className="text-xs text-gray-400 italic">Parent batch</span>
+                              <span className="text-xs text-gray-400 italic">{t('batch.parentBatch')}</span>
                             )}
                           </div>
                         </td>
@@ -376,7 +380,7 @@ const Inventory = () => {
                         {batch.crop_type || 'Unknown'}
                       </h3>
                       <p className="text-sm text-gray-500 dark:text-cosmos-400 font-medium">
-                        {batch.quantity || 0} kg
+                        {formatNumber(batch.quantity || 0)} {t('common.kg')}
                       </p>
                     </div>
 
@@ -388,14 +392,14 @@ const Inventory = () => {
                             className="flex-1 px-3 py-2 bg-blue-600 text-white text-xs rounded-lg font-bold flex items-center justify-center gap-1"
                           >
                             <Truck className="w-3 h-3" />
-                            Transport
+                            {t('nav.distributor_shipments')}
                           </button>
                           <button
                             onClick={() => handleSplitBatch(batch)}
                             className="flex-1 px-3 py-2 bg-emerald-600 text-white text-xs rounded-lg font-bold flex items-center justify-center gap-1"
                           >
                             <Scissors className="w-3 h-3" />
-                            Split
+                            {t('buttons.splitBatch')}
                           </button>
                           <div className="w-full flex gap-2">
                             <button
@@ -403,7 +407,7 @@ const Inventory = () => {
                               className="flex-1 px-3 py-2 bg-gray-100 dark:bg-cosmos-700 text-gray-700 dark:text-cosmos-300 text-xs rounded-lg font-bold flex items-center justify-center gap-1"
                             >
                               <Eye className="w-3 h-3" />
-                              History
+                              {t('common.history')}
                             </button>
                             <button
                               onClick={() => handleSuspendBatch(batch.id)}
@@ -415,7 +419,7 @@ const Inventory = () => {
                         </>
                       )}
                       {batch.status === 'FULLY_SPLIT' && (
-                        <p className="text-sm text-gray-400 italic w-full text-center py-2">Parent batch (inactive)</p>
+                        <p className="text-sm text-gray-400 italic w-full text-center py-2">{t('batch.parentBatch')} ({t('common.inactive')})</p>
                       )}
                     </div>
                   </div>
@@ -429,18 +433,18 @@ const Inventory = () => {
         {showTransportModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl p-6 max-w-md w-full">
-              <h3 className="text-lg font-semibold mb-4">Request Transport to Retailer</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('distributor.outgoingBatches')}</h3>
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Retailer
+                  {t('batch.selectRetailer')}
                 </label>
                 <select
                   value={selectedRetailer}
                   onChange={(e) => setSelectedRetailer(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 >
-                  <option value="">Choose a retailer...</option>
+                  <option value="">{t('batch.chooseRetailer')}</option>
                   {retailers.map((retailer) => (
                     <option key={retailer.id} value={retailer.id}>
                       {retailer.user_details?.username || retailer.organization || 'Unknown'}
@@ -458,13 +462,13 @@ const Inventory = () => {
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleRequestTransport}
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
                 >
-                  Send Request
+                  {t('buttons.requestTransport')}
                 </button>
               </div>
             </div>
@@ -477,7 +481,7 @@ const Inventory = () => {
             <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">Split Batch: {selectedBatch.product_batch_id}</h3>
+                  <h3 className="text-lg font-semibold">{t('buttons.splitBatch')}: {selectedBatch.product_batch_id}</h3>
                   <button
                     onClick={() => setShowSplitModal(false)}
                     className="text-gray-500 hover:text-gray-700"
@@ -510,7 +514,7 @@ const Inventory = () => {
                             onClick={() => handleRemoveSplit(index)}
                             className="text-red-500 hover:text-red-700 text-sm"
                           >
-                            Remove
+                            {t('common.remove')}
                           </button>
                         )}
                       </div>
@@ -518,7 +522,7 @@ const Inventory = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Label *
+                            {t('common.label')} *
                           </label>
                           <input
                             type="text"
@@ -531,7 +535,7 @@ const Inventory = () => {
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Quantity (kg) *
+                            {t('batch.quantity')} ({t('common.kg')}) *
                           </label>
                           <input
                             type="number"
@@ -554,7 +558,7 @@ const Inventory = () => {
                     className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 flex items-center"
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Add Another Split
+                    {t('buttons.addSplit')}
                   </button>
 
                   <div className="flex space-x-3">
@@ -562,13 +566,13 @@ const Inventory = () => {
                       onClick={() => setShowSplitModal(false)}
                       className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                     <button
                       onClick={handleSubmitSplit}
                       className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
                     >
-                      Split Batch
+                      {t('buttons.splitBatch')}
                     </button>
                   </div>
                 </div>
@@ -599,7 +603,7 @@ const Inventory = () => {
             <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Inspection History</h2>
+                  <h2 className="text-xl font-bold text-gray-900">{t('distributor.inspectionHistory')}</h2>
                   <p className="text-sm text-gray-500">
                     {selectedBatch.product_batch_id} - {selectedBatch.crop_type}
                   </p>

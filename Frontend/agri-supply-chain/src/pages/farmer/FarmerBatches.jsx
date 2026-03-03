@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 import {
   Sprout,
   Plus,
@@ -22,6 +24,8 @@ import { useToast } from '../../context/ToastContext';
 
 const FarmerBatches = () => {
   const toast = useToast();
+  const { t } = useTranslation();
+  const { formatNumber, formatCurrency, locale } = useLocalizedNumber();
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -290,33 +294,47 @@ const FarmerBatches = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Desktop Table View */}
-            <div className="hidden lg:block bg-white dark:bg-cosmos-800 rounded-2xl border border-emerald-100 dark:border-cosmos-700 shadow-sm overflow-hidden">
+            {/* Desktop Table View - Styled like Payments Page */}
+            <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <table className="w-full">
-                <thead className="bg-emerald-50 dark:bg-cosmos-900 border-b border-emerald-100 dark:border-cosmos-700">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Batch ID</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Crop</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Quantity</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Price/kg</th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-cosmos-400 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('farmerBatches.batchId')}</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('farmerBatches.crop')}</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('farmerBatches.quantity')}</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('farmerBatches.pricePerKg')}</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('farmerBatches.harvestDate')}</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">{t('farmerBatches.status')}</th>
+                    <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">{t('farmerBatches.actions')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-emerald-50 dark:divide-cosmos-700">
+                <tbody className="divide-y divide-gray-200">
                   {filteredBatches.map((batch) => (
-                    <tr key={batch.id} className="hover:bg-emerald-50/30 dark:hover:bg-cosmos-900/50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-mono text-gray-500 dark:text-cosmos-400">
-                        #{batch.public_batch_id || batch.id}
+                    <tr key={batch.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-medium text-gray-900">
+                          #{batch.public_batch_id || batch.id}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 text-sm font-bold text-gray-900 dark:text-white capitalize">
-                        {batch.crop_type || 'N/A'}
+                      <td className="px-6 py-4">
+                        <span className="text-sm text-gray-700 capitalize">
+                          {batch.crop_type || t('common.na')}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 dark:text-cosmos-300">
-                        {batch.quantity || 0} kg
+                      <td className="px-6 py-4">
+                        <span className="text-sm text-gray-700">
+                          {formatNumber(batch.quantity || 0)} {t('common.kg')}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-emerald-700 dark:text-emerald-400 font-bold">
-                        ₹{Number(batch.farmer_base_price_per_unit || 0).toFixed(2)}
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-medium text-gray-900">
+                          {formatCurrency(batch.farmer_base_price_per_unit || 0)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm text-gray-600">
+                          {batch.harvest_date ? new Date(batch.harvest_date).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' }) : t('common.na')}
+                        </span>
                       </td>
                       <td className="px-6 py-4">
                         {getStatusBadge(batch.status)}

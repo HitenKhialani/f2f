@@ -10,6 +10,8 @@ const LANGUAGES = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
     { code: 'hi', label: 'हिंदी', flag: '🇮🇳' },
     { code: 'mr', label: 'मराठी', flag: '🇮🇳' },
+    { code: 'pa', label: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
+    { code: 'gu', label: 'ગુજરાતી', flag: '🇮🇳' },
 ];
 
 const PublicTopNav = () => {

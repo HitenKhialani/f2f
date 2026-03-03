@@ -10,8 +10,12 @@ import {
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { retailAPI } from '../../services/api';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 
 const Sold = () => {
+  const { t } = useTranslation();
+  const { formatCurrency, formatNumber } = useLocalizedNumber();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -30,7 +34,7 @@ const Sold = () => {
       setError(null);
     } catch (error) {
       console.error('Error fetching data:', error);
-      setError('Failed to load sold items');
+      setError(t('errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -68,8 +72,8 @@ const Sold = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Sold Products</h1>
-            <p className="text-gray-600">Completed sales and revenue history</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t('retailer.soldProducts')}</h1>
+            <p className="text-gray-600">{t('retailer.soldSubtitle')}</p>
           </div>
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
             <div className="flex items-center gap-3">
@@ -77,10 +81,8 @@ const Sold = () => {
                 <TrendingUp className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-emerald-600">
-                  ₹{totalRevenue.toLocaleString('en-IN')}
-                </p>
+                <p className="text-sm text-gray-600">{t('retailer.totalRevenue')}</p>
+                <p className="text-xl font-bold text-emerald-700">{formatCurrency(totalRevenue)}</p>
               </div>
             </div>
           </div>
@@ -100,10 +102,10 @@ const Sold = () => {
             <Search className="w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by batch ID or crop type..."
+              placeholder={t('common.search')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             />
           </div>
         </div>
@@ -126,14 +128,9 @@ const Sold = () => {
                 {filteredListings.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="text-center py-12">
-                      <div className="flex flex-col items-center">
-                        <CheckCircle className="w-12 h-12 text-gray-300 mb-3" />
-                        <p className="text-gray-500 font-medium">
-                          {searchTerm ? 'No sales match your search' : 'No sold items yet'}
-                        </p>
-                        <p className="text-gray-400 text-sm mt-1">
-                          Sold items will appear here once you mark listings as sold
-                        </p>
+                      <div className="text-center py-12">
+                        <CheckCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500">{t('retailer.noSoldItems')}</p>
                       </div>
                     </td>
                   </tr>

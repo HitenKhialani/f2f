@@ -5,11 +5,15 @@ import { Store, ArrowLeft, Package } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, retailAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 
 const NewListingPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const toast = useToast();
+    const { t } = useTranslation();
+    const { formatCurrency } = useLocalizedNumber();
     const [batches, setBatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
@@ -68,7 +72,7 @@ const NewListingPage = () => {
 
         const selected = batches.find(b => b.id.toString() === formData.batch.toString());
         if (selected?.is_locked) {
-            toast.warning('Please complete all pending payments before proceeding.');
+            toast.warning(t('toast.paymentPending'));
             return;
         }
 
@@ -80,11 +84,11 @@ const NewListingPage = () => {
                 retailer_margin: formData.retailer_margin,
                 is_for_sale: true,
             });
-            toast.success('Listing created successfully!');
+            toast.success(t('toast.listingCreated'));
             navigate('/retailer/dashboard');
         } catch (error) {
             console.error('Error creating listing:', error);
-            toast.error(error.response?.data?.message || 'Failed to create listing');
+            toast.error(error.response?.data?.message || t('toast.errorGeneric'));
         } finally {
             setSubmitting(false);
         }
@@ -110,8 +114,8 @@ const NewListingPage = () => {
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Create New Listing</h1>
-                        <p className="text-gray-600">List an inspected batch for retail sale</p>
+                        <h1 className="text-2xl font-bold text-gray-900">{t('retailer.createListing')}</h1>
+                        <p className="text-gray-600">{t('retailer.listingDetails')}</p>
                     </div>
                 </div>
 
@@ -122,8 +126,8 @@ const NewListingPage = () => {
                             <Store className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-gray-900">Listing Details</h2>
-                            <p className="text-sm text-gray-500">Set pricing and select batch</p>
+                            <h2 className="text-lg font-semibold text-gray-900">{t('retailer.listingDetails')}</h2>
+                            <p className="text-sm text-gray-500">{t('retailer.setPricing')}</p>
                         </div>
                     </div>
 
@@ -131,7 +135,7 @@ const NewListingPage = () => {
                         {/* Batch Selection */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Select Batch <span className="text-red-500">*</span>
+                                {t('retailer.selectBatch')} <span className="text-red-500">*</span>
                             </label>
                             <select
                                 value={formData.batch}
@@ -139,16 +143,16 @@ const NewListingPage = () => {
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                                 required
                             >
-                                <option value="">Choose a batch...</option>
+                                <option value="">{t('retailer.chooseBatch')}</option>
                                 {batches.map(batch => (
                                     <option key={batch.id} value={batch.id}>
-                                        {batch.product_batch_id} - {batch.crop_type} ({batch.quantity} kg)
+                                        {batch.product_batch_id} - {batch.crop_type} ({batch.quantity} {t('common.kg')})
                                     </option>
                                 ))}
                             </select>
                             {batches.length === 0 && !loading && (
                                 <p className="text-sm text-amber-600 mt-1">
-                                    No delivered batches available. Batches must be delivered to retailer before listing.
+                                    {t('retailer.noBatchesAvailable')}
                                 </p>
                             )}
                         </div>
@@ -157,37 +161,37 @@ const NewListingPage = () => {
                         <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                             <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                                    Farmer Base Price (₹)
+                                    {t('retailer.farmerBasePrice')} (₹)
                                 </label>
                                 <div className="text-lg font-bold text-gray-700">
-                                    ₹{Number(formData.farmer_base_price || 0).toFixed(2)}
+                                    {formatCurrency(formData.farmer_base_price || 0)}
                                 </div>
-                                <p className="text-[10px] text-gray-400 mt-1">Locked (Set by Farmer)</p>
+                                <p className="text-[10px] text-gray-400 mt-1">{t('retailer.lockedByFarmer')}</p>
                             </div>
 
                             <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                                    Total Transport Fees (₹)
+                                    {t('retailer.transportFees')} (₹)
                                 </label>
                                 <div className="text-lg font-bold text-gray-700">
-                                    ₹{Number(formData.transport_fees || 0).toFixed(2)}
+                                    {formatCurrency(formData.transport_fees || 0)}
                                 </div>
-                                <p className="text-[10px] text-gray-400 mt-1">Locked (Accumulated from all legs)</p>
+                                <p className="text-[10px] text-gray-400 mt-1">{t('retailer.accumulatedFees')}</p>
                             </div>
 
                             <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                                 <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                                    Distributor Margin (₹)
+                                    {t('retailer.distributorMargin')} (₹)
                                 </label>
                                 <div className="text-lg font-bold text-gray-700">
-                                    ₹{Number(formData.distributor_margin || 0).toFixed(2)}
+                                    {formatCurrency(formData.distributor_margin || 0)}
                                 </div>
-                                <p className="text-[10px] text-gray-400 mt-1">Locked (Set by Distributor)</p>
+                                <p className="text-[10px] text-gray-400 mt-1">{t('retailer.lockedByDistributor')}</p>
                             </div>
 
                             <div className="bg-white p-3 rounded-lg border-2 border-primary/30 ring-1 ring-primary/10 shadow-sm">
                                 <label className="block text-xs font-bold text-primary uppercase mb-1">
-                                    Your Retailer Margin (₹) *
+                                    {t('retailer.retailerMargin')} (₹) *
                                 </label>
                                 <input
                                     type="number"
@@ -199,7 +203,7 @@ const NewListingPage = () => {
                                     required
                                     min="0"
                                 />
-                                <p className="text-[10px] text-primary/70 mt-1 font-medium italic">Adjust your margin here</p>
+                                <p className="text-[10px] text-primary/70 mt-1 font-medium italic">{t('retailer.adjustMargin')}</p>
                             </div>
                         </div>
 
@@ -208,14 +212,14 @@ const NewListingPage = () => {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Package className="w-5 h-5 text-primary" />
-                                    <span className="font-medium text-gray-900">Total Retail Price</span>
+                                    <span className="font-medium text-gray-900">{t('retailer.totalRetailPrice')}</span>
                                 </div>
                                 <span className="text-2xl font-bold text-primary">
-                                    ₹{calculateTotalPrice().toLocaleString('hi-IN', { minimumFractionDigits: 2 })}
+                                    {formatCurrency(calculateTotalPrice())}
                                 </span>
                             </div>
                             <p className="text-xs text-gray-600 mt-2">
-                                This is the final price consumers will see
+                                {t('retailer.finalPriceNote')}
                             </p>
                         </div>
 
@@ -226,14 +230,14 @@ const NewListingPage = () => {
                                 onClick={() => navigate('/retailer/dashboard')}
                                 className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button
                                 type="submit"
                                 disabled={submitting || batches.length === 0}
                                 className="flex-1 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50"
                             >
-                                {submitting ? 'Creating...' : 'Create Listing'}
+                                {submitting ? t('retailer.creating') : t('retailer.createListing')}
                             </button>
                         </div>
                     </form>

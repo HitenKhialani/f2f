@@ -68,7 +68,7 @@ const RetailerDashboard = () => {
       setAnalytics(response.data);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
-      setError(err.response?.data?.error || 'Failed to load dashboard data');
+      setError(err.response?.data?.error || t('errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -108,7 +108,7 @@ const RetailerDashboard = () => {
             onClick={fetchDashboardData}
             className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
           >
-            Retry
+            {t('common.retry')}
           </button>
         </div>
       </MainLayout>
@@ -122,46 +122,46 @@ const RetailerDashboard = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Retailer Dashboard</h1>
-          <p className="text-gray-600">Analyze your inventory, sales and listings performance</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('dashboard.retailerTitle')}</h1>
+          <p className="text-gray-600">{t('dashboard.retailerSubtitle')}</p>
         </div>
 
         {/* Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <MetricCard
-            title="Incoming Shipments"
+            title={t('dashboard.incomingShipments')}
             value={metrics.incoming_shipments || 0}
             icon={Truck}
             color="bg-amber-500"
-            subtext="Awaiting Confirmation"
+            subtext={t('dashboard.awaitingConfirmation')}
           />
           <MetricCard
-            title="Inventory Value"
+            title={t('dashboard.inventoryValue')}
             value={formatCurrency(metrics.inventory_value || 0)}
             icon={Package}
             color="bg-blue-500"
-            subtext="Active Listings Worth"
+            subtext={t('dashboard.activeListingsWorth')}
           />
           <MetricCard
-            title="Total Listings"
+            title={t('dashboard.totalListings')}
             value={metrics.active_listings || 0}
             icon={ShoppingCart}
             color="bg-purple-500"
-            subtext="Active for Sale"
+            subtext={t('dashboard.activeForSale')}
           />
           <MetricCard
-            title="Total Sales Revenue"
+            title={t('dashboard.totalSalesRevenue')}
             value={formatCurrency(metrics.total_sales_revenue || 0)}
             icon={IndianRupee}
             color="bg-green-600"
-            subtext="Earnings to Date"
+            subtext={t('dashboard.earningsToDate')}
           />
           <MetricCard
-            title="Units Sold"
+            title={t('dashboard.unitsSold')}
             value={metrics.units_sold || 0}
             icon={CheckCircle}
             color="bg-emerald-500"
-            subtext="Completed Sales"
+            subtext={t('dashboard.completedSalesLabel')}
           />
         </div>
 
@@ -169,7 +169,7 @@ const RetailerDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Inventory Distribution Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Inventory Distribution</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboard.inventoryDistribution')}</h3>
             {inventoryChartData.length > 0 ? (
               <div className="h-64 relative">
                 <ResponsiveContainer width="100%" height="100%">
@@ -205,7 +205,7 @@ const RetailerDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <Store className="w-12 h-12 mx-auto mb-2" />
-                  <p>No inventory data available</p>
+                  <p>{t('dashboard.noInventoryData')}</p>
                 </div>
               </div>
             )}
@@ -213,7 +213,7 @@ const RetailerDashboard = () => {
 
           {/* Monthly Sales Chart */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Sales</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dashboard.monthlySales')}</h3>
             {monthlySalesData.length > 0 ? (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -236,7 +236,7 @@ const RetailerDashboard = () => {
               <div className="h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center">
                   <TrendingUp className="w-12 h-12 mx-auto mb-2" />
-                  <p>No sales data available</p>
+                  <p>{t('dashboard.noSalesData')}</p>
                 </div>
               </div>
             )}
@@ -247,9 +247,9 @@ const RetailerDashboard = () => {
         {!metrics.active_listings && !metrics.units_sold && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12">
             <Activity className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Welcome to your Dashboard</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('dashboard.welcomeDashboard')}</h3>
             <p className="text-gray-600 max-w-md mx-auto">
-              Start by listing your products or confirming incoming shipments to see your analytics here.
+              {t('dashboard.welcomeSubtext')}
             </p>
           </div>
         )}

@@ -18,6 +18,8 @@ import {
 import MainLayout from '../../components/layout/MainLayout';
 import { transportAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -37,7 +39,7 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const ActionButton = ({ status, onAccept, onReject, onArrive, onDeliver }) => {
+const ActionButton = ({ status, onAccept, onReject, onArrive, onDeliver, t }) => {
   switch (status) {
     case 'PENDING':
       return (
@@ -47,14 +49,14 @@ const ActionButton = ({ status, onAccept, onReject, onArrive, onDeliver }) => {
             className="px-3 py-1.5 bg-emerald-600 text-white text-xs rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-1"
           >
             <CheckCircle className="w-3 h-3" />
-            Accept
+            {t('transporter.accept')}
           </button>
           <button
             onClick={onReject}
             className="px-3 py-1.5 border border-red-200 text-red-600 text-xs rounded-lg hover:bg-red-50 transition-colors flex items-center gap-1"
           >
             <XCircle className="w-3 h-3" />
-            Reject
+            {t('transporter.reject')}
           </button>
         </div>
       );
@@ -67,7 +69,7 @@ const ActionButton = ({ status, onAccept, onReject, onArrive, onDeliver }) => {
           className="px-3 py-1.5 bg-amber-500 text-white text-xs rounded-lg hover:bg-amber-600 transition-colors flex items-center gap-1"
         >
           <MapPin className="w-3 h-3" />
-          Mark Arrived
+          {t('transporter.markArrived')}
         </button>
       );
     case 'ARRIVAL_CONFIRMED':
@@ -77,7 +79,7 @@ const ActionButton = ({ status, onAccept, onReject, onArrive, onDeliver }) => {
           className="px-3 py-1.5 bg-emerald-600 text-white text-xs rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-1"
         >
           <CheckCircle className="w-3 h-3" />
-          Mark Delivered
+          {t('transporter.markDelivered')}
         </button>
       );
     case 'ARRIVED':
@@ -99,9 +101,11 @@ const ActionButton = ({ status, onAccept, onReject, onArrive, onDeliver }) => {
 const TransporterShipmentsList = ({
   title,
   filterFn,
-  emptyMessage = "No shipments found",
+  emptyMessage,
   showActions = true
 }) => {
+  const { t } = useTranslation();
+  const { formatCurrency, formatNumber } = useLocalizedNumber();
   const toast = useToast();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -125,7 +129,7 @@ const TransporterShipmentsList = ({
       setError(null);
     } catch (err) {
       console.error('Error fetching transport requests:', err);
-      setError('Failed to load shipments');
+      setError(t('errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -164,7 +168,7 @@ const TransporterShipmentsList = ({
       fetchRequests();
     } catch (error) {
       console.error('Error updating status:', error);
-      toast.error(error.response?.data?.message || 'Failed to update status');
+      toast.error(error.response?.data?.message || t('toast.errorGeneric'));
     }
   };
 
@@ -172,7 +176,7 @@ const TransporterShipmentsList = ({
     try {
       const transportFeeVal = parseFloat(transportFee || 0);
       if (isNaN(transportFeeVal) || transportFeeVal < 0) {
-        toast.warning('Please enter a valid transport fee');
+        toast.warning(t('errors.required'));
         return;
       }
       await transportAPI.acceptRequest(selectedRequestId, { transporter_fee_per_unit: transportFeeVal });
@@ -182,7 +186,7 @@ const TransporterShipmentsList = ({
       fetchRequests();
     } catch (error) {
       console.error('Error accepting request:', error);
-      toast.error(error.response?.data?.message || 'Failed to accept request');
+      toast.error(error.response?.data?.message || t('toast.errorGeneric'));
     }
   };
 
@@ -193,7 +197,7 @@ const TransporterShipmentsList = ({
   };
 
   const getTypeLabel = (role) => {
-    return role === 'farmer' ? 'Farmer' : 'Distributor';
+    return role === 'farmer' ? t('roles.farmer') : t('roles.distributor');
   };
 
   const uniqueStatuses = [...new Set(filteredRequests.map(r => r.status))];
@@ -217,7 +221,7 @@ const TransporterShipmentsList = ({
             onClick={fetchRequests}
             className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
           >
-            Retry
+            {t('common.retry')}
           </button>
         </div>
       </MainLayout>
@@ -244,7 +248,7 @@ const TransporterShipmentsList = ({
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search by batch ID, organization, or crop type..."
+                placeholder={t('common.search')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
@@ -258,7 +262,7 @@ const TransporterShipmentsList = ({
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 appearance-none bg-white"
                 >
-                  <option value="all">All Statuses</option>
+                  <option value="all">{t('common.all')}</option>
                   {uniqueStatuses.map(status => (
                     <option key={status} value={status}>
                       {status?.replace(/_/g, ' ')}
@@ -290,10 +294,10 @@ const TransporterShipmentsList = ({
                     <td colSpan={showActions ? 6 : 5} className="text-center py-12">
                       <div className="flex flex-col items-center">
                         <Truck className="w-12 h-12 text-gray-300 mb-3" />
-                        <p className="text-gray-500 font-medium">{emptyMessage}</p>
+                        <p className="text-gray-500 font-medium">{emptyMessage || t('transporter.noShipments')}</p>
                         {searchTerm && (
                           <p className="text-sm text-gray-400 mt-1">
-                            Try adjusting your search or filter
+                            {t('common.noRecordsFound')}
                           </p>
                         )}
                       </div>
@@ -309,7 +313,7 @@ const TransporterShipmentsList = ({
                             {request.batch_details?.product_batch_id || 'N/A'}
                           </span>
                           <span className="text-xs text-gray-500 block">
-                            {request.batch_details?.crop_type || 'N/A'} • {request.batch_details?.quantity || 0} kg
+                            {request.batch_details?.crop_type || 'N/A'} • {formatNumber(request.batch_details?.quantity || 0)} {t('common.kg')}
                           </span>
                         </div>
                       </td>
@@ -348,9 +352,9 @@ const TransporterShipmentsList = ({
                         <span className="md:hidden font-bold">Fee:</span>
                         <div className="text-right md:text-left">
                           <span className="text-sm font-medium text-gray-900">
-                            ₹{parseFloat(request.transporter_fee_per_unit || 0).toLocaleString()}
+                            {formatCurrency(request.transporter_fee_per_unit || 0)}
                           </span>
-                          <span className="text-xs text-gray-400 block">per unit</span>
+                          <span className="text-xs text-gray-400 block">{t('common.per')} {t('common.kg')}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 flex justify-between md:table-cell">
@@ -366,6 +370,7 @@ const TransporterShipmentsList = ({
                               onReject={() => handleStatusUpdate(request.id, 'REJECTED')}
                               onArrive={() => handleStatusUpdate(request.id, 'ARRIVED')}
                               onDeliver={() => handleStatusUpdate(request.id, 'DELIVERED')}
+                              t={t}
                             />
                           </div>
                         </td>
@@ -385,14 +390,14 @@ const TransporterShipmentsList = ({
                 <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
                   <IndianRupee className="w-5 h-5 text-emerald-600" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Enter Transport Fee</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t('transporter.transportFee')}</h2>
               </div>
               <p className="text-gray-600 mb-4">
-                Please enter the transport fee per unit (₹) for this shipment.
+                {t('transporter.feeDescription')}
               </p>
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Transport Fee per Unit (₹)
+                  {t('transporter.transportFee')} ({t('common.per')} {t('common.kg')})
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
@@ -419,13 +424,13 @@ const TransporterShipmentsList = ({
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleAcceptWithFee}
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
                 >
-                  Accept & Continue
+                  {t('common.accept')}
                 </button>
               </div>
             </div>

@@ -197,9 +197,9 @@ const IncomingTransport = () => {
                           {(item.status === 'ARRIVED_AT_RETAILER' || item.status === 'ARRIVED') && (
                             <button
                               onClick={() => handleConfirmArrival(item.id)}
-                              className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 w-full md:w-auto"
+                              className="px-3 py-1.5 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 flex items-center gap-1 w-full md:w-auto"
                             >
-                              <CheckCircle className="w-3 h-3 inline mr-1" />
+                              <CheckCircle className="w-3 h-3" />
                               Confirm Arrival
                             </button>
                           )}
@@ -212,13 +212,13 @@ const IncomingTransport = () => {
                           {(item.status === 'ACCEPTED' || item.status?.includes('IN_TRANSIT')) && (
                             <span className="text-xs text-amber-600 flex items-center gap-1">
                               <Navigation className="w-3 h-3" />
-                              In transit
+                              In Transit
                             </span>
                           )}
                           {(item.status === 'ARRIVAL_CONFIRMED' || item.status === 'ARRIVAL_CONFIRMED_BY_RETAILER') && (
                             <span className="text-xs text-purple-600 flex items-center gap-1">
                               <CheckCircle className="w-3 h-3" />
-                              Arrival confirmed
+                              Arrival Confirmed
                             </span>
                           )}
                         </div>

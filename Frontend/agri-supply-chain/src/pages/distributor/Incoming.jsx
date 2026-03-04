@@ -284,8 +284,9 @@ const Incoming = () => {
                           {(item.status === 'ARRIVED_AT_DISTRIBUTOR' || item.status === 'ARRIVED') && (
                             <button
                               onClick={() => handleConfirmArrival(item.id)}
-                              className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700"
+                              className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 flex items-center gap-1"
                             >
+                              <CheckCircle className="w-3 h-3" />
                               {t('buttons.confirmArrival')}
                             </button>
                           )}
@@ -294,38 +295,43 @@ const Incoming = () => {
                               {!hasDistributorInspection(item.batch || item.batch_details?.id || item.id) ? (
                                 <button
                                   onClick={() => { setSelectedBatch(item); setShowInspectionModal(true); }}
-                                  className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                                  className="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 flex items-center gap-1"
                                   title={t('distributor.inspect')}
                                 >
-                                  <ClipboardCheck className="w-4 h-4" />
+                                  <ClipboardCheck className="w-3 h-3" />
+                                  Inspect
                                 </button>
                               ) : (
-                                <span className="p-2 text-emerald-600" title={t('distributor.inspected')}>
-                                  <CheckCircle className="w-4 h-4" />
+                                <span className="px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg flex items-center gap-1" title={t('distributor.inspected')}>
+                                  <CheckCircle className="w-3 h-3" />
+                                  Inspected
                                 </span>
                               )}
                               <button
                                 onClick={() => { setSelectedBatch(item); setShowStoreModal(true); }}
-                                className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                                className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 flex items-center gap-1"
                                 title={t('distributor.store')}
                               >
-                                <Store className="w-4 h-4" />
+                                <Store className="w-3 h-3" />
+                                Store
                               </button>
                               <button
                                 onClick={() => handleSuspendBatch(item.id)}
-                                className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                                className="px-3 py-1.5 bg-red-100 text-red-700 text-xs font-bold rounded-lg hover:bg-red-200 flex items-center gap-1"
                                 title={t('common.suspend')}
                               >
-                                <Ban className="w-4 h-4" />
+                                <Ban className="w-3 h-3" />
+                                Suspend
                               </button>
                             </>
                           )}
                           <button
                             onClick={() => { setSelectedBatch(item); setShowInspectionTimeline(true); }}
-                            className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-cosmos-700 rounded-lg transition-colors"
+                            className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-200 flex items-center gap-1"
                             title={t('common.history')}
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="w-3 h-3" />
+                            History
                           </button>
                         </div>
                       </td>

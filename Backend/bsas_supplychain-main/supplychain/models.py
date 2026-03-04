@@ -136,6 +136,18 @@ class CropBatch(models.Model):
         max_length=32, choices=BatchPhase.choices, blank=True, default=''
     )
     is_locked = models.BooleanField(default=False)
+
+    # Payment Status Fields
+    farmer_payment_status = models.CharField(max_length=20, default="PENDING")
+    transporter_payment_status = models.CharField(max_length=20, default="PENDING")
+    distributor_payment_status = models.CharField(max_length=20, default="PENDING")
+    retailer_payment_to_transporter_status = models.CharField(max_length=20, default="PENDING")
+    # Additional payment fields existing in database
+    distributor_payment_to_farmer_status = models.CharField(max_length=20, default="PENDING")
+    distributor_payment_to_transporter_status = models.CharField(max_length=20, default="PENDING")
+    farmer_payment_to_transporter_status = models.CharField(max_length=20, default="PENDING")
+    retailer_payment_to_distributor_status = models.CharField(max_length=20, default="PENDING")
+    distributor_payment_to_transporter_retailer_phase_status = models.CharField(max_length=20, default="PENDING")
     
     created_at = models.DateTimeField(auto_now_add=True)
 

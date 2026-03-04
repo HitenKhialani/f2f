@@ -35,6 +35,7 @@ class KYCRecordViewSet(viewsets.ModelViewSet):
 
 class CropBatchViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CropBatchSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -78,6 +79,7 @@ class CropBatchViewSet(viewsets.ModelViewSet):
 
 class TransportRequestViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TransportRequestSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -297,6 +299,7 @@ class InspectionReportViewSet(viewsets.ModelViewSet):
 class BatchSplitViewSet(viewsets.ModelViewSet):
     queryset = models.BatchSplit.objects.select_related("parent_batch", "destination_retailer").all()
     serializer_class = serializers.BatchSplitSerializer
+    permission_classes = [IsAuthenticated]
     
     def perform_create(self, serializer):
         # Get the parent batch
@@ -338,6 +341,7 @@ class BatchSplitViewSet(viewsets.ModelViewSet):
 class RetailListingViewSet(viewsets.ModelViewSet):
     queryset = models.RetailListing.objects.select_related("batch", "retailer").all()
     serializer_class = serializers.RetailListingSerializer
+    permission_classes = [IsAuthenticated]
     def perform_create(self, serializer):
         # Get the retailer's profile from the current user
         try:
@@ -427,3 +431,4 @@ class RetailListingViewSet(viewsets.ModelViewSet):
 class ConsumerScanViewSet(viewsets.ModelViewSet):
     queryset = models.ConsumerScan.objects.select_related("listing").all()
     serializer_class = serializers.ConsumerScanSerializer
+    permission_classes = [IsAuthenticated]

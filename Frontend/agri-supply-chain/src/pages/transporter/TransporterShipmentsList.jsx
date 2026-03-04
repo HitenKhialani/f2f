@@ -430,7 +430,7 @@ const TransporterShipmentsList = ({
                   onClick={handleAcceptWithFee}
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
                 >
-                  {t('common.accept')}
+                  {t('buttons.accept')}
                 </button>
               </div>
             </div>

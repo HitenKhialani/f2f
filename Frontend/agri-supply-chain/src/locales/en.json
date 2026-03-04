@@ -154,6 +154,8 @@
     "howItWorksHighlight": "Farm to Fork",
     "farm": "Farm",
     "farmDesc": "Harvest & Verification",
+    "transporter": "Transporter",
+    "transporterDesc": "Logistics & Delivery Services",
     "distributor": "Distributor",
     "distributorDesc": "Storage & Logistics",
     "retailer": "Retailer",
@@ -264,19 +266,19 @@
       "farmer": {
         "title": "Farmer",
         "subtitle": "Crop Production & Batch Management",
-        "desc": "Register your harvest and track it from farm to consumer",
+        "desc": "Manage crop production and create batches for tracking",
         "features": ["Create crop batches", "Upload certificates", "Connect with distributors"]
       },
       "distributor": {
         "title": "Distributor",
-        "subtitle": "Inspection & Storage Management",
-        "desc": "Receive, inspect and distribute crops efficiently",
-        "features": ["Inspect crops", "Create quality reports", "Sell to retailers"]
+        "subtitle": "Crop Inspection & Storage",
+        "desc": "Inspect crop quality and manage storage facilities",
+        "features": ["Inspect incoming crops", "Create quality reports", "Sell to retailers"]
       },
       "transporter": {
         "title": "Transporter",
         "subtitle": "Logistics & Delivery Services",
-        "desc": "Handle transport requests and ensure timely delivery",
+        "desc": "Provide fast and secure transport services for crops",
         "features": ["View transport requests", "Real-time tracking", "Delivery proof"]
       },
       "retailer": {
@@ -341,6 +343,32 @@
     "retailerSubtitle": "Manage your inventory and sales",
     "consumerTitle": "Consumer Dashboard",
     "consumerSubtitle": "Browse and trace agricultural products",
+    "farmer": {
+      "totalBatches": "Total Batches",
+      "activeBatches": "Active Batches",
+      "completedBatches": "Completed Batches",
+      "totalRevenue": "Total Revenue",
+      "batchDistribution": "Batch Distribution",
+      "noDataAvailable": "No data available"
+    },
+    "retailer": {
+      "incomingShipments": "Incoming Shipments",
+      "inventoryValue": "Inventory Value",
+      "totalListings": "Total Listings",
+      "totalSalesRevenue": "Total Sales Revenue",
+      "unitsSold": "Units Sold",
+      "awaitingConfirmation": "Awaiting Confirmation",
+      "activeListingsWorth": "Active Listings Worth",
+      "activeForSale": "Active for Sale",
+      "earningsToDate": "Earnings to Date",
+      "completedSalesLabel": "Completed Sales",
+      "inventoryDistribution": "Inventory Distribution",
+      "monthlySales": "Monthly Sales",
+      "noInventoryData": "No inventory data available",
+      "noSalesData": "No sales data available",
+      "welcomeDashboard": "Welcome to your Dashboard",
+      "welcomeSubtext": "Start by creating your first listing"
+    },
     "pendingKYC": "Pending KYC",
     "totalUsers": "Total Users",
     "approvedKYC": "Approved KYC",
@@ -373,7 +401,19 @@
     "noActivityData": "No activity data available",
     "noInventoryData": "No inventory data available",
     "noBatchesFound": "No batches found",
-    "createFirstBatch": "Create your first batch to get started."
+    "createFirstBatch": "Create your first batch to get started.",
+    "incomingShipments": "Incoming Shipments",
+    "inventoryValue": "Inventory Value",
+    "totalSalesRevenue": "Total Sales Revenue",
+    "unitsSold": "Units Sold",
+    "activeListingsWorth": "Active Listings Worth",
+    "activeForSale": "Active for Sale",
+    "completedSalesLabel": "Completed Sales",
+    "inventoryDistribution": "Inventory Distribution",
+    "monthlySales": "Monthly Sales",
+    "noSalesData": "No sales data available",
+    "welcomeDashboard": "Welcome to your Dashboard",
+    "welcomeSubtext": "Start by creating your first listing"
   },
   "batch": {
     "batchId": "Batch ID",

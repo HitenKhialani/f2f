@@ -45,8 +45,6 @@ const PublicTopNav = () => {
     }, []);
 
     const navLinks = [
-        { name: 'Home', path: '/' },
-        { name: 'Browse', path: '/consumer/portal' },
     ];
 
     const handleScrollTo = (id) => {

@@ -1,55 +1,57 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Sprout, Truck, Store, ShoppingCart, User, ArrowRight } from 'lucide-react';
 import PublicTopNav from '../../components/layout/PublicTopNav';
 
 const RoleSelection = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const roles = [
     {
       id: 'farmer',
       icon: <Sprout className="w-12 h-12" />,
-      title: 'Farmer',
-      subtitle: 'Crop Production & Batch Management',
-      description: 'Manage crop production and create batches for tracking',
-      features: ['Create crop batches', 'Upload certificates', 'Connect with distributors'],
+      title: t('roleSelection.roles.farmer.title'),
+      subtitle: t('roleSelection.roles.farmer.subtitle'),
+      description: t('roleSelection.roles.farmer.desc'),
+      features: t('roleSelection.roles.farmer.features', { returnObjects: true }),
       color: 'from-green-500 to-emerald-600',
     },
     {
       id: 'distributor',
       icon: <Store className="w-12 h-12" />,
-      title: 'Distributor',
-      subtitle: 'Crop Inspection & Storage',
-      description: 'Inspect crop quality and manage storage facilities',
-      features: ['Inspect incoming crops', 'Create quality reports', 'Sell to retailers'],
+      title: t('roleSelection.roles.distributor.title'),
+      subtitle: t('roleSelection.roles.distributor.subtitle'),
+      description: t('roleSelection.roles.distributor.desc'),
+      features: t('roleSelection.roles.distributor.features', { returnObjects: true }),
       color: 'from-blue-500 to-cyan-600',
     },
     {
       id: 'transporter',
       icon: <Truck className="w-12 h-12" />,
-      title: 'Transporter',
-      subtitle: 'Transport & Logistics',
-      description: 'Provide fast and secure transport services for crops',
-      features: ['View transport requests', 'Real-time tracking', 'Delivery proof'],
+      title: t('roleSelection.roles.transporter.title'),
+      subtitle: t('roleSelection.roles.transporter.subtitle'),
+      description: t('roleSelection.roles.transporter.desc'),
+      features: t('roleSelection.roles.transporter.features', { returnObjects: true }),
       color: 'from-orange-500 to-amber-600',
     },
     {
       id: 'retailer',
       icon: <ShoppingCart className="w-12 h-12" />,
-      title: 'Retailer',
-      subtitle: 'Stock Management & Sales',
-      description: 'Manage inventory and sell to consumers',
-      features: ['View inventory', 'Create sale listings', 'Connect with consumers'],
+      title: t('roleSelection.roles.retailer.title'),
+      subtitle: t('roleSelection.roles.retailer.subtitle'),
+      description: t('roleSelection.roles.retailer.desc'),
+      features: t('roleSelection.roles.retailer.features', { returnObjects: true }),
       color: 'from-purple-500 to-violet-600',
     },
     {
       id: 'consumer',
       icon: <User className="w-12 h-12" />,
-      title: 'Consumer',
-      subtitle: 'Traceability & Verification',
-      description: 'Check crop origin and verify authenticity',
-      features: ['Scan QR code', 'View crop history', 'Trusted purchases'],
+      title: t('roleSelection.roles.consumer.title'),
+      subtitle: t('roleSelection.roles.consumer.subtitle'),
+      description: t('roleSelection.roles.consumer.desc'),
+      features: t('roleSelection.roles.consumer.features', { returnObjects: true }),
       color: 'from-rose-500 to-pink-600',
     },
   ];
@@ -67,10 +69,10 @@ const RoleSelection = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Select Your Role
+            {t('roleSelection.title')}
           </h1>
           <p className="text-xl text-gray-600">
-            Choose your role in the agricultural supply chain
+            {t('roleSelection.subtitle')}
           </p>
         </div>
 
@@ -107,7 +109,7 @@ const RoleSelection = () => {
 
                 {/* CTA Button */}
                 <button className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gray-50 hover:bg-primary hover:text-white text-gray-700 rounded-xl font-medium transition-colors group-hover:bg-primary group-hover:text-white">
-                  <span>Register</span>
+                  <span>{t('roleSelection.register')}</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
@@ -118,13 +120,13 @@ const RoleSelection = () => {
         {/* Bottom Info */}
         <div className="mt-12 text-center">
           <p className="text-gray-600 mb-4">
-            Already part of AgriChain?
+            {t('roleSelection.alreadyPart')}
           </p>
           <Link
             to="/login"
             className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
           >
-            <span>Log in</span>
+            <span>{t('roleSelection.logIn')}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

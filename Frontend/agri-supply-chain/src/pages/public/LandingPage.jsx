@@ -93,6 +93,7 @@ const LandingPage = () => {
   const PipelineUI = () => {
     const steps = [
       { id: 'farm', label: t('landing.farm'), icon: Sprout, description: t('landing.farmDesc') },
+      { id: 'transporter', label: t('roles.transporter'), icon: Truck, description: t('landing.transporterDesc') },
       { id: 'distributor', label: t('landing.distributor'), icon: Package, description: t('landing.distributorDesc') },
       { id: 'retailer', label: t('landing.retailer'), icon: ShoppingCart, description: t('landing.retailerDesc') },
       { id: 'consumer', label: t('landing.consumer'), icon: User, description: t('landing.consumerDesc') },

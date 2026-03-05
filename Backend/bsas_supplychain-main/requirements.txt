@@ -5,3 +5,9 @@ django-cors-headers>=4.3.0
 django-filter>=23.0
 psycopg2-binary>=2.9.0
 qrcode[pil]>=7.0
+
+# Blockchain Integration
+web3>=6.0.0
+eth-account>=0.8.0
+eth-abi>=4.0.0
+python-dotenv>=1.0.0

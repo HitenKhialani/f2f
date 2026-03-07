@@ -44,6 +44,7 @@ router.register(r"transport-requests", views.TransportRequestViewSet)
 router.register(r"inspection-reports", views.InspectionReportViewSet)
 router.register(r"batch-splits", views.BatchSplitViewSet)
 router.register(r"retail-listings", views.RetailListingViewSet)
+router.register(r"farmer", views.FarmerViewSet, basename="farmer")
 if PaymentViewSet is not None:
     router.register(r"payments", PaymentViewSet, basename="payment")
     print("DEBUG: payments route registered")

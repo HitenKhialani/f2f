@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Sprout, User, Mail, Lock, Phone, Building2, MapPin, ArrowLeft, Loader2, CheckCircle, FileText, Upload } from 'lucide-react';
+import { Sprout, User, Mail, Lock, Phone, Building2, MapPin, ArrowLeft, Loader2, CheckCircle, FileText, Upload, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { farmerAPI } from '../../services/api';
 
 const RegistrationPage = () => {
   const { role } = useParams();
@@ -25,6 +26,20 @@ const RegistrationPage = () => {
 
   const [documentFile, setDocumentFile] = useState(null);
   const [documentName, setDocumentName] = useState('');
+  const [selectedCrops, setSelectedCrops] = useState([]);
+
+  const availableCrops = [
+    'Wheat',
+    'Rice', 
+    'Corn',
+    'Soybean',
+    'Cotton',
+    'Sugarcane',
+    'Bajra',
+    'Millet',
+    'Vegetables',
+    'Fruits'
+  ];
 
   const roleConfig = {
     farmer: {
@@ -89,6 +104,14 @@ const RegistrationPage = () => {
     }
   };
 
+  const handleCropToggle = (crop) => {
+    setSelectedCrops(prev => 
+      prev.includes(crop) 
+        ? prev.filter(c => c !== crop)
+        : [...prev, crop]
+    );
+  };
+
   const validateForm = () => {
     if (!formData.username || !formData.email || !formData.password) {
       setError('Please fill all required fields');
@@ -135,6 +158,17 @@ const RegistrationPage = () => {
       }
 
       await register(formDataToSend);
+      
+      // Save crop preferences for farmers
+      if (role === 'farmer' && selectedCrops.length > 0) {
+        try {
+          await farmerAPI.setCropPreferences(selectedCrops);
+        } catch (cropError) {
+          console.error('Failed to save crop preferences:', cropError);
+          // Don't fail registration if crop preferences fail
+        }
+      }
+      
       setSuccess(true);
       setTimeout(() => {
         navigate('/kyc-pending');
@@ -184,7 +218,7 @@ const RegistrationPage = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-y-auto">
         {/* Form Card */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
           {/* Card Header */}
@@ -355,6 +389,35 @@ const RegistrationPage = () => {
                   </div>
                 )}
               </div>
+
+              {/* Crop Preferences Section - Only for Farmers */}
+              {role === 'farmer' && (
+                <div className="border-t border-gray-100 pt-6">
+                  <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <Sprout className="w-4 h-4" />
+                    Select Crops You Grow
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {availableCrops.map((crop) => (
+                      <label
+                        key={crop}
+                        className="flex items-center gap-2 p-3 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:border-green-500 hover:bg-green-50"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedCrops.includes(crop)}
+                          onChange={() => handleCropToggle(crop)}
+                          className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        />
+                        <span className="text-sm font-medium text-gray-700">{crop}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3">
+                    Select all crops you typically grow. This helps personalize your batch creation experience.
+                  </p>
+                </div>
+              )}
 
               {/* Document Upload Section - Role Based */}
               {config.documentLabel && (

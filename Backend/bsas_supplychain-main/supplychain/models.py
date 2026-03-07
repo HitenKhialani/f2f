@@ -486,3 +486,20 @@ class Payment(models.Model):
 
 
 # Later phase: After all payments declared, generate SHA256 hash and push to blockchain module.
+
+
+class FarmerCropPreference(models.Model):
+    farmer = models.ForeignKey(
+        StakeholderProfile, 
+        on_delete=models.CASCADE, 
+        related_name="crop_preferences"
+    )
+    crop_name = models.CharField(max_length=120)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['farmer', 'crop_name']
+        ordering = ['crop_name']
+
+    def __str__(self) -> str:
+        return f"{self.farmer.user.username} - {self.crop_name}"

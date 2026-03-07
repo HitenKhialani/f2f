@@ -154,4 +154,11 @@ export const dashboardAPI = {
   getRetailerAnalytics: () => api.get('/dashboard/retailer/'),
 };
 
+// Farmer APIs
+export const farmerAPI = {
+  getCrops: () => api.get('/farmer/crops/'),
+  getBatchRecommendations: () => api.get('/farmer/batch-recommendations/'),
+  setCropPreferences: (crops) => api.post('/farmer/crop-preferences/', { crops }),
+};
+
 export default api;

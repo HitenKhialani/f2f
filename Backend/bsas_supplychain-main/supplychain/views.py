@@ -110,6 +110,103 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
+class FarmerViewSet(viewsets.ViewSet):
+    """
+    Farmer-specific API endpoints
+    """
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'], url_path='crops')
+    def get_crops(self, request):
+        """
+        Get crops preferred by the current farmer
+        """
+        try:
+            profile = request.user.stakeholderprofile
+            if profile.role != models.StakeholderRole.FARMER:
+                return Response(
+                    {"error": "Only farmers can access their crop preferences"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            preferences = models.FarmerCropPreference.objects.filter(farmer=profile)
+            crops = [pref.crop_name for pref in preferences]
+            
+            return Response(crops)
+        except models.StakeholderProfile.DoesNotExist:
+            return Response(
+                {"error": "Farmer profile not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    @action(detail=False, methods=['get'], url_path='batch-recommendations')
+    def get_batch_recommendations(self, request):
+        """
+        Get last 5 batches created by the farmer for recommendations
+        """
+        try:
+            profile = request.user.stakeholderprofile
+            if profile.role != models.StakeholderRole.FARMER:
+                return Response(
+                    {"error": "Only farmers can access batch recommendations"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            # Get last 5 batches created by this farmer
+            batches = models.CropBatch.objects.filter(
+                farmer=profile,
+                is_child_batch=False  # Only show parent batches
+            ).order_by('-created_at')[:5]
+            
+            serializer = serializers.BatchRecommendationSerializer(batches, many=True)
+            return Response(serializer.data)
+            
+        except models.StakeholderProfile.DoesNotExist:
+            return Response(
+                {"error": "Farmer profile not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    @action(detail=False, methods=['post'], url_path='crop-preferences')
+    def set_crop_preferences(self, request):
+        """
+        Set crop preferences for the farmer
+        """
+        try:
+            profile = request.user.stakeholderprofile
+            if profile.role != models.StakeholderRole.FARMER:
+                return Response(
+                    {"error": "Only farmers can set crop preferences"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            crops = request.data.get('crops', [])
+            if not isinstance(crops, list):
+                return Response(
+                    {"error": "Crops must be a list"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Clear existing preferences
+            models.FarmerCropPreference.objects.filter(farmer=profile).delete()
+            
+            # Add new preferences
+            for crop_name in crops:
+                if crop_name.strip():  # Only add non-empty crop names
+                    models.FarmerCropPreference.objects.create(
+                        farmer=profile,
+                        crop_name=crop_name.strip()
+                    )
+            
+            return Response({"message": "Crop preferences updated successfully"})
+            
+        except models.StakeholderProfile.DoesNotExist:
+            return Response(
+                {"error": "Farmer profile not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+
 class InspectionReportViewSet(viewsets.ModelViewSet):
     queryset = models.InspectionReport.objects.select_related(
         "batch", "created_by", "distributor"

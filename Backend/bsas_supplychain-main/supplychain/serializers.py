@@ -317,3 +317,17 @@ class PaymentSerializer(serializers.ModelSerializer):
             # Current user is payee, return payer name
             return obj.payer.user.get_full_name() or obj.payer.user.username
         return None
+
+
+class FarmerCropPreferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.FarmerCropPreference
+        fields = ["id", "farmer", "crop_name", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class BatchRecommendationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CropBatch
+        fields = ["crop_type", "quantity", "farmer_base_price_per_unit", "farm_location"]
+        read_only_fields = ["crop_type", "quantity", "farmer_base_price_per_unit", "farm_location"]

@@ -48,6 +48,7 @@ router.register(r"inspection-reports", views.InspectionReportViewSet)
 router.register(r"batch-splits", views.BatchSplitViewSet)
 router.register(r"retail-listings", views.RetailListingViewSet)
 router.register(r"consumer-scans", views.ConsumerScanViewSet)
+router.register(r"farmer", views.FarmerViewSet, basename="farmer")
 router.register(r"payments", PaymentViewSet, basename="payment")
 
 urlpatterns = [

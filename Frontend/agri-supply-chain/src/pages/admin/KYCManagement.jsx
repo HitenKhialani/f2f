@@ -95,7 +95,7 @@ const KYCManagement = () => {
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-y-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -341,7 +341,14 @@ const KYCManagement = () => {
                   <p className="text-gray-600 max-w-sm mx-auto">
                     The {viewingDocument.type} for <strong>{viewingDocument.user}</strong> has been uploaded and is ready for review.
                   </p>
-                  <p className="mt-4 text-xs text-gray-400">Document stored securely. Preview not available for this format.</p>
+                  <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-2">Document Information:</p>
+                    <div className="text-xs text-gray-500 space-y-1">
+                      <p>Type: {viewingDocument.type}</p>
+                      <p>User: {viewingDocument.user}</p>
+                      <p>Status: Verified ✓</p>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="p-12 text-center">

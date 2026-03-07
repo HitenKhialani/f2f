@@ -49,13 +49,11 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
   }
 
   body {
     @apply bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-100 font-display antialiased;
     overscroll-behavior: none;
-    overflow-x: hidden;
   }
 
   * {
@@ -232,6 +230,22 @@
   min-width: 600px;
 }
 
+/* Improve touch scrolling globally */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #6ee7b7;
+  border-radius: 3px;
+}
+
 @media (max-width: 767px) {
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
@@ -240,6 +254,7 @@
 
   .overflow-x-auto::-webkit-scrollbar {
     height: 4px;
+    width: 4px;
   }
 
   .overflow-x-auto::-webkit-scrollbar-thumb {

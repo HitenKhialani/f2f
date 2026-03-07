@@ -145,7 +145,7 @@ class VerifyBatchView(APIView):
     Verify batch data integrity by comparing current database state
     with the hash stored on the blockchain.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = []  # Public endpoint for consumer verification
     
     def get(self, request, batch_id):
         """
@@ -189,8 +189,8 @@ class VerifyBatchView(APIView):
                 }
             }
             
-            http_status = status.HTTP_200_OK if verification_result['verified'] else status.HTTP_409_CONFLICT
-            return Response(response_data, status=http_status)
+            # Always return 200 - verification result indicates success/failure, not HTTP status
+            return Response(response_data, status=status.HTTP_200_OK)
             
         except Exception as e:
             logger.error(f"Verification failed for batch {batch_id}: {e}")
@@ -208,7 +208,7 @@ class BatchAnchorsListView(APIView):
     Retrieve all blockchain anchors for a specific batch.
     Returns complete anchor history from the blockchain.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = []  # Public endpoint for anchor history
     
     def get(self, request, batch_id):
         """
@@ -275,7 +275,7 @@ class BlockchainStatusView(APIView):
     - Gas prices
     - Total anchors
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = []  # Public endpoint
     
     def get(self, request):
         """

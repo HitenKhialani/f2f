@@ -38,6 +38,13 @@ from supplychain.payment_views import (
     PaymentDeclareView,
     PaymentSettleView
 )
+from supplychain.blockchain_views import (
+    BlockchainStatusView,
+    AnchorBatchView,
+    VerifyBatchView,
+    BatchAnchorsListView,
+    RetryAnchorView
+)
 
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet, basename="user")
@@ -97,5 +104,11 @@ urlpatterns = [
     # Payment endpoints
     path("api/payment/<int:pk>/declare/", PaymentDeclareView.as_view(), name="payment-declare"),
     path("api/payment/<int:pk>/settle/", PaymentSettleView.as_view(), name="payment-settle"),
+    # Blockchain endpoints
+    path("api/blockchain/status/", BlockchainStatusView.as_view(), name="blockchain-status"),
+    path("api/batch/<str:batch_id>/anchor/", AnchorBatchView.as_view(), name="batch-anchor"),
+    path("api/batch/<str:batch_id>/verify/", VerifyBatchView.as_view(), name="batch-verify"),
+    path("api/batch/<str:batch_id>/anchors/", BatchAnchorsListView.as_view(), name="batch-anchors-list"),
+    path("api/events/<int:event_id>/retry-anchor/", RetryAnchorView.as_view(), name="event-retry-anchor"),
 ]
 

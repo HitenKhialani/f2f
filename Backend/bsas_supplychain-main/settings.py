@@ -1,13 +1,23 @@
 """Django settings for supplychain project."""
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Blockchain Configuration
+POLYGON_AMOY_RPC_URL = os.getenv("POLYGON_AMOY_RPC_URL")
+HASH_ANCHOR_CONTRACT_ADDRESS = os.getenv("HASH_ANCHOR_CONTRACT_ADDRESS")
+ANCHORER_PRIVATE_KEY = os.getenv("ANCHORER_PRIVATE_KEY")
 
 SECRET_KEY = "django-insecure-change-me"
 
 DEBUG = True
 
-ALLOWED_HOSTS: list[str] = []
+ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1", "0.0.0.0", "*"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",

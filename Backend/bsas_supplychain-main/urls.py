@@ -21,6 +21,7 @@ from supplychain.blockchain_views import (
     BlockchainStatusView,
     RetryAnchorView
 )
+print("DEBUG: Blockchain views imported successfully")
 try:
     from supplychain.payment_views import (
         PaymentViewSet,

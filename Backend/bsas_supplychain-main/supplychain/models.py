@@ -149,6 +149,10 @@ class CropBatch(models.Model):
     retailer_payment_to_distributor_status = models.CharField(max_length=20, default="PENDING")
     distributor_payment_to_transporter_retailer_phase_status = models.CharField(max_length=20, default="PENDING")
     
+    # Blockchain integration fields
+    last_anchored_at = models.DateTimeField(blank=True, null=True)
+    is_blockchain_verified = models.BooleanField(default=False)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -213,6 +217,11 @@ class BatchEvent(models.Model):
     )
     timestamp = models.DateTimeField(auto_now_add=True)
     metadata = models.JSONField(default=dict, blank=True)
+    
+    # Blockchain integration fields
+    blockchain_tx_hash = models.CharField(max_length=128, blank=True, null=True)
+    blockchain_block_number = models.BigIntegerField(blank=True, null=True)
+    snapshot_hash = models.CharField(max_length=64, blank=True, null=True)
     
     class Meta:
         ordering = ['-timestamp']

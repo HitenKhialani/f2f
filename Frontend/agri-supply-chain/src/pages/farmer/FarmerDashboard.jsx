@@ -210,6 +210,7 @@ const FarmerDashboard = () => {
   const [suspending, setSuspending] = useState(false);
   const [distributors, setDistributors] = useState([]);
   const [selectedDistributor, setSelectedDistributor] = useState('');
+  const [availableCrops, setAvailableCrops] = useState([]);
   const [formData, setFormData] = useState({
     crop_type: '',
     quantity: '',
@@ -220,7 +221,18 @@ const FarmerDashboard = () => {
   useEffect(() => {
     fetchDashboardData();
     fetchDistributors();
+    fetchCrops();
   }, []);
+
+  const fetchCrops = async () => {
+    try {
+      const response = await farmerAPI.getCrops();
+      setAvailableCrops(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch crops:', error);
+      setAvailableCrops([]);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -472,14 +484,19 @@ const FarmerDashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Crop Type *</label>
-                    <input
-                      type="text"
+                    <select
                       required
                       value={formData.crop_type}
                       onChange={(e) => setFormData({ ...formData, crop_type: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                      placeholder="e.g., Wheat, Rice"
-                    />
+                    >
+                      <option value="">Select a crop...</option>
+                      {availableCrops.map(crop => (
+                        <option key={crop.id || crop.name} value={crop.name}>
+                          {crop.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>

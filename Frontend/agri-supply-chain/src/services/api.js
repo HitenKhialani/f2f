@@ -161,4 +161,12 @@ export const farmerAPI = {
   setCropPreferences: (crops) => api.post('/farmer/crop-preferences/', { crops }),
 };
 
+// Payment APIs
+export const paymentAPI = {
+  list: () => api.get('/payments/'),
+  getSummary: () => api.get('/payments/summary/'),
+  declare: (paymentId) => api.post(`/payment/${paymentId}/declare/`),
+  settle: (paymentId) => api.post(`/payment/${paymentId}/settle/`),
+};
+
 export default api;

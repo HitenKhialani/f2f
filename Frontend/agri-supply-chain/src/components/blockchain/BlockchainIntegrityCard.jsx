@@ -92,7 +92,7 @@ const BlockchainIntegrityCard = ({ verificationData, loading, error }) => {
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Transaction Hash</p>
             <div className="flex items-center justify-between">
               <code className="text-sm font-mono text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700">
-                {verificationData.blockchain_record?.transaction_hash 
+                {verificationData.blockchain_record?.transaction_hash
                   ? `${verificationData.blockchain_record.transaction_hash.slice(0, 10)}...${verificationData.blockchain_record.transaction_hash.slice(-8)}`
                   : 'N/A'
                 }
@@ -117,12 +117,12 @@ const BlockchainIntegrityCard = ({ verificationData, loading, error }) => {
             <p className="text-sm font-medium text-slate-900 dark:text-white">
               {verificationData.blockchain_record?.anchored_at
                 ? new Date(verificationData.blockchain_record.anchored_at * 1000).toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })
                 : 'N/A'
               }
             </p>
@@ -152,7 +152,7 @@ const BlockchainIntegrityCard = ({ verificationData, loading, error }) => {
             <h4 className="font-medium text-slate-900 dark:text-white">No Blockchain Record</h4>
           </div>
           <p className="text-slate-600 dark:text-slate-400">
-            This batch has not yet been anchored to the blockchain. Blockchain verification will be available once critical events are processed.
+            This batch has no blockchain record. For recent batches, verification will be available once critical events are processed. Batches created before blockchain implementation will not have records.
           </p>
         </div>
       )}

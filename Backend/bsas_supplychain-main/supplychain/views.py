@@ -53,28 +53,34 @@ class CropBatchViewSet(viewsets.ModelViewSet):
         ).distinct()
     
     def perform_create(self, serializer):
-        profile = self.request.user.stakeholderprofile
-        farm_location = self.request.data.get('farm_location') or profile.address
-        
-        # Automatically set farmer and location
-        batch = serializer.save(
-            farmer=profile,
-            farm_location=farm_location
-        )
-        
-        # Log batch creation event
-        log_batch_event(
-            batch=batch,
-            event_type=BatchEventType.CREATED,
-            user=self.request.user,
-            metadata={
-                'crop_type': batch.crop_type,
-                'quantity': str(batch.quantity),
-                'harvest_date': batch.harvest_date.isoformat(),
-            }
-        )
-        
-        return batch
+        try:
+            profile = self.request.user.stakeholderprofile
+            farm_location = self.request.data.get('farm_location') or profile.address
+            
+            # Automatically set farmer and location
+            batch = serializer.save(
+                farmer=profile,
+                farm_location=farm_location
+            )
+            
+            # Log batch creation event
+            log_batch_event(
+                batch=batch,
+                event_type=BatchEventType.CREATED,
+                user=self.request.user,
+                metadata={
+                    'crop_type': batch.crop_type,
+                    'quantity': str(batch.quantity),
+                    'harvest_date': batch.harvest_date.isoformat() if batch.harvest_date else None,
+                }
+            )
+            
+            return batch
+        except Exception as e:
+            import traceback
+            print(f"ERROR in perform_create: {str(e)}")
+            traceback.print_exc()
+            raise e
 
 
 class TransportRequestViewSet(viewsets.ModelViewSet):

@@ -43,11 +43,11 @@ const getProductImage = (cropType) => {
 
 const getRetailerLocation = (listing) => {
   // Try to get location from various possible fields
-  return listing.retailer_location || 
-         listing.retailer_name || 
-         listing.batch_details?.current_location ||
-         listing.location ||
-         'Local Market';
+  return listing.retailer_location ||
+    listing.retailer_name ||
+    listing.batch_details?.current_location ||
+    listing.location ||
+    'Local Market';
 };
 
 const ConsumerPortal = () => {
@@ -69,8 +69,8 @@ const ConsumerPortal = () => {
       const response = await retailAPI.list();
       const data = Array.isArray(response.data) ? response.data : response.data.results || [];
       // Filter only active listings for sale with remaining quantity
-      const activeListings = data.filter(l => 
-        l.is_for_sale === true && 
+      const activeListings = data.filter(l =>
+        l.is_for_sale === true &&
         l.batch_details?.status !== 'SOLD' &&
         (l.remaining_quantity === undefined || l.remaining_quantity > 0)
       );
@@ -150,7 +150,7 @@ const ConsumerPortal = () => {
 
             {/* Right Actions */}
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => setShowQRScanner(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm font-medium hover:bg-emerald-700 transition-colors"
               >
@@ -249,8 +249,8 @@ const ConsumerPortal = () => {
               {searchTerm ? 'No matching produce found' : 'No verified produce available'}
             </h3>
             <p className="text-gray-500 max-w-md mx-auto">
-              {searchTerm 
-                ? 'Try adjusting your search terms to find what you\'re looking for.' 
+              {searchTerm
+                ? 'Try adjusting your search terms to find what you\'re looking for.'
                 : 'Check back soon as retailers add new verified batches to the platform.'}
             </p>
           </div>
@@ -267,10 +267,10 @@ const ConsumerPortal = () => {
               const location = getRetailerLocation(listing);
               const qrCodeUrl = listing.batch_details?.qr_code_image;
               const isPerishable = ['tomato', 'spinach', 'cauliflower', 'green beans', 'cucumber'].includes(cropType.toLowerCase());
-              
+
               return (
-                <div 
-                  key={listing.id} 
+                <div
+                  key={listing.id}
                   className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
                 >
                   {/* Image Container */}
@@ -319,7 +319,7 @@ const ConsumerPortal = () => {
                       {qrCodeUrl && (
                         <div className="bg-white p-1.5 rounded-lg border border-gray-200">
                           <img
-                            src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${qrCodeUrl}`}
+                            src={qrCodeUrl}
                             alt="QR"
                             className="w-12 h-12"
                           />

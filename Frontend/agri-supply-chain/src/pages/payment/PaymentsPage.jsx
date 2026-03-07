@@ -17,6 +17,9 @@ import {
   Hourglass
 } from 'lucide-react';
 
+import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI, paymentAPI } from '../../services/api';
+import SuspendModal from '../../components/common/SuspendModal';
+
 const PaymentsPage = () => {
   const { role, user } = useAuth();
   const toast = useToast();
@@ -30,9 +33,6 @@ const PaymentsPage = () => {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [copiedText, setCopiedText] = useState('');
 
-  const token = localStorage.getItem('token');
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
   useEffect(() => {
     fetchPayments();
     fetchSummary();
@@ -40,14 +40,8 @@ const PaymentsPage = () => {
 
   const fetchPayments = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/payments/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) throw new Error(`Failed to fetch payments: ${response.status}`);
-      const data = await response.json();
+      const response = await paymentAPI.list();
+      const data = response.data;
 
       let results;
       if (Array.isArray(data)) {
@@ -67,15 +61,8 @@ const PaymentsPage = () => {
 
   const fetchSummary = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/payments/summary/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) throw new Error('Failed to fetch summary');
-      const data = await response.json();
-      setSummary(data);
+      const response = await paymentAPI.getSummary();
+      setSummary(response.data);
     } catch (err) {
       console.error('Summary fetch error:', err);
     } finally {
@@ -85,39 +72,23 @@ const PaymentsPage = () => {
 
   const handleDeclarePayment = async (paymentId) => {
     try {
-      const response = await fetch(`${API_BASE}/api/payment/${paymentId}/declare/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Failed to declare payment');
+      const response = await paymentAPI.declare(paymentId);
       toast.success('Payment marked as paid — awaiting confirmation from receiver');
       await fetchPayments();
       await fetchSummary();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.response?.data?.message || err.message);
     }
   };
 
   const handleSettlePayment = async (paymentId) => {
     try {
-      const response = await fetch(`${API_BASE}/api/payment/${paymentId}/settle/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Failed to settle payment');
+      const response = await paymentAPI.settle(paymentId);
       toast.success('Payment confirmed and settled');
       await fetchPayments();
       await fetchSummary();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.response?.data?.message || err.message);
     }
   };
 
@@ -157,6 +128,7 @@ const PaymentsPage = () => {
     toast.info('Copied to clipboard');
     setTimeout(() => setCopiedText(''), 2000);
   };
+
 
   const getStatusIcon = (s) => {
     switch (s) {

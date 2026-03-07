@@ -35,7 +35,7 @@ const ConsumerTrace = () => {
   const [error, setError] = useState(null);
   const [inspections, setInspections] = useState([]);
   const [loadingInspections, setLoadingInspections] = useState(false);
-  
+
   // Blockchain state
   const [verificationData, setVerificationData] = useState(null);
   const [verificationLoading, setVerificationLoading] = useState(false);
@@ -59,7 +59,7 @@ const ConsumerTrace = () => {
     setVerificationError(null);
     setAnchorHistory(null);
     setAnchorHistoryError(null);
-    
+
     try {
       const response = await consumerAPI.traceBatch(id);
       setSearchResult(response.data);
@@ -215,15 +215,14 @@ const ConsumerTrace = () => {
 
               <div className="flex items-center gap-3 pt-4">
                 <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className={`text-sm font-black px-4 py-1.5 rounded-full border uppercase tracking-widest ${
-                  searchResult.status === 'SOLD' 
+                <span className={`text-sm font-black px-4 py-1.5 rounded-full border uppercase tracking-widest ${searchResult.status === 'SOLD'
                     ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50'
                     : searchResult.status === 'IN_TRANSIT'
-                    ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50'
-                    : searchResult.status === 'SUSPENDED'
-                    ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50'
-                    : 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50'
-                }`}>
+                      ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50'
+                      : searchResult.status === 'SUSPENDED'
+                        ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50'
+                        : 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50'
+                  }`}>
                   {searchResult.status}
                 </span>
               </div>
@@ -233,7 +232,7 @@ const ConsumerTrace = () => {
               <div className="bg-white p-6 rounded-[2rem] shadow-2xl border border-slate-100 group hover:rotate-2 transition-transform duration-500">
                 {searchResult.qr_code_url ? (
                   <img
-                    src={searchResult.qr_code_url.startsWith('data:') ? searchResult.qr_code_url : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${searchResult.qr_code_url}`}
+                    src={searchResult.qr_code_url.startsWith('data:') ? searchResult.qr_code_url : searchResult.qr_code_url}
                     alt="QR Code"
                     className="w-32 h-32"
                   />
@@ -518,9 +517,9 @@ const ConsumerTrace = () => {
                       };
                     }
                   };
-                  
+
                   const colors = getEventColors(event.stage);
-                  
+
                   return (
                     <div key={index} className={`flex items-start gap-4 p-4 rounded-2xl border ${colors.bg} ${colors.border}`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${colors.iconBg}`}>
@@ -591,9 +590,9 @@ const ConsumerTrace = () => {
                       };
                     }
                   };
-                  
+
                   const colors = getStatusColors(status.status);
-                  
+
                   return (
                     <div key={index} className={`flex items-start gap-4 p-4 rounded-2xl border ${colors.bg} ${colors.border}`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${colors.iconBg}`}>

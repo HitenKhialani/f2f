@@ -62,12 +62,21 @@ const FarmerBatches = () => {
   const fetchAvailableCrops = async () => {
     try {
       const response = await farmerAPI.getCrops();
-      setAvailableCrops(response.data);
+      // If API returns empty list or data is null, use fallback crops
+      if (response.data && response.data.length > 0) {
+        setAvailableCrops(response.data);
+      } else {
+        console.log('No preferences found, using default crops');
+        setAvailableCrops([
+          'Wheat', 'Rice', 'Corn', 'Soybean', 'Cotton',
+          'Sugarcane', 'Bajra', 'Millet', 'Vegetables', 'Fruits'
+        ]);
+      }
     } catch (error) {
       console.error('Error fetching available crops:', error);
-      // If no preferences set, show all common crops
+      // If error occurs, show all common crops as fallback
       setAvailableCrops([
-        'Wheat', 'Rice', 'Corn', 'Soybean', 'Cotton', 
+        'Wheat', 'Rice', 'Corn', 'Soybean', 'Cotton',
         'Sugarcane', 'Bajra', 'Millet', 'Vegetables', 'Fruits'
       ]);
     }
@@ -531,7 +540,7 @@ const FarmerBatches = () => {
                   <span className="text-gray-500">✕</span>
                 </button>
               </div>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Form */}
                 <div className="lg:col-span-2">
@@ -568,9 +577,10 @@ const FarmerBatches = () => {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Harvest Date</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Harvest Date *</label>
                         <input
                           type="date"
+                          required
                           value={formData.harvest_date}
                           onChange={(e) => setFormData({ ...formData, harvest_date: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
@@ -620,7 +630,7 @@ const FarmerBatches = () => {
                         {showRecommendations ? 'Hide' : 'Show'}
                       </button>
                     </div>
-                    
+
                     {showRecommendations && (
                       <div className="space-y-3">
                         {batchRecommendations.length > 0 ? (

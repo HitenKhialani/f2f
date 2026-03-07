@@ -101,7 +101,7 @@ export const blockchainService = {
     }
 
     const { verified, success } = verificationData;
-    
+
     if (verified === undefined && success === undefined) {
       return {
         status: 'pending',
@@ -111,7 +111,7 @@ export const blockchainService = {
       };
     }
 
-    if (verified === true || success === true) {
+    if (verified === true) {
       return {
         status: 'verified',
         badgeText: 'Blockchain Verified',
@@ -120,7 +120,7 @@ export const blockchainService = {
       };
     }
 
-    if (verified === false || success === false) {
+    if (verified === false) {
       return {
         status: 'tampered',
         badgeText: 'Data Integrity Failed',
@@ -153,7 +153,7 @@ export const blockchainService = {
    */
   formatTimestamp(timestamp) {
     if (!timestamp) return 'N/A';
-    
+
     try {
       const date = new Date(timestamp);
       return date.toLocaleString('en-US', {
@@ -180,7 +180,7 @@ export const blockchainService = {
   truncateTxHash(txHash, startChars = 8, endChars = 6) {
     if (!txHash) return 'N/A';
     if (txHash.length <= startChars + endChars) return txHash;
-    
+
     return `${txHash.slice(0, startChars)}...${txHash.slice(-endChars)}`;
   }
 };

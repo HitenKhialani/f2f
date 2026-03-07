@@ -18,7 +18,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 import MainLayout from '../../components/layout/MainLayout';
-import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI } from '../../services/api';
+import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI, farmerAPI } from '../../services/api';
 import SuspendModal from '../../components/common/SuspendModal';
 import { useToast } from '../../context/ToastContext';
 
@@ -227,10 +227,21 @@ const FarmerDashboard = () => {
   const fetchCrops = async () => {
     try {
       const response = await farmerAPI.getCrops();
-      setAvailableCrops(response.data || []);
+      if (response.data && response.data.length > 0) {
+        setAvailableCrops(response.data);
+      } else {
+        console.log('No preferences found, using default crops');
+        setAvailableCrops([
+          'Wheat', 'Rice', 'Corn', 'Soybean', 'Cotton',
+          'Sugarcane', 'Bajra', 'Millet', 'Vegetables', 'Fruits'
+        ]);
+      }
     } catch (error) {
       console.error('Failed to fetch crops:', error);
-      setAvailableCrops([]);
+      setAvailableCrops([
+        'Wheat', 'Rice', 'Corn', 'Soybean', 'Cotton',
+        'Sugarcane', 'Bajra', 'Millet', 'Vegetables', 'Fruits'
+      ]);
     }
   };
 

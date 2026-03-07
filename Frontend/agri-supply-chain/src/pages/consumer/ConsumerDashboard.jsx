@@ -357,7 +357,7 @@ const ConsumerDashboard = () => {
                         {qrCodeUrl && (
                           <div className="bg-white p-1.5 rounded-lg border border-gray-200">
                             <img
-                              src={qrCodeUrl.startsWith('data:') ? qrCodeUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${qrCodeUrl}`}
+                              src={qrCodeUrl.startsWith('data:') ? qrCodeUrl : qrCodeUrl}
                               alt="QR"
                               className="w-12 h-12"
                             />

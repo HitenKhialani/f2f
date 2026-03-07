@@ -19,7 +19,11 @@ import {
   Shield
 } from 'lucide-react';
 import { consumerAPI, inspectionAPI } from '../../services/api';
+import { blockchainService } from '../../services/blockchainService';
 import { InspectionTimeline } from '../../components/inspection';
+import VerificationBadge from '../../components/blockchain/VerificationBadge';
+import BlockchainIntegrityCard from '../../components/blockchain/BlockchainIntegrityCard';
+import AnchorHistory from '../../components/blockchain/AnchorHistory';
 import PublicTopNav from '../../components/layout/PublicTopNav';
 
 const ConsumerTrace = () => {
@@ -31,6 +35,14 @@ const ConsumerTrace = () => {
   const [error, setError] = useState(null);
   const [inspections, setInspections] = useState([]);
   const [loadingInspections, setLoadingInspections] = useState(false);
+  
+  // Blockchain state
+  const [verificationData, setVerificationData] = useState(null);
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [verificationError, setVerificationError] = useState(null);
+  const [anchorHistory, setAnchorHistory] = useState(null);
+  const [anchorHistoryLoading, setAnchorHistoryLoading] = useState(false);
+  const [anchorHistoryError, setAnchorHistoryError] = useState(null);
 
   useEffect(() => {
     if (publicId) {
@@ -42,11 +54,20 @@ const ConsumerTrace = () => {
     setLoading(true);
     setError(null);
     setInspections([]);
+    // Reset blockchain state
+    setVerificationData(null);
+    setVerificationError(null);
+    setAnchorHistory(null);
+    setAnchorHistoryError(null);
+    
     try {
       const response = await consumerAPI.traceBatch(id);
       setSearchResult(response.data);
       if (response.data?.batch_id) {
         fetchInspections(response.data.batch_id);
+        // Fetch blockchain data
+        fetchBlockchainVerification(response.data.batch_id);
+        fetchAnchorHistory(response.data.batch_id);
       }
     } catch (err) {
       console.error('Error tracing batch:', err);
@@ -67,6 +88,35 @@ const ConsumerTrace = () => {
       setInspections([]);
     } finally {
       setLoadingInspections(false);
+    }
+  };
+
+  // Blockchain data fetching functions
+  const fetchBlockchainVerification = async (batchId) => {
+    try {
+      setVerificationLoading(true);
+      setVerificationError(null);
+      const data = await blockchainService.verifyBatch(batchId);
+      setVerificationData(data);
+    } catch (err) {
+      console.error('Failed to fetch blockchain verification:', err);
+      setVerificationError(err.response?.data?.message || 'Verification failed');
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
+  const fetchAnchorHistory = async (batchId) => {
+    try {
+      setAnchorHistoryLoading(true);
+      setAnchorHistoryError(null);
+      const data = await blockchainService.getBatchAnchors(batchId);
+      setAnchorHistory(data.anchors || []);
+    } catch (err) {
+      console.error('Failed to fetch anchor history:', err);
+      setAnchorHistoryError(err.response?.data?.message || 'Failed to load anchor history');
+    } finally {
+      setAnchorHistoryLoading(false);
     }
   };
 
@@ -141,6 +191,15 @@ const ConsumerTrace = () => {
               <div>
                 <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white capitalize tracking-tighter">{searchResult.product_name}</h1>
                 <p className="text-slate-400 font-mono text-xs mt-2">BATCH ID: {searchResult.batch_id}</p>
+              </div>
+
+              {/* Blockchain Verification Badge */}
+              <div className="mt-4">
+                <VerificationBadge
+                  status={blockchainService.formatVerificationStatus(verificationData)?.status}
+                  loading={verificationLoading}
+                  error={verificationError}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-8 pt-4">
@@ -561,7 +620,25 @@ const ConsumerTrace = () => {
           </div>
         </section>
 
-        {/* E. INSPECTIONS */}
+        {/* F. BLOCKCHAIN INTEGRITY CARD */}
+        <section className="mb-8">
+          <BlockchainIntegrityCard
+            verificationData={verificationData}
+            loading={verificationLoading}
+            error={verificationError}
+          />
+        </section>
+
+        {/* G. BLOCKCHAIN ANCHOR HISTORY */}
+        <section className="mb-8">
+          <AnchorHistory
+            anchors={anchorHistory}
+            loading={anchorHistoryLoading}
+            error={anchorHistoryError}
+          />
+        </section>
+
+        {/* H. INSPECTIONS */}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 p-10">
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8 tracking-tight">Quality Inspections</h2>
           {inspections && inspections.length > 0 ? (

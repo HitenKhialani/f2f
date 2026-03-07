@@ -25,6 +25,7 @@ The backend is built with Django REST Framework and exposes a JWT-secured REST A
 - **Public Trace API** – Open endpoint for batch history and transparency.
 - **Advanced Analytics** – Interactive charts for earnings, volumes, and status distributions using Recharts.
 - **Admin Portal** – System-wide stats, user management, and KYC oversight.
+- **Blockchain Integration** – Tamper-proof audit trail with automatic anchoring of critical events to Polygon Amoy testnet.
 
 ---
 
@@ -58,6 +59,9 @@ The backend is built with Django REST Framework and exposes a JWT-secured REST A
 | Backend API | Django REST Framework 3.14+ |
 | Authentication | djangorestframework-simplejwt |
 | Database | SQLite (dev) / PostgreSQL (prod) |
+| **Blockchain Layer** | **Web3.py + HashAnchor Smart Contract** |
+| **Blockchain Network** | **Polygon Amoy Testnet** |
+| **Hash Algorithm** | **SHA256 (deterministic)** |
 
 ---
 
@@ -127,6 +131,47 @@ python manage.py runserver
 
 ---
 
+### C. Blockchain Setup (Optional for Development)
+
+The blockchain integration provides tamper-proof audit trails for critical events. Setup is optional for basic functionality but required for full transparency features.
+
+#### 1. Install Blockchain Dependencies
+```powershell
+pip install web3>=6.0.0 eth-account>=0.8.0 eth-abi>=4.0.0 python-dotenv>=1.0.0
+```
+
+#### 2. Deploy HashAnchor Contract
+```powershell
+cd ../../blockchain
+npm install
+npx hardhat run scripts/deploy.js --network polygonAmoy
+```
+
+#### 3. Configure Environment Variables
+Create `.env` file in `Backend/bsas_supplychain-main/`:
+```bash
+# Blockchain Configuration
+POLYGON_AMOY_RPC_URL=https://rpc-amoy.polygon.technology
+HASH_ANCHOR_CONTRACT_ADDRESS=0x...  # Deployed contract address
+ANCHORER_PRIVATE_KEY=0x...  # Private key with test MATIC
+```
+
+#### 4. Update Database Schema
+```powershell
+python manage.py makemigrations
+python manage.py migrate
+```
+
+#### 5. Test Blockchain Integration
+```powershell
+python supplychain/hash_generator.py
+python supplychain/blockchain_service.py
+```
+
+**Note**: Get test MATIC from [Polygon Amoy Faucet](https://faucet.polygon.technology/)
+
+---
+
 ### B. Frontend Setup
 
 #### 1. Navigate to Frontend Directory
@@ -161,19 +206,62 @@ AgriChain underwent a major stabilization phase in early 2026 to transition from
 
 ---
 
-## Future Roadmap: Blockchain Integration
+## Blockchain Integration (Implemented)
 
-The system is architected for a **Hybrid Web2/Web3** environment, where the current Django backend serves as a high-performance integration layer.
+The system now features a **Hybrid Web2/Web3** architecture with tamper-proof audit trails for critical supply chain events.
 
-### Technical Blueprint
-- **Network Strategy**: Ethereum Layer 2 (Polygon/Arbitrum) to ensure low gas costs and fast finality.
-- **Smart Contract Ecosystem** (Solidity):
-    - **AgriToken (ERC-1155)**: Each crop batch as a unique NFT, supporting fractional ownership during batch splits.
-    - **SupplyChainMaster**: workflow orchestrator matching current Web2 state machine.
-    - **StakeholderRegistry**: On-chain KYC and role management via wallet identities.
-    - **PaymentEscrow**: Conditional release of funds upon delivery confirmation.
-- **Data Anchoring**: Critical events will be hashed and anchored to the blockchain, providing a "Trustless Traceability" badge for consumers.
-- **Decentralized Storage**: Planning to move inspection reports and certificates to IPFS for permanent, unalterable access.
+### 🎯 Current Implementation (70% Complete)
+
+**✅ Implemented Features:**
+- **HashAnchor Smart Contract** - Immutable storage of batch data hashes on Polygon Amoy
+- **Deterministic Hashing** - SHA256-based canonical JSON representation of batch state
+- **Automatic Event Anchoring** - Critical events automatically anchored to blockchain:
+  - `CREATED` - When batch is first created by farmer
+  - `DELIVERED_TO_DISTRIBUTOR` - At distributor handover
+  - `DELIVERED_TO_RETAILER` - At retailer handover  
+  - `SOLD` - Final sale to consumer
+- **Data Integrity Verification** - Real-time verification of database vs blockchain data
+- **Blockchain API Endpoints**:
+  - `POST /api/batch/{id}/anchor/` - Manual anchoring
+  - `GET /api/batch/{id}/verify/` - Integrity verification
+  - `GET /api/batch/{id}/anchors/` - Anchor history
+  - `GET /api/blockchain/status/` - System health check
+  - `POST /api/events/{id}/retry-anchor/` - Retry failed anchors
+
+**🔧 Technical Architecture:**
+- **Smart Contract**: `HashAnchor.sol` with role-based access control
+- **Network**: Polygon Amoy Testnet (Chain ID: 80002)
+- **Backend Integration**: Web3.py with singleton service pattern
+- **Hash Algorithm**: Deterministic SHA256 with sorted JSON keys
+- **Error Handling**: Non-blocking blockchain failures (events still logged)
+
+**⚠️ Setup Required:**
+- Database schema updates (add blockchain fields)
+- Environment configuration (RPC URL, contract address, private key)
+- Contract deployment to Polygon Amoy testnet
+
+### 🚀 Benefits for Supply Chain
+
+- **Tamper-Proof Audit Trail**: Critical events cannot be altered after anchoring
+- **Consumer Trust**: Verification badges showing data integrity
+- **Regulatory Compliance**: Immutable records for audits
+- **Dispute Resolution**: Blockchain evidence for supply chain disputes
+- **Quality Assurance**: Verification of product journey authenticity
+
+---
+
+## Future Enhancements
+
+### Advanced Blockchain Features
+- **IPFS Integration** - Store inspection reports and certificates on decentralized storage
+- **Multi-Chain Support** - Deploy to additional networks for redundancy
+- **Gas Optimization** - Batch anchoring for multiple events
+- **Smart Contract Upgrades** - Governance-based contract improvements
+
+### Advanced Analytics
+- **Blockchain Analytics Dashboard** - Real-time anchoring metrics
+- **Gas Cost Tracking** - Monitor blockchain operation costs
+- **Verification Success Rates** - Track data integrity across batches
 
 ---
 
@@ -187,6 +275,10 @@ The system is architected for a **Hybrid Web2/Web3** environment, where the curr
 | POST | `/api/batch/<id>/bulk-split/` | Split batches (Distributor) |
 | POST | `/api/distributor/transport/request-to-retailer/` | Onward transport request |
 | GET | `/api/public/trace/<id>/` | Public batch traceability |
+| **POST** | **`/api/batch/<id>/anchor/`** | **Manual blockchain anchoring** |
+| **GET** | **`/api/batch/<id>/verify/`** | **Data integrity verification** |
+| **GET** | **`/api/batch/<id>/anchors/`** | **Blockchain anchor history** |
+| **GET** | **`/api/blockchain/status/`** | **Blockchain system health** |
 
 ---
 
@@ -200,15 +292,26 @@ f2f/
 │       │   ├── payment_views.py     # Payment/Financial logic
 │       │   ├── models.py            # DB Schema
 │       │   ├── serializers.py       # API serializing
+│       │   ├── hash_generator.py    # Blockchain hash generation
+│       │   ├── blockchain_service.py # Web3 integration service
+│       │   ├── blockchain_views.py  # Blockchain API endpoints
+│       │   ├── event_logger.py      # Event logging with blockchain anchoring
 │       │   └── management/          # Custom management commands (seed_data)
 │       └── manage.py                # Django manager
 │
-└── Frontend/
-    └── agri-supply-chain/           # Vite project
-        ├── src/
-        │   ├── components/          # Reusable UI components
-        │   ├── context/             # Auth & Global state
-        │   ├── pages/               # UI Layers (Farmer, Retailer, etc.)
-        │   └── services/            # API integration (api.js)
-        └── package.json             # Frontend dependencies
+├── Frontend/
+│   └── agri-supply-chain/           # Vite project
+│       ├── src/
+│       │   ├── components/          # Reusable UI components
+│       │   ├── context/             # Auth & Global state
+│       │   ├── pages/               # UI Layers (Farmer, Retailer, etc.)
+│       │   └── services/            # API integration (api.js)
+│       └── package.json             # Frontend dependencies
+│
+└── blockchain/                       # Smart contract development
+    ├── contracts/                    # Solidity contracts
+    │   └── HashAnchor.sol           # Batch data anchoring contract
+    ├── scripts/                     # Deployment scripts
+    ├── hardhat.config.ts           # Development framework config
+    └── typechain-types/             # Generated TypeScript types
 ```

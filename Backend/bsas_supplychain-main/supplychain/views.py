@@ -116,6 +116,15 @@ class FarmerViewSet(viewsets.ViewSet):
     """
     permission_classes = [IsAuthenticated]
 
+    @action(detail=False, methods=['get'], url_path='test-auth')
+    def test_auth(self, request):
+        """Test endpoint to verify authentication is working"""
+        return Response({
+            "message": "Authentication working",
+            "user": request.user.username if request.user.is_authenticated else "Anonymous",
+            "authenticated": request.user.is_authenticated
+        })
+
     @action(detail=False, methods=['get'], url_path='crops')
     def get_crops(self, request):
         """

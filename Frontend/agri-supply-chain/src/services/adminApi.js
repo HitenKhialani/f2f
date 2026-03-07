@@ -8,6 +8,7 @@ export const adminAPI = {
   getPendingKYC: () => api.get('/admin/kyc/pending/'),
   getAllKYC: (status) => api.get('/admin/kyc/all/', { params: { status } }),
   decideKYC: (id, decision, notes = '') => api.post(`/admin/kyc/decide/${id}/`, { decision, notes }),
+  getDocumentPreview: (kycId) => api.get(`/admin/kyc/document-preview/${kycId}/`, { responseType: 'blob' }),
 
   // User Management
   getAllUsers: (role) => api.get('/admin/users/', { params: { role } }),

@@ -23,6 +23,8 @@ const KYCManagement = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [notes, setNotes] = useState('');
   const [viewingDocument, setViewingDocument] = useState(null);
+  const [documentError, setDocumentError] = useState(false);
+  const [documentUrl, setDocumentUrl] = useState(null);
 
   // Role to document type mapping
   const getRoleDocumentType = (role) => {
@@ -208,11 +210,29 @@ const KYCManagement = () => {
                 <div>
                   {record.document_file ? (
                     <button
-                      onClick={() => setViewingDocument({
-                        url: record.document_file,
-                        type: record.document_type || getRoleDocumentType(record.profile_details?.role),
-                        user: record.profile_details?.user_details?.username
-                      })}
+                      onClick={() => {
+                        const docInfo = {
+                          id: record.id,
+                          type: record.document_type || getRoleDocumentType(record.profile_details?.role),
+                          user: record.profile_details?.user_details?.username
+                        };
+                        setViewingDocument(docInfo);
+                        setDocumentError(false);
+                        setDocumentUrl(null);
+                        
+                        // Fetch document via API (which includes auth token)
+                        adminAPI.getDocumentPreview(record.id)
+                          .then(response => {
+                            // response.data is now a Blob directly
+                            const blob = response.data;
+                            const url = URL.createObjectURL(blob);
+                            setDocumentUrl(url);
+                          })
+                          .catch(error => {
+                            console.error('Failed to load document:', error);
+                            setDocumentError(true);
+                          });
+                      }}
                       className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 text-xs font-medium"
                     >
                       <Eye className="w-3 h-3" />
@@ -313,52 +333,48 @@ const KYCManagement = () => {
                 </p>
               </div>
               <button
-                onClick={() => setViewingDocument(null)}
+                onClick={() => {
+                  setViewingDocument(null);
+                  setDocumentError(false);
+                }}
                 className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center min-h-[400px]">
-              {viewingDocument.url?.match(/data:image\/(jpeg|jpg|png|gif|webp)/i) || viewingDocument.url?.match(/\.(jpg|jpeg|png|gif|webp)(\?|$)/i) ? (
-                <img
-                  src={viewingDocument.url}
-                  alt={viewingDocument.type}
-                  className="w-full max-h-[70vh] object-contain"
-                />
-              ) : viewingDocument.url?.match(/data:application\/pdf/i) || viewingDocument.url?.match(/\.pdf(\?|$)/i) ? (
-                <embed
-                  src={viewingDocument.url}
-                  type="application/pdf"
-                  className="w-full h-[70vh]"
-                />
-              ) : viewingDocument.url?.startsWith('data:') ? (
+              {documentUrl ? (
+                <>
+                  {viewingDocument.type?.toLowerCase().includes('pdf') ? (
+                    <iframe
+                      src={documentUrl}
+                      className="w-full h-[70vh]"
+                      title={`${viewingDocument.type} for ${viewingDocument.user}`}
+                    />
+                  ) : (
+                    <img
+                      src={documentUrl}
+                      alt={viewingDocument.type}
+                      className="w-full max-h-[70vh] object-contain"
+                    />
+                  )}
+                </>
+              ) : documentError ? (
                 <div className="p-12 text-center">
-                  <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileCheck className="w-8 h-8 text-emerald-600" />
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
                   </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Document Verified</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Document</h4>
                   <p className="text-gray-600 max-w-sm mx-auto">
-                    The {viewingDocument.type} for <strong>{viewingDocument.user}</strong> has been uploaded and is ready for review.
+                    Failed to load the {viewingDocument.type} for <strong>{viewingDocument.user}</strong>.
                   </p>
-                  <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-2">Document Information:</p>
-                    <div className="text-xs text-gray-500 space-y-1">
-                      <p>Type: {viewingDocument.type}</p>
-                      <p>User: {viewingDocument.user}</p>
-                      <p>Status: Verified ✓</p>
-                    </div>
-                  </div>
+                  <p className="text-sm text-gray-500 mt-2">Please ensure you have proper authentication.</p>
                 </div>
               ) : (
-                <div className="p-12 text-center">
-                  <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileCheck className="w-8 h-8 text-emerald-600" />
-                  </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Document Verified</h4>
-                  <p className="text-gray-600 max-w-sm mx-auto">
-                    The {viewingDocument.type} for <strong>{viewingDocument.user}</strong> has been uploaded and is ready for review.
-                  </p>
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
                 </div>
               )}
             </div>

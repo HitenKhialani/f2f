@@ -55,17 +55,11 @@ const AdminProtectedRoute = ({ children }) => {
   }
 
   if (role?.toLowerCase() !== 'admin') {
+    console.log(`Role check failed: ${role?.toLowerCase()} !== 'admin'`);
     return <Navigate to="/admin/login" replace />;
   }
 
-  if (kycStatus === 'PENDING') {
-    return <Navigate to="/admin/login" replace />;
-  }
-
-  if (kycStatus === 'REJECTED') {
-    return <Navigate to="/admin/login" replace />;
-  }
-
+  // Admin users should have access regardless of KYC status
   return children;
 };
 

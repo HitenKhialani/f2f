@@ -1,5 +1,6 @@
 """Admin views for managing KYC, users, and system monitoring."""
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
@@ -205,3 +206,55 @@ class DashboardStatsView(APIView):
             "total_transport_requests": models.TransportRequest.objects.count(),
         }
         return Response(stats)
+
+
+class KYCDocumentPreviewView(APIView):
+    """Preview KYC document inline for admin review."""
+    
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    
+    def get(self, request, kyc_id):
+        """Serve KYC document as inline response."""
+        try:
+            kyc_record = models.KYCRecord.objects.get(id=kyc_id)
+            
+            if not kyc_record.document_file:
+                return Response(
+                    {"error": "No document found"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Get the document file data
+            document_file = kyc_record.document_file
+            
+            if not document_file or not document_file.data:
+                return Response(
+                    {"error": "Document data is empty"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Determine content type
+            content_type = getattr(document_file, 'content_type', 'application/octet-stream')
+            
+            # Create HTTP response with inline disposition
+            response = HttpResponse(
+                document_file.data,
+                content_type=content_type
+            )
+            
+            # Set inline disposition for viewing in browser
+            response['Content-Disposition'] = 'inline'
+            response['Cache-Control'] = 'no-cache'
+            
+            return response
+            
+        except models.KYCRecord.DoesNotExist:
+            return Response(
+                {"error": "KYC record not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"Error serving document: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

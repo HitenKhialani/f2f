@@ -8,6 +8,7 @@ from supplychain.admin_views import (
     AllKYCListView,
     DashboardStatsView,
     KYCDecisionView,
+    KYCDocumentPreviewView,
     PendingKYCListView,
     UserDetailView,
     UserListView,
@@ -64,6 +65,7 @@ urlpatterns = [
     path("api/admin/kyc/pending/", PendingKYCListView.as_view(), name="admin-kyc-pending"),
     path("api/admin/kyc/all/", AllKYCListView.as_view(), name="admin-kyc-all"),
     path("api/admin/kyc/decide/<int:pk>/", KYCDecisionView.as_view(), name="admin-kyc-decide"),
+    path("api/admin/kyc/document-preview/<int:kyc_id>/", KYCDocumentPreviewView.as_view(), name="admin-kyc-document-preview"),
     path("api/admin/users/", UserListView.as_view(), name="admin-users"),
     path("api/admin/users/<int:pk>/", UserDetailView.as_view(), name="admin-user-detail"),
     # Transport workflow endpoints

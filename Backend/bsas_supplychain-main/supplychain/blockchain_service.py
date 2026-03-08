@@ -210,34 +210,56 @@ class BlockchainService:
         self.w3: Optional[Web3] = None
         self.contract = None
         self.account = None
+        self._init_error: Optional[str] = None
         self._connect()
     
     def _connect(self) -> None:
-        """Establish connection to Polygon Amoy network."""
+        """Establish connection to Polygon Amoy network.
+        
+        Stores errors in self._init_error instead of raising, so the
+        service can operate in a degraded state and still return
+        structured error responses.
+        """
         try:
             # Get configuration from environment
             rpc_url = os.getenv('POLYGON_AMOY_RPC_URL')
             contract_address = os.getenv('HASH_ANCHOR_CONTRACT_ADDRESS')
             private_key = os.getenv('ANCHORER_PRIVATE_KEY')
             
+            # Diagnostic logging
+            print(f"[Blockchain] RPC URL: {'SET' if rpc_url else 'MISSING'}")
+            print(f"[Blockchain] Contract Address: {contract_address or 'MISSING'}")
+            print(f"[Blockchain] Private Key: {'SET' if private_key else 'MISSING'}")
+            
             if not rpc_url:
-                raise ValueError("POLYGON_AMOY_RPC_URL not set in environment")
+                self._init_error = "POLYGON_AMOY_RPC_URL not set in environment"
+                logger.error(self._init_error)
+                return
             if not contract_address:
-                raise ValueError("HASH_ANCHOR_CONTRACT_ADDRESS not set in environment")
+                self._init_error = "HASH_ANCHOR_CONTRACT_ADDRESS not set in environment"
+                logger.error(self._init_error)
+                return
             if not private_key:
-                raise ValueError("ANCHORER_PRIVATE_KEY not set in environment")
+                self._init_error = "ANCHORER_PRIVATE_KEY not set in environment"
+                logger.error(self._init_error)
+                return
             
             # Initialize Web3 connection
             self.w3 = Web3(Web3.HTTPProvider(rpc_url))
             
             # Verify connection
-            if not self.w3.is_connected():
-                raise ConnectionError(f"Failed to connect to {rpc_url}")
+            connected = self.w3.is_connected()
+            print(f"[Blockchain] Web3 connected: {connected}")
+            if not connected:
+                self._init_error = f"Failed to connect to RPC: {rpc_url}"
+                logger.error(self._init_error)
+                return
             
             logger.info(f"Connected to Polygon Amoy (Chain ID: {self.w3.eth.chain_id})")
             
             # Initialize account from private key
             self.account = Account.from_key(private_key)
+            print(f"[Blockchain] Wallet address: {self.account.address}")
             logger.info(f"Account loaded: {self.account.address}")
             
             # Initialize contract
@@ -246,11 +268,12 @@ class BlockchainService:
                 address=checksum_address,
                 abi=HASH_ANCHOR_ABI
             )
+            print(f"[Blockchain] Contract loaded at: {checksum_address}")
             logger.info(f"Contract initialized at {checksum_address}")
             
         except Exception as e:
+            self._init_error = str(e)
             logger.error(f"Blockchain connection failed: {e}")
-            raise
     
     def _batch_id_to_bytes32(self, batch_id: str) -> bytes:
         """
@@ -536,9 +559,39 @@ class BlockchainService:
     def is_healthy(self) -> bool:
         """Check if blockchain connection is healthy."""
         try:
-            return self.w3.is_connected() and self.contract is not None
+            if self._init_error:
+                return False
+            return self.w3 is not None and self.w3.is_connected() and self.contract is not None
         except:
             return False
+    
+    def get_status_dict(self) -> Dict[str, Any]:
+        """Return a structured status dict for the status endpoint."""
+        healthy = self.is_healthy()
+        result = {
+            "connected": healthy,
+            "network": "Polygon Amoy Testnet",
+            "chain_id": None,
+            "contract_loaded": self.contract is not None,
+            "wallet_loaded": self.account is not None,
+            "contract_address": self.contract.address if self.contract else None,
+            "wallet_address": self.account.address if self.account else None,
+            "balance": None,
+            "gas_price": None,
+        }
+        
+        if self._init_error:
+            result["error"] = self._init_error
+        
+        if healthy:
+            try:
+                result["chain_id"] = self.w3.eth.chain_id
+                result["balance"] = float(self.get_balance())
+                result["gas_price"] = self.get_gas_price()
+            except Exception as e:
+                result["error"] = f"Failed to fetch live data: {str(e)}"
+        
+        return result
 
 
 # =============================================================================
@@ -553,12 +606,24 @@ def get_blockchain_service() -> BlockchainService:
     """
     Get or create the blockchain service singleton.
     
+    Never raises — returns a degraded instance if initialization fails.
+    
     Returns:
-        BlockchainService: Singleton instance
+        BlockchainService: Singleton instance (may be in degraded state)
     """
     global _blockchain_service
     if _blockchain_service is None:
-        _blockchain_service = BlockchainService()
+        try:
+            _blockchain_service = BlockchainService()
+        except Exception as e:
+            logger.error(f"BlockchainService singleton init failed: {e}")
+            # Create a bare instance with the error stored
+            svc = object.__new__(BlockchainService)
+            svc.w3 = None
+            svc.contract = None
+            svc.account = None
+            svc._init_error = str(e)
+            _blockchain_service = svc
     return _blockchain_service
 
 

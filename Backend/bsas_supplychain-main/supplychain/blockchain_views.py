@@ -168,6 +168,23 @@ class VerifyBatchView(APIView):
             # Get blockchain service
             blockchain = get_blockchain_service()
             
+            # Check if service is healthy
+            if not blockchain.is_healthy():
+                return Response({
+                    "success": True,
+                    "batch_id": batch.product_batch_id,
+                    "verified": False,
+                    "status": "not_anchored",
+                    "current_hash": None,
+                    "stored_hash": None,
+                    "message": "Blockchain service is not available. Verification pending.",
+                    "blockchain_record": None,
+                    "batch_status": {
+                        "last_anchored_at": batch.last_anchored_at.isoformat() if batch.last_anchored_at else None,
+                        "is_blockchain_verified": batch.is_blockchain_verified
+                    }
+                }, status=status.HTTP_200_OK)
+            
             # Verify integrity
             verification_result = blockchain.verify_batch_integrity(batch)
             
@@ -176,6 +193,7 @@ class VerifyBatchView(APIView):
                 "success": True,
                 "batch_id": batch.product_batch_id,
                 "verified": verification_result['verified'],
+                "status": "verified" if verification_result['verified'] else ("not_anchored" if not verification_result['stored_hash'] else "tampered"),
                 "current_hash": verification_result['current_hash'],
                 "stored_hash": verification_result['stored_hash'],
                 "message": verification_result['message'],
@@ -196,9 +214,11 @@ class VerifyBatchView(APIView):
             logger.error(f"Verification failed for batch {batch_id}: {e}")
             return Response({
                 "success": False,
+                "verified": False,
+                "status": "error",
                 "error": str(e),
                 "message": "Verification process failed"
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            }, status=status.HTTP_200_OK)
 
 
 class BatchAnchorsListView(APIView):
@@ -228,6 +248,16 @@ class BatchAnchorsListView(APIView):
             
             # Get blockchain service
             blockchain = get_blockchain_service()
+            
+            # Check if service is healthy
+            if not blockchain.is_healthy():
+                return Response({
+                    "success": True,
+                    "batch_id": batch.product_batch_id,
+                    "anchor_count": 0,
+                    "anchors": [],
+                    "message": "Blockchain service unavailable. No anchors loaded."
+                }, status=status.HTTP_200_OK)
             
             # Get anchor count
             anchor_count = blockchain.get_anchor_count(batch.product_batch_id)
@@ -259,10 +289,13 @@ class BatchAnchorsListView(APIView):
         except Exception as e:
             logger.error(f"Failed to list anchors for batch {batch_id}: {e}")
             return Response({
-                "success": False,
+                "success": True,
+                "batch_id": batch_id,
+                "anchor_count": 0,
+                "anchors": [],
                 "error": str(e),
                 "message": "Failed to retrieve anchor history"
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            }, status=status.HTTP_200_OK)
 
 
 class BlockchainStatusView(APIView):
@@ -283,26 +316,16 @@ class BlockchainStatusView(APIView):
         
         Response:
             - connected: bool
-            - chain_id: int
-            - account_address: str
-            - balance: float
-            - gas_price: int
+            - network: str
+            - contract_loaded: bool
+            - wallet_loaded: bool
             - contract_address: str
+            - wallet_address: str
         """
         try:
             blockchain = get_blockchain_service()
-            
-            status_data = {
-                "success": True,
-                "connected": blockchain.is_healthy(),
-                "chain_id": blockchain.w3.eth.chain_id if blockchain.w3 else None,
-                "account_address": blockchain.account.address if blockchain.account else None,
-                "balance": float(blockchain.get_balance()) if blockchain.account else None,
-                "gas_price": blockchain.get_gas_price() if blockchain.w3 else None,
-                "contract_address": blockchain.contract.address if blockchain.contract else None,
-                "network": "Polygon Amoy Testnet"
-            }
-            
+            status_data = blockchain.get_status_dict()
+            status_data["success"] = True
             return Response(status_data, status=status.HTTP_200_OK)
             
         except Exception as e:
@@ -310,9 +333,12 @@ class BlockchainStatusView(APIView):
             return Response({
                 "success": False,
                 "connected": False,
+                "contract_loaded": False,
+                "wallet_loaded": False,
+                "network": "Polygon Amoy Testnet",
                 "error": str(e),
                 "message": "Blockchain service unavailable"
-            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            }, status=status.HTTP_200_OK)
 
 
 class RetryAnchorView(APIView):

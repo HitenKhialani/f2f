@@ -1,5 +1,35 @@
 # AgriChain – Agricultural Supply Chain Management System
 
+## 🚀 Quick Start (for Developers)
+
+If you just cloned this repo, follow these steps to get it running in 5 minutes:
+
+### 1. Backend Setup
+```powershell
+cd Backend\bsas_supplychain-main
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+pip install web3 eth-account eth-abi python-dotenv
+python manage.py migrate
+python manage.py seed_data
+python manage.py runserver 0.0.0.0:8001
+```
+
+### 2. Frontend Setup
+```powershell
+cd ../../Frontend/agri-supply-chain
+npm install
+npm run dev
+```
+
+### 3. Access
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8001/api/
+- **Admin**: http://localhost:8001/admin/ (Create a superuser first)
+
+---
+
 ## Project Overview
 
 AgriChain is a full-stack web application that digitizes and tracks agricultural produce across the entire supply chain — from farm to consumer. The system enforces role-based access for six stakeholder types (Farmer, Transporter, Distributor, Retailer, Consumer, and Admin) and maintains an immutable event log for every state transition a crop batch undergoes.
@@ -101,9 +131,10 @@ source .venv/bin/activate
 ```
 
 #### 4. Install Dependencies
-Install all required Python packages (Django, DRF, JWT, PIL, etc.):
+Install all required Python packages (Django, DRF, JWT, PIL, and Blockchain tools):
 ```powershell
 pip install -r requirements.txt
+pip install web3>=6.0.0 eth-account>=0.8.0 eth-abi>=4.0.0 python-dotenv>=1.0.0
 ```
 
 #### 5. Apply Database Migrations
@@ -126,49 +157,8 @@ python manage.py createsuperuser
 
 #### 8. Start Development Server
 ```powershell
-python manage.py runserver
+python manage.py runserver 0.0.0.0:8001
 ```
-
----
-
-### C. Blockchain Setup (Optional for Development)
-
-The blockchain integration provides tamper-proof audit trails for critical events. Setup is optional for basic functionality but required for full transparency features.
-
-#### 1. Install Blockchain Dependencies
-```powershell
-pip install web3>=6.0.0 eth-account>=0.8.0 eth-abi>=4.0.0 python-dotenv>=1.0.0
-```
-
-#### 2. Deploy HashAnchor Contract
-```powershell
-cd ../../blockchain
-npm install
-npx hardhat run scripts/deploy.js --network polygonAmoy
-```
-
-#### 3. Configure Environment Variables
-Create `.env` file in `Backend/bsas_supplychain-main/`:
-```bash
-# Blockchain Configuration
-POLYGON_AMOY_RPC_URL=https://rpc-amoy.polygon.technology
-HASH_ANCHOR_CONTRACT_ADDRESS=0x...  # Deployed contract address
-ANCHORER_PRIVATE_KEY=0x...  # Private key with test MATIC
-```
-
-#### 4. Update Database Schema
-```powershell
-python manage.py makemigrations
-python manage.py migrate
-```
-
-#### 5. Test Blockchain Integration
-```powershell
-python supplychain/hash_generator.py
-python supplychain/blockchain_service.py
-```
-
-**Note**: Get test MATIC from [Polygon Amoy Faucet](https://faucet.polygon.technology/)
 
 ---
 
@@ -188,6 +178,35 @@ npm install
 ```powershell
 npm run dev
 ```
+
+---
+
+### C. Blockchain Configuration
+
+The blockchain integration provides tamper-proof audit trails for critical events.
+
+#### 1. Configure Environment Variables
+Create `.env` file in `Backend/bsas_supplychain-main/`:
+```bash
+# Blockchain Configuration
+POLYGON_AMOY_RPC_URL=https://rpc-amoy.polygon.technology
+HASH_ANCHOR_CONTRACT_ADDRESS=0x545302340823504C32268b64284728a6278083c7
+ANCHORER_PRIVATE_KEY=0x...  # Private key with test MATIC
+```
+
+#### 2. Funding the Wallet (MANDATORY)
+The anchorer wallet must have **MATIC** on the Polygon Amoy testnet to pay for gas fees.
+- **Wallet Address**: `0x54D8B7D4C3FCA9e2a6341F3aB4D24d2c1812f406`
+- **Faucet**: Get free test MATIC from the [Polygon Amoy Faucet](https://faucet.polygon.technology/).
+
+#### 3. Why is "Data Integrity Failed" shown?
+If you see "Data Integrity Failed" on a new batch, it is usually because:
+1.  **Insufficient Funds**: The anchorer wallet has 0 MATIC and cannot write the fingerprint to the blockchain.
+2.  **Not Yet Anchored**: The transaction is still being processed by the blockchain.
+3.  **Data Mismatch**: The data in the database has been changed since it was anchored.
+
+For more details, see [blockchain_implementation.md](./blockchain_implementation.md).
+
 
 ---
 

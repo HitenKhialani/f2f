@@ -122,6 +122,7 @@ class FarmerDashboardView(APIView):
                 'farm_location': batch.farm_location,
                 'status': batch.status,
                 'status_label': dict(models.BatchStatus.choices).get(batch.status, batch.status),
+                'farmer_base_price_per_unit': str(batch.farmer_base_price_per_unit),
                 'created_at': batch.created_at.isoformat() if batch.created_at else None,
             })
         

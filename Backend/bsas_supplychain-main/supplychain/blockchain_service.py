@@ -325,7 +325,28 @@ class BlockchainService:
             # Convert inputs to blockchain format
             batch_id_bytes = self._batch_id_to_bytes32(batch_id)
             hash_bytes = self._ensure_bytes32(snapshot_hash)
-            
+
+            # ── Debug logging ────────────────────────────────────────────────
+            print(f"[Blockchain] Batch ID       : {batch_id}")
+            print(f"[Blockchain] Batch ID bytes32: {batch_id_bytes.hex()}")
+            print(f"[Blockchain] Hash bytes32   : {hash_bytes.hex()}")
+            print(f"[Blockchain] Context        : {context}")
+            print(f"[Blockchain] Sender         : {self.account.address}")
+            print(f"[Blockchain] Contract       : {self.contract.address}")
+            # ─────────────────────────────────────────────────────────────────
+
+            # Estimate gas with fallback
+            gas_limit = 200000
+            try:
+                estimated = self.contract.functions.anchorHash(
+                    batch_id_bytes, hash_bytes, context
+                ).estimate_gas({'from': self.account.address})
+                gas_limit = int(estimated * 1.3)  # 30% buffer
+                print(f"[Blockchain] Gas estimate   : {estimated} → using {gas_limit}")
+            except Exception as gas_err:
+                print(f"[Blockchain] Gas estimate failed (using default {gas_limit}): {gas_err}")
+                logger.warning(f"Gas estimation failed for batch {batch_id}: {gas_err}")
+
             # Build transaction
             tx = self.contract.functions.anchorHash(
                 batch_id_bytes,
@@ -334,7 +355,7 @@ class BlockchainService:
             ).build_transaction({
                 'from': self.account.address,
                 'nonce': self.w3.eth.get_transaction_count(self.account.address),
-                'gas': 200000,  # Gas limit
+                'gas': gas_limit,
                 'gasPrice': self.w3.eth.gas_price,
                 'chainId': 80002  # Polygon Amoy
             })
@@ -564,6 +585,24 @@ class BlockchainService:
             return self.w3 is not None and self.w3.is_connected() and self.contract is not None
         except:
             return False
+
+    def has_anchorer_role(self) -> bool:
+        """
+        Check whether the configured backend wallet holds ANCHORER_ROLE.
+
+        Useful for diagnosing 'execution reverted' errors — if this returns
+        False, run: python manage.py grant_anchorer_role --deployer-key 0x...
+        """
+        try:
+            if not self.is_healthy():
+                return False
+            anchorer_role = self.contract.functions.ANCHORER_ROLE().call()
+            return self.contract.functions.hasRole(
+                anchorer_role, self.account.address
+            ).call()
+        except Exception as e:
+            logger.warning(f"has_anchorer_role check failed: {e}")
+            return False
     
     def get_status_dict(self) -> Dict[str, Any]:
         """Return a structured status dict for the status endpoint."""
@@ -588,9 +627,10 @@ class BlockchainService:
                 result["chain_id"] = self.w3.eth.chain_id
                 result["balance"] = float(self.get_balance())
                 result["gas_price"] = self.get_gas_price()
+                result["anchorer_role_granted"] = self.has_anchorer_role()
             except Exception as e:
                 result["error"] = f"Failed to fetch live data: {str(e)}"
-        
+
         return result
 
 

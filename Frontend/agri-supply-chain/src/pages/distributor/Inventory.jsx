@@ -21,6 +21,7 @@ import SuspendModal from '../../components/common/SuspendModal';
 import { useToast } from '../../context/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
+import VerificationBadge from '../../components/blockchain/VerificationBadge';
 
 const Inventory = () => {
   const navigate = useNavigate();
@@ -314,7 +315,10 @@ const Inventory = () => {
                           {formatNumber(batch.quantity || 0)} {t('common.kg')}
                         </td>
                         <td className="px-6 py-4">
-                          {getStatusBadge(batch.status)}
+                          <div className="flex flex-col gap-1">
+                            {getStatusBadge(batch.status)}
+                            <VerificationBadge status={batch.integrity_status} />
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -372,7 +376,10 @@ const Inventory = () => {
                       <span className="font-mono text-[10px] text-gray-400 dark:text-cosmos-400 bg-gray-50 dark:bg-cosmos-900 px-2 py-0.5 rounded">
                         {batch.is_child_batch && 'Child: '}#{batch.product_batch_id}
                       </span>
-                      {getStatusBadge(batch.status)}
+                      <div className="flex flex-col items-end gap-1">
+                        {getStatusBadge(batch.status)}
+                        <VerificationBadge status={batch.integrity_status} />
+                      </div>
                     </div>
 
                     <div className="mb-4">

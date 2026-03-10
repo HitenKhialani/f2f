@@ -20,6 +20,7 @@ import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI, farmerAPI } from 
 import { InspectionForm, InspectionTimeline } from '../../components/inspection';
 import ProductDescriptionForm from '../../components/inspection/ProductDescriptionForm';
 import SuspendModal from '../../components/common/SuspendModal';
+import VerificationBadge from '../../components/blockchain/VerificationBadge';
 import { useToast } from '../../context/ToastContext';
 
 const FarmerBatches = () => {
@@ -387,7 +388,10 @@ const FarmerBatches = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        {getStatusBadge(batch.status)}
+                        <div className="flex flex-col gap-1">
+                          {getStatusBadge(batch.status)}
+                          <VerificationBadge status={batch.integrity_status} />
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 flex-wrap">
@@ -442,7 +446,10 @@ const FarmerBatches = () => {
                     <span className="font-mono text-xs text-gray-400 dark:text-cosmos-400 bg-gray-50 dark:bg-cosmos-900 px-2 py-0.5 rounded">
                       #{batch.public_batch_id || batch.id}
                     </span>
-                    {getStatusBadge(batch.status)}
+                    <div className="flex flex-col items-end gap-1">
+                      {getStatusBadge(batch.status)}
+                      <VerificationBadge status={batch.integrity_status} />
+                    </div>
                   </div>
 
                   <div className="flex items-end justify-between mb-3">

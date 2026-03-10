@@ -201,18 +201,12 @@ class VerifyBatchView(APIView):
             response_data = {
                 "success": True,
                 "batch_id": batch.product_batch_id,
-                "verified": verification_result['verified'],
-                "status": api_status,
-                "current_hash": verification_result['current_hash'],
-                "stored_hash": verification_result['stored_hash'],
-                "message": verification_result['message'],
-                "blockchain_record": {
-                    "last_anchored_event_hash": verification_result['stored_hash']
-                } if verification_result['stored_hash'] else None,
+                "status": verification_result.get('status', 'ERROR'),
+                "verification_results": verification_result.get('verification_results', []),
                 "batch_status": {
-                    "last_anchored_at": batch.last_anchored_at.isoformat() if batch.last_anchored_at else None,
+                    "integrity_status": batch.integrity_status,
                     "is_blockchain_verified": batch.is_blockchain_verified,
-                    "integrity_status": batch.integrity_status
+                    "last_anchored_at": verification_result.get('last_anchored_at')
                 }
             }
             

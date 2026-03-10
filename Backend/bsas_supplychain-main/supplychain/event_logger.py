@@ -12,7 +12,10 @@ logger = logging.getLogger(__name__)
 CRITICAL_BLOCKCHAIN_EVENTS = {
     BatchEventType.CREATED,
     BatchEventType.DELIVERED_TO_DISTRIBUTOR,
+    BatchEventType.INSPECTION_PASSED,
+    BatchEventType.INSPECTION_FAILED,
     BatchEventType.DELIVERED_TO_RETAILER,
+    BatchEventType.LISTED,
     BatchEventType.SOLD,
 }
 

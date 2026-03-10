@@ -100,9 +100,28 @@ export const blockchainService = {
       };
     }
 
-    const { verified, success } = verificationData;
+    // New API uses uppercase status strings
+    const apiStatus = verificationData.status || '';
 
-    if (verified === undefined && success === undefined) {
+    if (apiStatus === 'VERIFIED') {
+      return {
+        status: 'verified',
+        badgeText: 'Blockchain Verified',
+        badgeColor: 'green',
+        message: 'Data integrity confirmed - no tampering detected'
+      };
+    }
+
+    if (apiStatus === 'INTEGRITY_FAILED') {
+      return {
+        status: 'tampered',
+        badgeText: 'Data Integrity Failed',
+        badgeColor: 'red',
+        message: 'WARNING: Data tampering detected - hashes do not match'
+      };
+    }
+
+    if (apiStatus === 'NOT_ANCHORED') {
       return {
         status: 'pending',
         badgeText: 'Blockchain Verification Pending',
@@ -110,6 +129,9 @@ export const blockchainService = {
         message: 'Batch not yet anchored to blockchain'
       };
     }
+
+    // Fallback for old fields if still used in some edges
+    const { verified, success } = verificationData;
 
     if (verified === true) {
       return {
@@ -120,7 +142,7 @@ export const blockchainService = {
       };
     }
 
-    if (verified === false) {
+    if (verified === false && apiStatus !== 'NOT_ANCHORED') {
       return {
         status: 'tampered',
         badgeText: 'Data Integrity Failed',

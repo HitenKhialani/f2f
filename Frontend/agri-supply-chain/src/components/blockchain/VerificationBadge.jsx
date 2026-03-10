@@ -26,30 +26,37 @@ const VerificationBadge = ({ status, loading, error }) => {
   }
 
   const getStatusConfig = (status) => {
-    switch (status) {
+    const s = status?.toUpperCase();
+    switch (s) {
+      case 'VERIFIED':
       case 'verified':
         return {
           icon: CheckCircle,
           bgColor: 'bg-green-100 dark:bg-green-900/20',
           borderColor: 'border-green-200 dark:border-green-800/50',
           textColor: 'text-green-700 dark:text-green-300',
-          iconColor: 'text-green-600 dark:text-green-400'
+          iconColor: 'text-green-600 dark:text-green-400',
+          label: 'Blockchain Verified'
         };
+      case 'NOT_ANCHORED':
       case 'pending':
         return {
           icon: Clock,
           bgColor: 'bg-gray-100 dark:bg-gray-800/20',
           borderColor: 'border-gray-200 dark:border-gray-800/50',
           textColor: 'text-gray-700 dark:text-gray-300',
-          iconColor: 'text-gray-600 dark:text-gray-400'
+          iconColor: 'text-gray-600 dark:text-gray-400',
+          label: 'Blockchain Verification Pending'
         };
+      case 'INTEGRITY_FAILED':
       case 'tampered':
         return {
           icon: AlertTriangle,
           bgColor: 'bg-red-100 dark:bg-red-900/20',
           borderColor: 'border-red-200 dark:border-red-800/50',
           textColor: 'text-red-700 dark:text-red-300',
-          iconColor: 'text-red-600 dark:text-red-400'
+          iconColor: 'text-red-600 dark:text-red-400',
+          label: 'Data Integrity Failed'
         };
       default:
         return {
@@ -57,7 +64,8 @@ const VerificationBadge = ({ status, loading, error }) => {
           bgColor: 'bg-gray-100 dark:bg-gray-800/20',
           borderColor: 'border-gray-200 dark:border-gray-800/50',
           textColor: 'text-gray-700 dark:text-gray-300',
-          iconColor: 'text-gray-600 dark:text-gray-400'
+          iconColor: 'text-gray-600 dark:text-gray-400',
+          label: 'Verification Unknown'
         };
     }
   };
@@ -69,11 +77,7 @@ const VerificationBadge = ({ status, loading, error }) => {
     <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${config.bgColor} ${config.borderColor}`}>
       <Icon className={`w-4 h-4 ${config.iconColor}`} />
       <span className={`text-sm font-medium ${config.textColor}`}>
-        {status === 'verified' && 'Blockchain Verified'}
-        {status === 'pending' && 'Blockchain Verification Pending'}
-        {status === 'tampered' && 'Data Integrity Failed'}
-        {status === 'unavailable' && 'Blockchain Verification Unavailable'}
-        {(!status || status === 'unknown') && 'Verification Unknown'}
+        {config.label}
       </span>
     </div>
   );

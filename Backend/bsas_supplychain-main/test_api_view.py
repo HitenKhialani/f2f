@@ -2,12 +2,14 @@ import os
 import django
 import json
 from rest_framework.test import APIRequestFactory
+
+# Set the settings module
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bsas_supplychain.settings')
+django.setup()
+
 from supplychain.blockchain_views import VerifyBatchView
 from supplychain.models import CropBatch
 from supplychain.blockchain_service import get_blockchain_service
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bsas_supplychain.settings')
-django.setup()
 
 def run_test():
     batch = CropBatch.objects.first()

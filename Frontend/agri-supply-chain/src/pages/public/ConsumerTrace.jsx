@@ -181,6 +181,19 @@ const ConsumerTrace = () => {
       <div className="h-20" /> {/* Spacer */}
 
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8 pb-24">
+        {/* Integrity Warning Banner */}
+        {verificationData?.status === 'INTEGRITY_FAILED' && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-[2rem] p-6 flex flex-col md:flex-row items-center gap-6 animate-pulse">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/40 rounded-2xl flex items-center justify-center shrink-0">
+              <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+            </div>
+            <div className="text-center md:text-left">
+              <h2 className="text-xl font-black text-red-700 dark:text-red-300 uppercase tracking-tighter">⚠ Data Integrity Warning</h2>
+              <p className="text-red-600 dark:text-red-400 font-medium">Blockchain verification detected a mismatch in this product's history. Authenticity cannot be guaranteed.</p>
+            </div>
+          </div>
+        )}
+
         {/* A. PRODUCT SUMMARY CARD */}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden">
           <div className="grid md:grid-cols-5">
@@ -196,7 +209,7 @@ const ConsumerTrace = () => {
               {/* Blockchain Verification Badge */}
               <div className="mt-4">
                 <VerificationBadge
-                  status={blockchainService.formatVerificationStatus(verificationData)?.status}
+                  status={verificationData?.status}
                   loading={verificationLoading}
                   error={verificationError}
                 />
@@ -216,12 +229,12 @@ const ConsumerTrace = () => {
               <div className="flex items-center gap-3 pt-4">
                 <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span className={`text-sm font-black px-4 py-1.5 rounded-full border uppercase tracking-widest ${searchResult.status === 'SOLD'
-                    ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50'
-                    : searchResult.status === 'IN_TRANSIT'
-                      ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50'
-                      : searchResult.status === 'SUSPENDED'
-                        ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50'
-                        : 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50'
+                  ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800/50'
+                  : searchResult.status === 'IN_TRANSIT'
+                    ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800/50'
+                    : searchResult.status === 'SUSPENDED'
+                      ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800/50'
+                      : 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50'
                   }`}>
                   {searchResult.status}
                 </span>

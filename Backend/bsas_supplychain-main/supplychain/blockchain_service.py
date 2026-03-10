@@ -472,64 +472,89 @@ class BlockchainService:
     
     def verify_batch_integrity(self, batch) -> Dict[str, Any]:
         """
-        Verify batch data integrity against blockchain record.
+        Verify batch data integrity against blockchain records.
         
-        This method compares the current database hash with the
-        hash stored on the blockchain.
+        This method recomputes hashes for all anchored lifecycle events
+        and ensures no historical state has been tampered with.
         
         Args:
             batch: CropBatch model instance
             
         Returns:
             dict: Verification result
-            {
-                "verified": bool,
-                "current_hash": str (hex),
-                "stored_hash": str (hex),
-                "anchored_at": int (timestamp),
-                "anchored_by": str (address),
-                "message": str
-            }
         """
         from .hash_generator import generate_batch_hash
+        from .models import BatchEvent, IntegrityStatus
         
         try:
-            # Generate current hash from database
-            current_hash = generate_batch_hash(batch)
+            events = list(BatchEvent.objects.filter(batch=batch).order_by('timestamp'))
             
-            # Get latest blockchain record
-            latest_anchor = self.get_latest_anchor(batch.product_batch_id)
-            
-            if not latest_anchor:
+            has_anchors = any(e.snapshot_hash for e in events)
+            if not has_anchors:
                 return {
                     "verified": False,
-                    "current_hash": current_hash.hex(),
+                    "status": "not_anchored",
+                    "current_hash": None,
                     "stored_hash": None,
-                    "anchored_at": None,
-                    "anchored_by": None,
                     "message": "No blockchain record found for this batch"
                 }
             
-            stored_hash = latest_anchor["snapshot_hash"]
+            all_match = True
+            mismatched_event = None
+            last_recomputed = None
+            last_stored = None
             
-            # Compare hashes
-            if current_hash == stored_hash:
+            # Verify sequentially
+            for i, event in enumerate(events):
+                event_sequence = i + 1
+                if event.snapshot_hash:
+                    recomputed_hash = generate_batch_hash(
+                        batch=batch,
+                        event_type=event.event_type,
+                        event_sequence=event_sequence,
+                        actor_id=event.performed_by_id if getattr(event, 'performed_by', None) else None
+                    )
+                    
+                    last_recomputed = recomputed_hash.hex()
+                    last_stored = event.snapshot_hash
+                    
+                    if last_recomputed != last_stored:
+                        all_match = False
+                        mismatched_event = event
+                        
+                        from .models import BatchIntegrityLog
+                        # Log the tamper event if we haven't already for this exact mismatch
+                        BatchIntegrityLog.objects.get_or_create(
+                            batch=batch,
+                            event_type=mismatched_event.event_type,
+                            blockchain_hash=last_stored,
+                            recomputed_hash=last_recomputed
+                        )
+                        break
+            
+            if all_match:
+                if batch.integrity_status != IntegrityStatus.VERIFIED:
+                    batch.integrity_status = IntegrityStatus.VERIFIED
+                    batch.save(update_fields=['integrity_status'])
+                    
                 return {
                     "verified": True,
-                    "current_hash": current_hash.hex(),
-                    "stored_hash": stored_hash.hex(),
-                    "anchored_at": latest_anchor["anchored_at"],
-                    "anchored_by": latest_anchor["anchored_by"],
-                    "message": "Data integrity confirmed - no tampering detected"
+                    "status": "verified",
+                    "current_hash": last_recomputed,
+                    "stored_hash": last_stored,
+                    "message": "Data integrity confirmed - no tampering detected across all events"
                 }
             else:
+                if batch.integrity_status != IntegrityStatus.INTEGRITY_FAILED:
+                    batch.integrity_status = IntegrityStatus.INTEGRITY_FAILED
+                    batch.save(update_fields=['integrity_status'])
+                    
                 return {
                     "verified": False,
-                    "current_hash": current_hash.hex(),
-                    "stored_hash": stored_hash.hex(),
-                    "anchored_at": latest_anchor["anchored_at"],
-                    "anchored_by": latest_anchor["anchored_by"],
-                    "message": "WARNING: Data tampering detected - hashes do not match"
+                    "status": "integrity_failed",
+                    "current_hash": last_recomputed,
+                    "stored_hash": last_stored,
+                    "message": f"WARNING: Data tampering detected at event {mismatched_event.event_type}"
                 }
                 
         except Exception as e:

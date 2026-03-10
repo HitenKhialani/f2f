@@ -80,6 +80,12 @@ class BatchStatus(models.TextChoices):
     FULLY_SPLIT = "FULLY_SPLIT", "Fully Split"
 
 
+class IntegrityStatus(models.TextChoices):
+    UNVERIFIED = "UNVERIFIED", "Unverified"
+    VERIFIED = "VERIFIED", "Verified"
+    INTEGRITY_FAILED = "INTEGRITY_FAILED", "Integrity Failed"
+
+
 class FinancialStatus(models.TextChoices):
     PAYMENT_PENDING = "PAYMENT_PENDING", "Payment Pending"
     DISTRIBUTOR_PHASE_SETTLED = "DISTRIBUTOR_PHASE_SETTLED", "Distributor Phase Settled"
@@ -152,6 +158,9 @@ class CropBatch(models.Model):
     # Blockchain integration fields
     last_anchored_at = models.DateTimeField(blank=True, null=True)
     is_blockchain_verified = models.BooleanField(default=False)
+    integrity_status = models.CharField(
+        max_length=32, choices=IntegrityStatus.choices, default=IntegrityStatus.UNVERIFIED
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -512,3 +521,23 @@ class FarmerCropPreference(models.Model):
 
     def __str__(self) -> str:
         return f"{self.farmer.user.username} - {self.crop_name}"
+
+
+class BatchIntegrityLog(models.Model):
+    """
+    Audit log for detecting and recording database tampering events 
+    caught by the blockchain verification system.
+    """
+    batch = models.ForeignKey(
+        CropBatch, on_delete=models.CASCADE, related_name="integrity_logs"
+    )
+    event_type = models.CharField(max_length=32, choices=BatchEventType.choices)
+    blockchain_hash = models.CharField(max_length=64)
+    recomputed_hash = models.CharField(max_length=64)
+    detected_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-detected_at']
+
+    def __str__(self) -> str:
+        return f"Integrity Failure: {self.batch.product_batch_id} at {self.detected_at}"

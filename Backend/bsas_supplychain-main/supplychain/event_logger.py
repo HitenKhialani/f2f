@@ -62,7 +62,7 @@ def log_batch_event(batch, event_type, user, metadata=None, anchor_to_blockchain
     # Anchor to blockchain for critical events
     if anchor_to_blockchain and event_type in CRITICAL_BLOCKCHAIN_EVENTS:
         try:
-            _anchor_event_to_blockchain(event, batch, event_type)
+            _anchor_event_to_blockchain(event, batch, event_type, user)
         except Exception as e:
             # Log error but don't fail the event creation
             # The event is still valid even if blockchain anchoring fails
@@ -74,7 +74,7 @@ def log_batch_event(batch, event_type, user, metadata=None, anchor_to_blockchain
     return event
 
 
-def _anchor_event_to_blockchain(event, batch, event_type):
+def _anchor_event_to_blockchain(event, batch, event_type, user):
     """
     Anchor batch hash to blockchain for tamper-proof verification.
     
@@ -86,6 +86,7 @@ def _anchor_event_to_blockchain(event, batch, event_type):
         event: BatchEvent instance (will be updated with blockchain data)
         batch: CropBatch instance
         event_type: The event type being anchored
+        user: The user performing the action
     
     Raises:
         Exception: If blockchain operation fails
@@ -93,12 +94,21 @@ def _anchor_event_to_blockchain(event, batch, event_type):
     # Import here to avoid circular imports
     from .hash_generator import generate_batch_hash
     from .blockchain_service import get_blockchain_service
+    from .models import BatchEvent
     
     logger.info(f"Anchoring event {event.id} for batch {batch.product_batch_id} to blockchain")
     
-    # Step 1: Generate deterministic hash of batch data
-    batch_hash = generate_batch_hash(batch)
-    logger.debug(f"Generated hash: {batch_hash.hex()[:16]}... for batch {batch.product_batch_id}")
+    # Calculate event sequence number (1-based index)
+    event_sequence = BatchEvent.objects.filter(batch=batch, timestamp__lte=event.timestamp).count()
+    
+    # Step 1: Generate deterministic hash of event payload
+    batch_hash = generate_batch_hash(
+        batch=batch, 
+        event_type=event_type, 
+        event_sequence=event_sequence, 
+        actor_id=user.id if user else None
+    )
+    logger.debug(f"Generated payload hash: {batch_hash.hex()[:16]}... for batch {batch.product_batch_id}")
     
     # Step 2: Get blockchain service
     blockchain = get_blockchain_service()

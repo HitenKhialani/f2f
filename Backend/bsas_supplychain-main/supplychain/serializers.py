@@ -152,8 +152,9 @@ class CropBatchSerializer(serializers.ModelSerializer):
             "financial_status",
             "current_phase",
             "is_locked",
+            "integrity_status",
         ]
-        read_only_fields = ["farmer", "product_batch_id", "public_batch_id", "qr_code_image", "qr_code_data", "created_at", "current_owner", "is_child_batch", "parent_batch", "financial_status", "current_phase", "is_locked"]
+        read_only_fields = ["farmer", "product_batch_id", "public_batch_id", "qr_code_image", "qr_code_data", "created_at", "current_owner", "is_child_batch", "parent_batch", "financial_status", "current_phase", "is_locked", "integrity_status"]
 
     total_transport_fees = serializers.SerializerMethodField()
 

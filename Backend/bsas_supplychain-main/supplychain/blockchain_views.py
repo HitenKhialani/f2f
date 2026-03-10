@@ -188,22 +188,31 @@ class VerifyBatchView(APIView):
             # Verify integrity
             verification_result = blockchain.verify_batch_integrity(batch)
             
+            # Map internal status to uppercase API response standard
+            status_map = {
+                "verified": "VERIFIED",
+                "integrity_failed": "INTEGRITY_FAILED",
+                "not_anchored": "NOT_ANCHORED"
+            }
+            raw_status = verification_result.get('status', 'error')
+            api_status = status_map.get(raw_status, "ERROR")
+            
             # Build response
             response_data = {
                 "success": True,
                 "batch_id": batch.product_batch_id,
                 "verified": verification_result['verified'],
-                "status": "verified" if verification_result['verified'] else ("not_anchored" if not verification_result['stored_hash'] else "tampered"),
+                "status": api_status,
                 "current_hash": verification_result['current_hash'],
                 "stored_hash": verification_result['stored_hash'],
                 "message": verification_result['message'],
                 "blockchain_record": {
-                    "anchored_at": verification_result['anchored_at'],
-                    "anchored_by": verification_result['anchored_by']
+                    "last_anchored_event_hash": verification_result['stored_hash']
                 } if verification_result['stored_hash'] else None,
                 "batch_status": {
                     "last_anchored_at": batch.last_anchored_at.isoformat() if batch.last_anchored_at else None,
-                    "is_blockchain_verified": batch.is_blockchain_verified
+                    "is_blockchain_verified": batch.is_blockchain_verified,
+                    "integrity_status": batch.integrity_status
                 }
             }
             

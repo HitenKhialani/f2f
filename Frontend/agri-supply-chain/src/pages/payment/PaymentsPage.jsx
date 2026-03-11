@@ -19,6 +19,8 @@ import {
 
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI, paymentAPI } from '../../services/api';
 import SuspendModal from '../../components/common/SuspendModal';
+import PaymentStatusBadge from '../../components/payment/PaymentStatusBadge';
+import { generateUPILink, isMobileDevice } from '../../utils/UPIPaymentHandler';
 
 const PaymentsPage = () => {
   const { role, user } = useAuth();
@@ -92,34 +94,11 @@ const PaymentsPage = () => {
     }
   };
 
-  const generateUPILink = (payment) => {
-    const payeeUPI = payment.payee_upi_id || '';
-    const payeeName = payment.payee_details?.user_details?.username || 'F2F_Participant';
-    const amount = parseFloat(payment.amount).toFixed(2);
-    const batchId = payment.batch_details?.product_batch_id || payment.batch;
-    const paymentId = payment.id;
 
-    // Requested exact format: upi://pay?pa={payee_upi}&pn={payee.name}&am={amount}&cu=INR&tn={batch_id}_{payment_id}
-    return `upi://pay?pa=${payeeUPI}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${batchId}_${paymentId}`;
-  };
-
-  const isMobile = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  };
 
   const openUPILink = (payment) => {
-    if (isMobile()) {
-      const upiLink = generateUPILink(payment);
-      window.location.href = upiLink;
-      // After returning from UPI app, show modal for "Mark as Paid"
-      setTimeout(() => {
-        setSelectedPayment(payment);
-        setShowPaymentModal(true);
-      }, 500);
-    } else {
-      setSelectedPayment(payment);
-      setShowPaymentModal(true);
-    }
+    setSelectedPayment(payment);
+    setShowPaymentModal(true);
   };
 
   const copyToClipboard = (text) => {
@@ -127,6 +106,34 @@ const PaymentsPage = () => {
     setCopiedText(text);
     toast.info('Copied to clipboard');
     setTimeout(() => setCopiedText(''), 2000);
+  };
+
+  const downloadReceipt = (payment) => {
+    const payerName = payment.payer_details?.user_details?.first_name 
+      ? `${payment.payer_details.user_details.first_name} ${payment.payer_details.user_details.last_name || ''}`
+      : (payment.payer_details?.user_details?.username || 'Unknown Sender');
+    const payeeName = payment.payee_details?.user_details?.first_name 
+      ? `${payment.payee_details.user_details.first_name} ${payment.payee_details.user_details.last_name || ''}`
+      : (payment.payee_details?.user_details?.username || 'Unknown Receiver');
+
+    const text = `
+AgriChain Payment Receipt
+-------------------------
+Payment ID: ${payment.id}
+Batch ID: ${payment.batch_details?.product_batch_id || payment.batch}
+Sender: ${payerName}
+Receiver: ${payeeName}
+Amount: ${payment.amount} INR
+Date: ${new Date(payment.created_at).toLocaleString()}
+Status: CONFIRMED
+    `;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `AgriChain_Payment_Receipt_${payment.id}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
 
@@ -386,9 +393,7 @@ const PaymentsPage = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           {getStatusIcon(payment.status)}
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(payment.status)}`}>
-                            {getStatusLabel(payment.status)}
-                          </span>
+                          <PaymentStatusBadge status={payment.status} />
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -422,7 +427,10 @@ const PaymentsPage = () => {
                         )}
                         {/* SETTLED => completed */}
                         {payment.status === 'SETTLED' && (
-                          <span className="text-sm text-green-600 font-medium">{t('payments.completed')}</span>
+                          <div className="flex flex-col gap-1 items-start">
+                            <span className="text-sm text-green-600 font-medium">{t('payments.completed')}</span>
+                            <button onClick={() => downloadReceipt(payment)} className="text-xs text-blue-600 hover:underline">Download Receipt</button>
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -448,9 +456,7 @@ const PaymentsPage = () => {
                     </span>
                     <div className="flex items-center gap-1">
                       {getStatusIcon(payment.status)}
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(payment.status)}`}>
-                        {getStatusLabel(payment.status)}
-                      </span>
+                      <PaymentStatusBadge status={payment.status} />
                     </div>
                   </div>
 
@@ -507,8 +513,13 @@ const PaymentsPage = () => {
                       </div>
                     )}
                     {payment.status === 'SETTLED' && (
-                      <div className="text-center text-sm text-green-600 font-medium py-2">
-                        {t('payments.completed')}
+                      <div className="text-center py-2 flex flex-col items-center gap-1">
+                        <div className="text-sm text-green-600 font-medium">
+                          {t('payments.completed')}
+                        </div>
+                        <button onClick={() => downloadReceipt(payment)} className="text-xs text-blue-600 hover:underline">
+                          Download Receipt
+                        </button>
                       </div>
                     )}
                   </div>

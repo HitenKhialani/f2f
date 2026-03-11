@@ -124,6 +124,7 @@ class FarmerDashboardView(APIView):
                 'status_label': dict(models.BatchStatus.choices).get(batch.status, batch.status),
                 'farmer_base_price_per_unit': str(batch.farmer_base_price_per_unit),
                 'created_at': batch.created_at.isoformat() if batch.created_at else None,
+                'integrity_status': batch.integrity_status,
             })
         
         # Check if farmer has no batches (for empty state)

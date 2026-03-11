@@ -21,7 +21,7 @@ import SuspendModal from '../../components/common/SuspendModal';
 import { useToast } from '../../context/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
-import VerificationBadge from '../../components/blockchain/VerificationBadge';
+import IntegrityBadge from '../../components/blockchain/IntegrityBadge';
 
 const Inventory = () => {
   const navigate = useNavigate();
@@ -317,7 +317,7 @@ const Inventory = () => {
                         <td className="px-6 py-4">
                           <div className="flex flex-col gap-1">
                             {getStatusBadge(batch.status)}
-                            <VerificationBadge status={batch.integrity_status} />
+                            <IntegrityBadge status={batch.integrity_status} />
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -378,7 +378,7 @@ const Inventory = () => {
                       </span>
                       <div className="flex flex-col items-end gap-1">
                         {getStatusBadge(batch.status)}
-                        <VerificationBadge status={batch.integrity_status} />
+                        <IntegrityBadge status={batch.integrity_status} />
                       </div>
                     </div>
 

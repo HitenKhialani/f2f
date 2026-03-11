@@ -50,6 +50,13 @@ A blockchain-backed agricultural supply chain management system built with React
 - Admin portal sidebar and header now fully support **dark mode** with proper color classes.
 - Language switcher and dark mode toggle added to Admin sidebar header (desktop) and mobile header.
 
+### 6. Dynamic Blockchain Integrity Badges & Payment UX
+- Added **IntegrityBadge** component across stakeholder dashboards and consumer trace to dynamically show blockchain verification status.
+- Added **Event Verification Timeline** reflecting individual event verification results (Match/Mismatch).
+- Implemented **Payment Status Badges** (Pending, Awaiting Confirmation, Settled) with standardized color coding in `PaymentsPage`.
+- Integrated **Mobile UPI Payment Redirection** handling for seamless payments on mobile, generating QR codes on desktop.
+- Added **Payment Receipt Generation** to automatically download simple text receipts for settled payments.
+
 ---
 
 ## Project Structure

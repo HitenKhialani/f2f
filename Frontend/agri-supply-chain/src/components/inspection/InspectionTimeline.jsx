@@ -65,7 +65,7 @@ const RESULT_CONFIG = {
   },
 };
 
-const InspectionTimeline = ({ batchId, inspections: propInspections }) => {
+const InspectionTimeline = ({ batchId, inspections: propInspections, batch }) => {
   const [inspections, setInspections] = useState(propInspections || []);
   const [loading, setLoading] = useState(!propInspections);
   const [error, setError] = useState(null);
@@ -164,11 +164,40 @@ const InspectionTimeline = ({ batchId, inspections: propInspections }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Inspection Timeline</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Inspection Timeline & History</h3>
         <span className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
           {inspections.length} inspection{inspections.length !== 1 ? 's' : ''}
         </span>
       </div>
+
+      {batch && (
+        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs">₹</span>
+            Pricing Information
+          </h4>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div>
+              <p className="text-xs text-gray-500">Farmer Base Price</p>
+              <p className="text-sm font-medium text-gray-900">
+                {batch.farmer_base_price_per_unit ? `₹${batch.farmer_base_price_per_unit}/kg` : '-'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Distributor Margin</p>
+              <p className="text-sm font-medium text-gray-900">
+                {batch.distributor_margin_per_unit ? `₹${batch.distributor_margin_per_unit}/kg` : '-'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Transport Fee</p>
+              <p className="text-sm font-medium text-gray-900">
+                {batch.total_transport_fees ? `₹${batch.total_transport_fees}/kg` : '-'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="relative">
         {/* Timeline line */}

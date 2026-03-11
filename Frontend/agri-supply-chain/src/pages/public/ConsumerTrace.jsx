@@ -21,7 +21,7 @@ import {
 import { consumerAPI, inspectionAPI } from '../../services/api';
 import { blockchainService } from '../../services/blockchainService';
 import { InspectionTimeline } from '../../components/inspection';
-import VerificationBadge from '../../components/blockchain/VerificationBadge';
+import IntegrityBadge from '../../components/blockchain/IntegrityBadge';
 import BlockchainIntegrityCard from '../../components/blockchain/BlockchainIntegrityCard';
 import AnchorHistory from '../../components/blockchain/AnchorHistory';
 import PublicTopNav from '../../components/layout/PublicTopNav';
@@ -208,10 +208,9 @@ const ConsumerTrace = () => {
 
               {/* Blockchain Verification Badge */}
               <div className="mt-4">
-                <VerificationBadge
+                <IntegrityBadge
                   status={verificationData?.status}
-                  loading={verificationLoading}
-                  error={verificationError}
+                  consumerView={true}
                 />
               </div>
 

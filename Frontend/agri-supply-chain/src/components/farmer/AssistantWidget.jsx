@@ -1,106 +1,38 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   MessageSquare,
   X,
-  Mic,
-  MicOff,
-  Send,
   RefreshCcw,
-  Volume2,
-  VolumeX,
   Globe
 } from 'lucide-react';
 import { farmerAPI, batchAPI, stakeholderAPI, transportAPI, paymentAPI } from '../../services/api';
-import { assistantTranslations, normalizeVoiceInput } from './AssistantTranslations';
-
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+import { assistantTranslations } from './AssistantTranslations';
 
 const AssistantWidget = ({ onActionComplete }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [lang, setLang] = useState('en');
   const [messages, setMessages] = useState([]);
   const [options, setOptions] = useState([]);
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(true);
-  const [inputValue, setInputValue] = useState('');
-  
-  // State Machine Variables
   const [currentFlow, setCurrentFlow] = useState('MENU');
   const [flowStep, setFlowStep] = useState('INIT');
   const [flowData, setFlowData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   const messagesEndRef = useRef(null);
-  const recognitionRef = useRef(null);
-  
   const translations = assistantTranslations[lang];
 
-  // Initialize Speech Recognition
-  useEffect(() => {
-    if (SpeechRecognition) {
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
-      
-      // Map app language to BCP 47 tags for speech recognition
-      const langMap = { 'en': 'en-IN', 'hi': 'hi-IN', 'mr': 'mr-IN' };
-      recognitionRef.current.lang = langMap[lang] || 'en-IN';
-
-      recognitionRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        handleTextInput(transcript, true);
-        setIsListening(false);
-      };
-
-      recognitionRef.current.onerror = (event) => {
-        console.error("Speech recognition error", event.error);
-        setIsListening(false);
-      };
-
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-      };
-    }
-  }, [lang]);
-
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, options]);
 
-  // Initialize bot when opened
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       resetConversation();
     }
   }, [isOpen]);
 
-  const speakText = useCallback((text) => {
-    if (!isSpeaking || !('speechSynthesis' in window)) return;
-    
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    // Rough language mapping for TTS voices if available
-    const langMap = { 'en': 'en-IN', 'hi': 'hi-IN', 'mr': 'mr-IN' };
-    utterance.lang = langMap[lang] || 'en-IN';
-    
-    // For Hindi/Marathi, try to find a local voice
-    const voices = window.speechSynthesis.getVoices();
-    if (lang === 'hi' || lang === 'mr') {
-      const indianVoice = voices.find(v => v.lang.includes('hi') || v.lang.includes('IN'));
-      if (indianVoice) utterance.voice = indianVoice;
-    }
-    
-    window.speechSynthesis.speak(utterance);
-  }, [isSpeaking, lang]);
-
   const addMessage = (text, sender = 'bot') => {
     setMessages(prev => [...prev, { text, sender, id: Date.now() + Math.random() }]);
-    if (sender === 'bot') {
-      speakText(text);
-    }
   };
 
   const setBotState = (text, opts) => {
@@ -117,6 +49,9 @@ const AssistantWidget = ({ onActionComplete }) => {
       { label: translations.options_menu.create_batch, value: 'CREATE_BATCH' },
       { label: translations.options_menu.request_transport, value: 'REQUEST_TRANSPORT' },
       { label: translations.options_menu.view_batches, value: 'VIEW_BATCHES' },
+      { label: translations.options_menu.edit_batch, value: 'EDIT_BATCH' },
+      { label: translations.options_menu.track_batch, value: 'TRACK_BATCH' },
+      { label: translations.options_menu.verify_batch, value: 'VERIFY_BATCH' },
       { label: translations.options_menu.payment_status, value: 'PAYMENT_STATUS' }
     ]);
   };
@@ -124,84 +59,35 @@ const AssistantWidget = ({ onActionComplete }) => {
   const handleOptionSelect = (option) => {
     const { label, value } = option;
     addMessage(label, 'user');
-    setOptions([]); // clear options while processing
+    setOptions([]);
     processUserInput(value, label);
   };
 
-  const handleTextInput = (text, isVoice = false) => {
-    if (!text.trim()) return;
-    
-    addMessage(text, 'user');
-    setOptions([]);
-    setInputValue('');
-    
-    let processedValue = text;
-    if (isVoice) {
-      processedValue = normalizeVoiceInput(text);
-      console.log(`Voice input normalized: "${text}" -> "${processedValue}"`);
-    }
-
-    // Attempt to match input value to current options
-    let matchedOption = null;
-    if (options.length > 0) {
-      // Direct exact match
-      matchedOption = options.find(o => 
-        o.value.toString().toLowerCase() === processedValue.toLowerCase() || 
-        o.label.toLowerCase() === processedValue.toLowerCase()
-      );
-      
-      // If no exact match and it's voice/typing, try partial inclusion match
-      if (!matchedOption) {
-        matchedOption = options.find(o => 
-          o.label.toLowerCase().includes(processedValue.toLowerCase()) ||
-          processedValue.toLowerCase().includes(o.label.toLowerCase())
-        );
-      }
-    }
-
-    if (matchedOption) {
-      processUserInput(matchedOption.value, matchedOption.label);
-    } else {
-      // Free text fallback
-      processUserInput(processedValue, text);
-    }
-  };
-
-  const toggleListen = () => {
-    if (isListening) {
-      recognitionRef.current?.stop();
-      setIsListening(false);
-    } else {
-      try {
-        recognitionRef.current?.start();
-        setIsListening(true);
-      } catch (e) {
-        console.error("Speech recognition error", e);
-      }
-    }
-  };
-
-  // --------------------------------------------------------------------------
-  // DECISION ENGINE
-  // --------------------------------------------------------------------------
-  
   const processUserInput = async (value, rawLabel) => {
     if (currentFlow === 'MENU') {
       handleMenuSelection(value);
       return;
     }
-
     if (currentFlow === 'CREATE_BATCH') {
       await handleCreateBatchFlow(value, rawLabel);
       return;
     }
-
     if (currentFlow === 'REQUEST_TRANSPORT') {
       await handleTransportFlow(value, rawLabel);
       return;
     }
-
-    // Default fallback if confused
+    if (currentFlow === 'EDIT_BATCH') {
+      await handleEditBatchFlow(value, rawLabel);
+      return;
+    }
+    if (currentFlow === 'TRACK_BATCH') {
+      await handleTrackBatchFlow(value, rawLabel);
+      return;
+    }
+    if (currentFlow === 'VERIFY_BATCH') {
+      await handleVerifyBatchFlow(value, rawLabel);
+      return;
+    }
     addMessage(translations.common.not_understood, 'bot');
     resetConversation();
   };
@@ -225,14 +111,12 @@ const AssistantWidget = ({ onActionComplete }) => {
       }
       return;
     }
-
     if (selection === 'REQUEST_TRANSPORT') {
       setCurrentFlow('REQUEST_TRANSPORT');
       setFlowStep('BATCH');
       setIsLoading(true);
       try {
         const res = await batchAPI.list();
-        // Filter only parent batches that belong to farmer and are not locked
         const eligibleBatches = res.data.filter(b => !b.is_child_batch && !b.is_locked);
         if (eligibleBatches.length === 0) {
           setBotState("You have no eligible batches for transport right now.", []);
@@ -267,7 +151,6 @@ const AssistantWidget = ({ onActionComplete }) => {
       }
       return;
     }
-
     if (selection === 'PAYMENT_STATUS') {
       setIsLoading(true);
       try {
@@ -284,6 +167,82 @@ const AssistantWidget = ({ onActionComplete }) => {
       return;
     }
 
+    if (selection === 'EDIT_BATCH') {
+      setCurrentFlow('EDIT_BATCH');
+      setFlowStep('SELECT_BATCH');
+      setIsLoading(true);
+      try {
+        const res = await batchAPI.list();
+        const editableBatches = res.data.filter(b => !b.is_locked && b.status !== 'SUSPENDED');
+        if (editableBatches.length === 0) {
+          setBotState("No editable batches available.", []);
+          resetConversation();
+          return;
+        }
+        const bOpts = editableBatches.map(b => ({
+          label: `${b.product_batch_id} (${b.crop_type}, ${b.quantity}kg)`,
+          value: b.id,
+          batch: b
+        }));
+        setBotState("Select a batch to edit:", bOpts);
+      } catch (e) {
+        setBotState("Failed to fetch batches.", []);
+        resetConversation();
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+    if (selection === 'TRACK_BATCH') {
+      setCurrentFlow('TRACK_BATCH');
+      setFlowStep('SELECT_BATCH');
+      setIsLoading(true);
+      try {
+        const res = await batchAPI.list();
+        if (res.data.length === 0) {
+          setBotState("You have no batches to track.", []);
+          resetConversation();
+          return;
+        }
+        const bOpts = res.data.map(b => ({
+          label: `${b.product_batch_id} (${b.crop_type}) - ${b.status}`,
+          value: b.id,
+          batch: b
+        }));
+        setBotState("Select a batch to track:", bOpts);
+      } catch (e) {
+        setBotState("Failed to fetch batches.", []);
+        resetConversation();
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+    if (selection === 'VERIFY_BATCH') {
+      setCurrentFlow('VERIFY_BATCH');
+      setFlowStep('SELECT_BATCH');
+      setIsLoading(true);
+      try {
+        const res = await batchAPI.list();
+        if (res.data.length === 0) {
+          setBotState("You have no batches to verify.", []);
+          resetConversation();
+          return;
+        }
+        const bOpts = res.data.map(b => ({
+          label: `${b.product_batch_id} (${b.crop_type})`,
+          value: b.product_batch_id,
+          batch: b
+        }));
+        setBotState("Select a batch to verify blockchain status:", bOpts);
+      } catch (e) {
+        setBotState("Failed to fetch batches.", []);
+        resetConversation();
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
     addMessage(translations.common.not_understood, 'bot');
     resetConversation();
   };
@@ -323,17 +282,14 @@ const AssistantWidget = ({ onActionComplete }) => {
 
       case 'DATE':
         let selectedDate = value;
-        if (value.toLowerCase() === 'today' || value === 'आज') {
+        if (value.toLowerCase() === 'today') {
           selectedDate = new Date().toISOString().split('T')[0];
-        } else if (value.toLowerCase() === 'yesterday' || value === 'कल') {
+        } else if (value.toLowerCase() === 'yesterday') {
           selectedDate = new Date(Date.now() - 86400000).toISOString().split('T')[0];
         }
-        
-        // Attempt Date parsing backup
         if (isNaN(new Date(selectedDate).getTime())) {
-          selectedDate = new Date().toISOString().split('T')[0]; // Default to today
+          selectedDate = new Date().toISOString().split('T')[0];
         }
-        
         setFlowData({ ...flowData, harvest_date: selectedDate });
         setFlowStep('PRICE');
         setBotState(translations.create_batch.ask_price, [
@@ -363,7 +319,7 @@ const AssistantWidget = ({ onActionComplete }) => {
         break;
 
       case 'CONFIRM':
-        if (value === 'YES' || value.toLowerCase() === 'yes' || value.toLowerCase() === 'हाँ') {
+        if (value === 'YES' || value.toLowerCase() === 'yes') {
           setIsLoading(true);
           try {
             await batchAPI.create(flowData);
@@ -422,7 +378,7 @@ const AssistantWidget = ({ onActionComplete }) => {
         break;
 
       case 'CONFIRM':
-        if (value === 'YES' || value.toLowerCase() === 'yes' || value.toLowerCase() === 'हाँ') {
+        if (value === 'YES' || value.toLowerCase() === 'yes') {
           setIsLoading(true);
           try {
             await transportAPI.createRequest(flowData);
@@ -441,6 +397,138 @@ const AssistantWidget = ({ onActionComplete }) => {
     }
   }
 
+  const handleEditBatchFlow = async (value, rawLabel) => {
+    switch (flowStep) {
+      case 'SELECT_BATCH':
+        const selectedBatch = options.find(o => o.value === value)?.batch;
+        if (!selectedBatch) {
+          setBotState("Invalid selection. Please try again.", []);
+          resetConversation();
+          return;
+        }
+        setFlowData({ batch: selectedBatch });
+        setFlowStep('SELECT_FIELD');
+        setBotState("What would you like to edit?", [
+          { label: `Quantity (current: ${selectedBatch.quantity} kg)`, value: 'quantity' },
+          { label: `Base Price (current: ₹${selectedBatch.farmer_base_price_per_unit})`, value: 'farmer_base_price_per_unit' },
+          { label: `Harvest Date (current: ${selectedBatch.harvest_date || 'N/A'})`, value: 'harvest_date' }
+        ]);
+        break;
+
+      case 'SELECT_FIELD':
+        setFlowData({ ...flowData, field: value });
+        setFlowStep('ENTER_VALUE');
+        const fieldLabels = {
+          quantity: 'Enter new quantity (kg):',
+          farmer_base_price_per_unit: 'Enter new base price per unit (₹):',
+          harvest_date: 'Enter new harvest date:'
+        };
+        setBotState(fieldLabels[value] || 'Enter new value:', []);
+        break;
+
+      case 'ENTER_VALUE':
+        const { batch, field } = flowData;
+        const fields = {};
+        if (field === 'quantity') {
+          fields.quantity = value.replace(/[^0-9]/g, '');
+        } else if (field === 'farmer_base_price_per_unit') {
+          fields.farmer_base_price_per_unit = value.replace(/[^0-9.]/g, '');
+        } else if (field === 'harvest_date') {
+          fields.harvest_date = value;
+        }
+        setIsLoading(true);
+        try {
+          const { blockchainAPI } = await import('../../services/api');
+          await blockchainAPI.editBatch(batch.product_batch_id, fields, 'Farmer edit via assistant');
+          setBotState("Batch updated successfully!", []);
+          if (onActionComplete) onActionComplete();
+        } catch (e) {
+          setBotState("Failed to update batch. Please try again.", []);
+        } finally {
+          setIsLoading(false);
+          setTimeout(resetConversation, 3000);
+        }
+        break;
+    }
+  }
+
+  const handleTrackBatchFlow = async (value, rawLabel) => {
+    const selectedBatch = options.find(o => o.value === value)?.batch;
+    if (!selectedBatch) {
+      setBotState("Invalid selection. Please try again.", []);
+      resetConversation();
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const statusMessages = {
+        'HARVESTED': '🌾 Batch harvested and registered',
+        'STORED': '📦 Batch stored at farm',
+        'IN_TRANSPORT': '🚚 In transport to distributor',
+        'AT_DISTRIBUTOR': '🏭 At distributor facility',
+        'IN_TRANSIT_TO_RETAILER': '🚛 In transit to retailer',
+        'AT_RETAILER': '🏪 At retailer store',
+        'SOLD': '✅ Sold to consumer'
+      };
+      const statusMsg = statusMessages[selectedBatch.status] || `Status: ${selectedBatch.status}`;
+      const location = selectedBatch.current_location || selectedBatch.farm_location || 'Unknown';
+      let trackingInfo = `${statusMsg}\n\n`;
+      trackingInfo += `📍 Current Location: ${location}\n`;
+      trackingInfo += `📦 Quantity: ${selectedBatch.quantity} kg\n`;
+      trackingInfo += `🌾 Crop: ${selectedBatch.crop_type}\n`;
+      if (selectedBatch.current_owner) {
+        trackingInfo += `👤 Current Owner: ${selectedBatch.current_owner}`;
+      }
+      setBotState(trackingInfo, []);
+    } catch (e) {
+      setBotState("Failed to fetch tracking info.", []);
+    } finally {
+      setIsLoading(false);
+      setTimeout(resetConversation, 5000);
+    }
+  }
+
+  const handleVerifyBatchFlow = async (value, rawLabel) => {
+    const batchId = value;
+    
+    setIsLoading(true);
+    try {
+      const { blockchainAPI } = await import('../../services/api');
+      const res = await blockchainAPI.verifyBatch(batchId);
+      const data = res.data;
+      
+      let verifyMsg = '';
+      if (data.verified) {
+        verifyMsg = '✅ Blockchain Verified Successfully!\n\n';
+        verifyMsg += `🔗 Anchored on: ${new Date(data.blockchain_timestamp).toLocaleString()}\n`;
+        verifyMsg += `👤 Farmer: ${data.farmer}\n`;
+        verifyMsg += `📦 Batch: ${data.batch_id}`;
+      } else if (data.tampered) {
+        verifyMsg = '⚠️ Data Integrity Failed!\n\n';
+        if (data.tampered_fields && data.tampered_fields.length > 0) {
+          verifyMsg += 'Modified fields detected:\n';
+          data.tampered_fields.forEach(field => {
+            verifyMsg += `- ${field.field}: ${field.old_value} → ${field.new_value}\n`;
+            verifyMsg += `  By: ${field.modified_by} (${field.modified_role})\n`;
+          });
+        } else {
+          verifyMsg += '⚠️ ' + (data.message || 'Verification failed but no edit logs found.');
+        }
+      } else {
+        verifyMsg = '⏳ Verification Pending\n\n';
+        verifyMsg += 'Your batch is awaiting blockchain confirmation.';
+      }
+      
+      setBotState(verifyMsg, []);
+    } catch (e) {
+      setBotState("Failed to verify batch. Please try again.", []);
+    } finally {
+      setIsLoading(false);
+      setTimeout(resetConversation, 5000);
+    }
+  }
+
   // --------------------------------------------------------------------------
   // RENDER
   // --------------------------------------------------------------------------
@@ -449,24 +537,24 @@ const AssistantWidget = ({ onActionComplete }) => {
     return (
       <button 
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 p-4 bg-green-600 text-white rounded-full shadow-xl hover:bg-green-700 transition-all z-50 flex items-center gap-2 group"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 p-3 sm:p-4 bg-green-600 text-white rounded-full shadow-xl hover:bg-green-700 transition-all z-[100] flex items-center gap-2 group"
       >
-        <MessageSquare className="w-6 h-6" />
-        <span className="hidden group-hover:block font-medium px-2">Assistant</span>
+        <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
+        <span className="hidden group-hover:block font-medium px-2 text-sm">Assistant</span>
       </button>
     );
   }
 
   return (
-    <div className="fixed bottom-6 right-6 w-80 md:w-96 bg-white dark:bg-cosmos-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-cosmos-700 flex flex-col z-50 overflow-hidden" style={{ height: '600px', maxHeight: '80vh' }}>
+    <div className="fixed inset-0 sm:inset-auto sm:bottom-4 sm:right-4 md:bottom-6 md:right-6 w-full h-full sm:w-80 sm:h-[500px] md:w-96 md:h-[600px] sm:max-h-[80vh] bg-white dark:bg-cosmos-800 sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-100 dark:border-cosmos-700 flex flex-col z-[100] overflow-hidden">
       
       {/* Header */}
-      <div className="bg-green-600 text-white p-4 flex items-center justify-between">
+      <div className="bg-green-600 text-white p-3 sm:p-4 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5" />
-          <h3 className="font-semibold">AgriChain Assistant</h3>
+          <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+          <h3 className="font-semibold text-sm sm:text-base">AgriChain Assistant</h3>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button 
             onClick={() => {
               const langs = ['en', 'hi', 'mr'];
@@ -475,37 +563,30 @@ const AssistantWidget = ({ onActionComplete }) => {
             className="text-white/80 hover:text-white flex items-center gap-1 text-xs"
             title="Switch Language"
           >
-            <Globe className="w-4 h-4" />
+            <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
             {lang.toUpperCase()}
           </button>
-          <button 
-            onClick={() => setIsSpeaking(!isSpeaking)}
-            className="text-white/80 hover:text-white"
-            title={isSpeaking ? "Mute Bot" : "Unmute Bot"}
-          >
-            {isSpeaking ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          </button>
           <button onClick={resetConversation} className="text-white/80 hover:text-white" title="Restart">
-            <RefreshCcw className="w-4 h-4" />
+            <RefreshCcw className="w-3 h-3 sm:w-4 sm:h-4" />
           </button>
-          <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white ml-2">
-            <X className="w-5 h-5" />
+          <button onClick={() => setIsOpen(false)} className="text-white/80 hover:text-white ml-1 sm:ml-2">
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 dark:bg-cosmos-900/50">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-gray-50/50 dark:bg-cosmos-900/50 min-h-0">
         {messages.map((msg, i) => (
           <div key={msg.id || i} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div 
-              className={`max-w-[85%] rounded-2xl px-4 py-2 ${
+              className={`max-w-[90%] sm:max-w-[85%] rounded-2xl px-3 py-2 sm:px-4 sm:py-2 text-sm ${
                 msg.sender === 'user' 
                   ? 'bg-green-600 text-white rounded-br-none' 
                   : 'bg-white dark:bg-cosmos-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-cosmos-700 rounded-bl-none shadow-sm'
               }`}
             >
-              <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+              <p className="whitespace-pre-wrap">{msg.text}</p>
             </div>
           </div>
         ))}
@@ -523,14 +604,15 @@ const AssistantWidget = ({ onActionComplete }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Options Area (Dynamic Buttons) */}
-      {options.length > 0 && !isLoading && (
-        <div className="p-3 bg-white dark:bg-cosmos-800 border-t border-gray-100 dark:border-cosmos-700 flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+      {/* Options Area - Always Visible When Available */}
+      {options.length > 0 && (
+        <div className="p-3 bg-white dark:bg-cosmos-800 border-t border-gray-100 dark:border-cosmos-700 flex flex-wrap gap-2 max-h-40 sm:max-h-48 overflow-y-auto shrink-0">
           {options.map((opt, i) => (
             <button
               key={i}
               onClick={() => handleOptionSelect(opt)}
-              className="px-3 py-1.5 text-sm bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded-xl transition-colors whitespace-nowrap"
+              disabled={isLoading}
+              className="px-3 py-2 text-sm bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded-xl transition-colors whitespace-nowrap disabled:opacity-50"
             >
               {opt.label}
             </button>
@@ -538,39 +620,17 @@ const AssistantWidget = ({ onActionComplete }) => {
         </div>
       )}
 
-      {/* Input Area */}
-      <div className="p-3 bg-white dark:bg-cosmos-800 border-t border-gray-100 dark:border-cosmos-700 flex items-center gap-2">
-        {SpeechRecognition && (
-          <button
-            onClick={toggleListen}
-            className={`p-2 rounded-full transition-colors ${
-              isListening 
-                ? 'bg-red-100 text-red-600 hover:bg-red-200 animate-pulse' 
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-cosmos-700 dark:text-gray-300'
-            }`}
+      {/* Status Bar - Shows when no options */}
+      {options.length === 0 && !isLoading && (
+        <div className="p-2 bg-gray-50 dark:bg-cosmos-800 border-t border-gray-100 dark:border-cosmos-700 text-center shrink-0">
+          <button 
+            onClick={resetConversation}
+            className="text-xs text-green-600 hover:text-green-700 font-medium"
           >
-            {isListening ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+            Tap to restart conversation
           </button>
-        )}
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleTextInput(inputValue);
-          }}
-          placeholder={isListening ? "Listening..." : "Type or speak..."}
-          className="flex-1 bg-gray-50 dark:bg-cosmos-900 border border-gray-200 dark:border-cosmos-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-green-500 dark:text-white"
-          disabled={isLoading}
-        />
-        <button
-          onClick={() => handleTextInput(inputValue)}
-          disabled={!inputValue.trim() || isLoading}
-          className="p-2 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 transition-colors"
-        >
-          <Send className="w-4 h-4" />
-        </button>
-      </div>
+        </div>
+      )}
 
     </div>
   );

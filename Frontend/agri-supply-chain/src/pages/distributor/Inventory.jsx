@@ -12,7 +12,8 @@ import {
   Plus,
   Archive,
   ClipboardCheck,
-  Ban
+  Ban,
+  Pencil
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, stakeholderAPI, distributorAPI, batchSplitAPI, inspectionAPI } from '../../services/api';
@@ -46,6 +47,13 @@ const Inventory = () => {
     splits: [{ label: '', quantity: '' }]
   });
   const [batchInspections, setBatchInspections] = useState({});
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingBatch, setEditingBatch] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    quantity: '',
+    distributor_margin_per_unit: '',
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -186,6 +194,49 @@ const Inventory = () => {
     }
   };
 
+  const handleEditClick = (batch) => {
+    setEditingBatch(batch);
+    setEditFormData({
+      quantity: batch.quantity || '',
+      distributor_margin_per_unit: batch.distributor_margin_per_unit || '',
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingBatch) return;
+    
+    try {
+      setSavingEdit(true);
+      const { blockchainAPI } = await import('../../services/api');
+      
+      const fields = {};
+      if (editFormData.quantity !== editingBatch.quantity) {
+        fields.quantity = editFormData.quantity;
+      }
+      if (editFormData.distributor_margin_per_unit !== editingBatch.distributor_margin_per_unit) {
+        fields.distributor_margin_per_unit = editFormData.distributor_margin_per_unit;
+      }
+      
+      if (Object.keys(fields).length === 0) {
+        toast.info('No changes to save');
+        setShowEditModal(false);
+        return;
+      }
+      
+      await blockchainAPI.editBatch(editingBatch.product_batch_id || editingBatch.id, fields, 'Distributor edit');
+      toast.success('Batch updated successfully');
+      setShowEditModal(false);
+      setEditingBatch(null);
+      fetchData();
+    } catch (error) {
+      console.error('Error editing batch:', error);
+      toast.error(error.response?.data?.error || 'Failed to update batch');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const fetchBatchInspections = async (batchId) => {
     try {
       const response = await inspectionAPI.getBatchTimeline(batchId);
@@ -203,10 +254,16 @@ const Inventory = () => {
     return inspections.some(i => i.stage === 'distributor');
   };
 
-  // Filter inventory batches
-  const inventoryBatches = batches.filter(b =>
-    b.status === 'STORED' || b.status === 'FULLY_SPLIT'
-  ).sort((a, b) => {
+  // Filter inventory batches - hide fully split with 0 quantity or no children
+  const inventoryBatches = batches.filter(b => {
+    // Show STORED batches
+    if (b.status === 'STORED') return true;
+    // Show FULLY_SPLIT only if quantity > 0
+    if (b.status === 'FULLY_SPLIT') {
+      return (b.quantity || 0) > 0;
+    }
+    return false;
+  }).sort((a, b) => {
     if (a.id === b.parent_batch) return -1;
     if (b.id === a.parent_batch) return 1;
     return new Date(b.created_at) - new Date(a.created_at);
@@ -329,6 +386,14 @@ const Inventory = () => {
                             {batch.status === 'STORED' && (
                               <>
                                 <button
+                                  onClick={() => handleEditClick(batch)}
+                                  className="px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-medium rounded-lg hover:bg-amber-100 transition-colors flex items-center gap-1.5 border border-amber-200"
+                                  title="Edit batch"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                  Edit
+                                </button>
+                                <button
                                   onClick={() => { setSelectedBatch(batch); setShowTransportModal(true); }}
                                   className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1.5"
                                 >
@@ -402,6 +467,14 @@ const Inventory = () => {
                     <div className="flex flex-wrap gap-2">
                       {batch.status === 'STORED' && (
                         <>
+                          <button
+                            onClick={() => handleEditClick(batch)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs rounded-lg hover:bg-amber-100 font-medium border border-amber-200 dark:border-amber-800"
+                            title="Edit batch"
+                          >
+                            <Pencil className="w-3 h-3" />
+                            Edit
+                          </button>
                           <button
                             onClick={() => { setSelectedBatch(batch); setShowTransportModal(true); }}
                             className="flex-1 px-3 py-2 bg-blue-600 text-white text-xs rounded-lg font-bold flex items-center justify-center gap-1"
@@ -637,6 +710,81 @@ const Inventory = () => {
                 batchId={selectedBatch.id}
                 inspections={batchInspections[selectedBatch.id]}
               />
+            </div>
+          </div>
+        )}
+        {/* Edit Batch Modal */}
+        {showEditModal && editingBatch && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">Edit Batch</h2>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingBatch(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <span className="text-gray-500">✕</span>
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Batch ID</p>
+                  <p className="font-medium text-gray-900">{editingBatch.product_batch_id}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantity (kg)</label>
+                  <input
+                    type="number"
+                    value={editFormData.quantity}
+                    onChange={(e) => setEditFormData({ ...editFormData, quantity: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    placeholder="Enter quantity"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Distributor Margin per Unit (₹)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editFormData.distributor_margin_per_unit}
+                    onChange={(e) => setEditFormData({ ...editFormData, distributor_margin_per_unit: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    placeholder="Enter margin per unit"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingBatch(null);
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={savingEdit}
+                  className="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {savingEdit ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}

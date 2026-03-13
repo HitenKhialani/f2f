@@ -13,7 +13,8 @@ import {
   XCircle,
   Play,
   IndianRupee,
-  Eye
+  Eye,
+  Pencil
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { transportAPI } from '../../services/api';
@@ -116,6 +117,12 @@ const TransporterShipmentsList = ({
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [transportFee, setTransportFee] = useState('');
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingRequest, setEditingRequest] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    transporter_fee_per_unit: '',
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     fetchRequests();
@@ -187,6 +194,45 @@ const TransporterShipmentsList = ({
     } catch (error) {
       console.error('Error accepting request:', error);
       toast.error(error.response?.data?.message || t('toast.errorGeneric'));
+    }
+  };
+
+  const handleEditClick = (request) => {
+    setEditingRequest(request);
+    setEditFormData({
+      transporter_fee_per_unit: request.transporter_fee_per_unit || '',
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingRequest) return;
+    
+    try {
+      setSavingEdit(true);
+      const { blockchainAPI } = await import('../../services/api');
+      
+      const fields = {};
+      if (editFormData.transporter_fee_per_unit !== editingRequest.transporter_fee_per_unit) {
+        fields.transport_cost = editFormData.transporter_fee_per_unit;
+      }
+      
+      if (Object.keys(fields).length === 0) {
+        toast.info('No changes to save');
+        setShowEditModal(false);
+        return;
+      }
+      
+      await blockchainAPI.editBatch(editingRequest.batch_details?.product_batch_id || editingRequest.batch, fields, 'Transporter edit');
+      toast.success('Transport fee updated successfully');
+      setShowEditModal(false);
+      setEditingRequest(null);
+      fetchRequests();
+    } catch (error) {
+      console.error('Error editing transport:', error);
+      toast.error(error.response?.data?.error || 'Failed to update transport fee');
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -372,6 +418,16 @@ const TransporterShipmentsList = ({
                               onDeliver={() => handleStatusUpdate(request.id, 'DELIVERED')}
                               t={t}
                             />
+                            {['ACCEPTED', 'IN_TRANSIT', 'IN_TRANSIT_TO_RETAILER', 'ARRIVED', 'ARRIVAL_CONFIRMED'].includes(request.status) && (
+                              <button
+                                onClick={() => handleEditClick(request)}
+                                className="px-3 py-1.5 bg-amber-50 text-amber-700 text-xs rounded-lg hover:bg-amber-100 transition-colors flex items-center gap-1 border border-amber-200"
+                                title="Edit transport fee"
+                              >
+                                <Pencil className="w-3 h-3" />
+                                Edit Fee
+                              </button>
+                            )}
                           </div>
                         </td>
                       )}
@@ -431,6 +487,71 @@ const TransporterShipmentsList = ({
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
                 >
                   {t('buttons.accept')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Transport Fee Modal */}
+        {showEditModal && editingRequest && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">Edit Transport Fee</h2>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingRequest(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <span className="text-gray-500">✕</span>
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Batch ID</p>
+                  <p className="font-medium text-gray-900">{editingRequest.batch_details?.product_batch_id}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Transport Fee per Unit (₹)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editFormData.transporter_fee_per_unit}
+                    onChange={(e) => setEditFormData({ ...editFormData, transporter_fee_per_unit: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    placeholder="Enter fee per kg"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingRequest(null);
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={savingEdit}
+                  className="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {savingEdit ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
                 </button>
               </div>
             </div>

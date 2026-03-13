@@ -7,7 +7,8 @@ import {
   Eye,
   CheckCircle,
   Ban,
-  X
+  X,
+  Pencil
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { retailAPI, retailerAPI, batchAPI } from '../../services/api';
@@ -33,6 +34,12 @@ const Listed = () => {
   const [suspending, setSuspending] = useState(false);
   const [soldQuantity, setSoldQuantity] = useState('');
   const [modalError, setModalError] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingListing, setEditingListing] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    selling_price_per_unit: '',
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -110,6 +117,45 @@ const Listed = () => {
       toast.error(error.response?.data?.message || 'Failed to suspend batch');
     } finally {
       setSuspending(false);
+    }
+  };
+
+  const handleEditClick = (listing) => {
+    setEditingListing(listing);
+    setEditFormData({
+      selling_price_per_unit: listing.selling_price_per_unit || '',
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingListing) return;
+    
+    try {
+      setSavingEdit(true);
+      const { blockchainAPI } = await import('../../services/api');
+      
+      const fields = {};
+      if (editFormData.selling_price_per_unit !== editingListing.selling_price_per_unit) {
+        fields.selling_price_per_unit = editFormData.selling_price_per_unit;
+      }
+      
+      if (Object.keys(fields).length === 0) {
+        toast.info('No changes to save');
+        setShowEditModal(false);
+        return;
+      }
+      
+      await blockchainAPI.editBatch(editingListing.batch_details?.product_batch_id || editingListing.batch, fields, 'Retailer edit');
+      toast.success('Listing updated successfully');
+      setShowEditModal(false);
+      setEditingListing(null);
+      fetchData();
+    } catch (error) {
+      console.error('Error editing listing:', error);
+      toast.error(error.response?.data?.error || 'Failed to update listing');
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -233,6 +279,13 @@ const Listed = () => {
                       {t('buttons.viewTrace')}
                     </button>
                     <button
+                      onClick={() => handleEditClick(listing)}
+                      className="px-3 py-2 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-sm rounded-lg font-medium hover:bg-amber-100 transition-colors flex items-center gap-1.5 border border-amber-200 dark:border-amber-800"
+                      title="Edit price"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => handleMarkSoldOut(listing)}
                       className="flex-[2] px-3 py-2 bg-emerald-600 text-white text-sm rounded-lg font-medium flex items-center justify-center gap-1.5 hover:bg-emerald-700 transition-colors"
                     >
@@ -265,6 +318,71 @@ const Listed = () => {
           }}
           onConfirm={confirmSuspend}
         />
+
+        {/* Edit Listing Modal */}
+        {showEditModal && editingListing && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">Edit Listing Price</h2>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingListing(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <span className="text-gray-500">✕</span>
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Batch ID</p>
+                  <p className="font-medium text-gray-900">{editingListing.batch_details?.product_batch_id}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Selling Price per Unit (₹)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editFormData.selling_price_per_unit}
+                    onChange={(e) => setEditFormData({ ...editFormData, selling_price_per_unit: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    placeholder="Enter selling price per kg"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingListing(null);
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={savingEdit}
+                  className="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {savingEdit ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </MainLayout>
   );

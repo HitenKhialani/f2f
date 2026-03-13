@@ -23,6 +23,7 @@ import ProductDescriptionForm from '../../components/inspection/ProductDescripti
 import SuspendModal from '../../components/common/SuspendModal';
 import { ClickableVerificationBadge } from '../../components/blockchain';
 import { useToast } from '../../context/ToastContext';
+import AssistantWidget from '../../components/farmer/AssistantWidget';
 
 const FarmerBatches = () => {
   const toast = useToast();
@@ -675,10 +676,13 @@ const FarmerBatches = () => {
                         <input
                           type="date"
                           required
+                          min={new Date(Date.now() - 86400000).toISOString().split('T')[0]}
+                          max={new Date().toISOString().split('T')[0]}
                           value={formData.harvest_date}
                           onChange={(e) => setFormData({ ...formData, harvest_date: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         />
+                        <p className="text-xs text-gray-500 mt-1">Select yesterday or today only</p>
                       </div>
                     </div>
                     <div>
@@ -930,10 +934,13 @@ const FarmerBatches = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Harvest Date</label>
                   <input
                     type="date"
+                    min={new Date(Date.now() - 86400000).toISOString().split('T')[0]}
+                    max={new Date().toISOString().split('T')[0]}
                     value={editFormData.harvest_date}
                     onChange={(e) => setEditFormData({ ...editFormData, harvest_date: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   />
+                  <p className="text-xs text-gray-500 mt-1">Select yesterday or today only</p>
                 </div>
               </div>
               
@@ -976,6 +983,9 @@ const FarmerBatches = () => {
           }}
           onConfirm={confirmSuspend}
         />
+
+        {/* Assistant Widget */}
+        <AssistantWidget onActionComplete={fetchBatches} />
       </div>
     </MainLayout>
   );

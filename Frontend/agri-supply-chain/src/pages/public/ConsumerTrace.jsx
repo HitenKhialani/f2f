@@ -16,7 +16,12 @@ import {
   Building,
   CalendarDays,
   Activity,
-  Shield
+  Shield,
+  X,
+  AlertTriangle,
+  Hash,
+  Database,
+  Ban
 } from 'lucide-react';
 import { consumerAPI, inspectionAPI } from '../../services/api';
 import { blockchainService } from '../../services/blockchainService';
@@ -125,6 +130,28 @@ const ConsumerTrace = () => {
     if (!batchIdTerm.trim()) return;
     performTrace(batchIdTerm.trim());
   };
+
+  // Format hash for display (truncate middle)
+  const formatHash = (hash) => {
+    if (!hash || hash === 'null' || hash === 'undefined') return 'N/A';
+    if (hash.length <= 20) return hash;
+    return `${hash.slice(0, 10)}...${hash.slice(-10)}`;
+  };
+
+  // Format field name for display
+  const formatFieldName = (field) => {
+    return field
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (l) => l.toUpperCase());
+  };
+
+  // Find suspend event in timeline
+  const suspendEvent = searchResult?.timeline?.find(
+    (e) => e.stage?.toLowerCase().includes('suspend') || e.event_type?.toLowerCase().includes('suspend')
+  );
+
+  // Check if batch is suspended
+  const isSuspended = searchResult?.status?.toLowerCase() === 'suspended' || !!suspendEvent;
 
   if (loading) {
     return (
@@ -631,16 +658,181 @@ const ConsumerTrace = () => {
           </div>
         </section>
 
-        {/* F. BLOCKCHAIN INTEGRITY CARD */}
+        {/* F. BLOCKCHAIN INTEGRITY CARD - Enhanced with Tampering Details */}
         <section className="mb-8">
-          <BlockchainIntegrityCard
-            verificationData={verificationData}
-            loading={verificationLoading}
-            error={verificationError}
-          />
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Shield className={`w-5 h-5 ${verificationData?.status === 'VERIFIED' ? 'text-emerald-500' : verificationData?.status === 'INTEGRITY_FAILED' ? 'text-red-500' : 'text-slate-400'}`} />
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Blockchain Integrity</h3>
+              {verificationData?.status === 'VERIFIED' && (
+                <div className="ml-auto">
+                  <CheckCircle className="w-5 h-5 text-emerald-500" />
+                </div>
+              )}
+              {verificationData?.status === 'INTEGRITY_FAILED' && (
+                <div className="ml-auto">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                </div>
+              )}
+            </div>
+
+            {verificationLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="w-8 h-8 border-2 border-slate-300 border-t-transparent rounded-full animate-spin mr-3"></div>
+                <p className="text-slate-500 font-medium">Verifying blockchain integrity...</p>
+              </div>
+            ) : verificationError ? (
+              <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 border border-red-100 dark:border-red-800/50">
+                <p className="text-red-700 dark:text-red-300 font-medium">Blockchain verification unavailable</p>
+                <p className="text-sm text-red-600 dark:text-red-400 mt-2">Unable to verify data integrity at this time.</p>
+              </div>
+            ) : verificationData?.tampered ? (
+              <div className="space-y-6">
+                {/* Tampered Status Badge */}
+                <div className="flex items-center justify-between p-4 rounded-xl border bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-800/50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <span className="font-bold text-slate-900 dark:text-white">INTEGRITY FAILED</span>
+                  </div>
+                  <span className="text-sm font-medium text-red-600 dark:text-red-400">Data mismatch detected</span>
+                </div>
+
+                {/* Modified Fields Table - Like Dialog Box */}
+                {verificationData?.tampered_fields && verificationData.tampered_fields.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <AlertTriangle className="w-5 h-5 text-red-600" />
+                      <h4 className="text-base font-bold text-red-700 dark:text-red-400">Modified Fields Detected</h4>
+                    </div>
+                    <div className="overflow-x-auto rounded-xl border border-red-200 dark:border-red-800">
+                      <table className="w-full text-sm">
+                        <thead className="bg-red-50 dark:bg-red-900/30">
+                          <tr>
+                            <th className="px-4 py-3 text-left font-bold text-red-700 dark:text-red-300">Field</th>
+                            <th className="px-4 py-3 text-left font-bold text-red-700 dark:text-red-300">Original Value</th>
+                            <th className="px-4 py-3 text-left font-bold text-red-700 dark:text-red-300">Modified To</th>
+                            <th className="px-4 py-3 text-left font-bold text-red-700 dark:text-red-300">Modified By</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-red-100 dark:divide-red-900/30">
+                          {verificationData.tampered_fields.map((field, index) => (
+                            <tr key={index} className="bg-white dark:bg-slate-900 hover:bg-red-50/50 dark:hover:bg-red-900/20 transition-colors">
+                              <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">
+                                {formatFieldName(field.field)}
+                              </td>
+                              <td className="px-4 py-3 text-red-600 dark:text-red-400 line-through">
+                                {field.old_value || '-'}
+                              </td>
+                              <td className="px-4 py-3 text-emerald-600 dark:text-emerald-400 font-bold">
+                                {field.new_value || '-'}
+                              </td>
+                              <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{field.modified_by}</span>
+                                  <span className="text-xs text-slate-400">({field.modified_role})</span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* No Tampered Fields Message */}
+                {(!verificationData?.tampered_fields || verificationData.tampered_fields.length === 0) && (
+                  <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+                    <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                      Data integrity failed, but no edit history is available. The data may have been modified outside the proper edit workflow.
+                    </p>
+                  </div>
+                )}
+
+                {/* Hash Information */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
+                    <Database className="w-4 h-4" />
+                    <span>Blockchain Hash Information</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Hash className="w-3 h-3 text-slate-400" />
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Current Hash</span>
+                      </div>
+                      <code className="text-xs text-slate-700 dark:text-slate-300 break-all font-mono">
+                        {formatHash(verificationData?.current_hash)}
+                      </code>
+                    </div>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Shield className="w-3 h-3 text-slate-400" />
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Stored Hash (Blockchain)</span>
+                      </div>
+                      <code className="text-xs text-slate-700 dark:text-slate-300 break-all font-mono">
+                        {formatHash(verificationData?.stored_hash)}
+                      </code>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl border bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800">
+                  <p className="text-sm text-red-700 dark:text-red-300">
+                    {verificationData?.message || 'Data integrity check failed. The above fields have been modified since the last blockchain anchor.'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <BlockchainIntegrityCard
+                verificationData={verificationData}
+                loading={verificationLoading}
+                error={verificationError}
+              />
+            )}
+          </div>
         </section>
 
-        {/* G. BLOCKCHAIN ANCHOR HISTORY */}
+        {/* G. SUSPEND INFO - Show if batch is suspended */}
+        {isSuspended && suspendEvent && (
+          <section className="mb-8">
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-[2.5rem] shadow-xl border border-red-200 dark:border-red-800/50 p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center">
+                  <Ban className="w-5 h-5 text-red-600 dark:text-red-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-red-900 dark:text-red-300">Batch Suspended</h3>
+                  <p className="text-sm text-red-600 dark:text-red-400">This product has been suspended from the supply chain</p>
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-red-100 dark:border-red-800/50">
+                  <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Suspended By</p>
+                  <p className="text-base font-bold text-slate-900 dark:text-white">
+                    {suspendEvent.metadata?.suspended_by || suspendEvent.actor || 'Unknown'}
+                  </p>
+                  {suspendEvent.metadata?.suspended_by_role && (
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      Role: {suspendEvent.metadata.suspended_by_role}
+                    </p>
+                  )}
+                </div>
+                <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-red-100 dark:border-red-800/50">
+                  <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Reason</p>
+                  <p className="text-base font-bold text-slate-900 dark:text-white">
+                    {suspendEvent.metadata?.suspend_reason || 'No reason provided'}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 text-sm text-red-600 dark:text-red-400">
+                <p>Suspended on: {new Date(suspendEvent.timestamp || suspendEvent.date).toLocaleString('en-IN')}</p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* H. BLOCKCHAIN ANCHOR HISTORY */}
         <section className="mb-8">
           <AnchorHistory
             anchors={anchorHistory}
@@ -649,7 +841,7 @@ const ConsumerTrace = () => {
           />
         </section>
 
-        {/* H. INSPECTIONS */}
+        {/* I. INSPECTIONS */}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 p-10">
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8 tracking-tight">Quality Inspections</h2>
           {inspections && inspections.length > 0 ? (

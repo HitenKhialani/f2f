@@ -154,6 +154,18 @@ class FarmerViewSet(viewsets.ViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+    @action(detail=False, methods=['get'], url_path='all-crops')
+    def get_all_crops(self, request):
+        """
+        Get all system-supported crops for the conversational assistant
+        """
+        crops = [
+            'Wheat', 'Rice', 'Corn', 'Soybean', 'Cotton',
+            'Sugarcane', 'Bajra', 'Millet', 'Tomato', 'Onion',
+            'Potato', 'Vegetables', 'Fruits', 'Lentils', 'Mustard'
+        ]
+        return Response(crops)
+
     @action(detail=False, methods=['get'], url_path='batch-recommendations')
     def get_batch_recommendations(self, request):
         """

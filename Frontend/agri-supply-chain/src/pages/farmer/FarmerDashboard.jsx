@@ -21,6 +21,7 @@ import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI, farmerAPI } from '../../services/api';
 import SuspendModal from '../../components/common/SuspendModal';
 import { useToast } from '../../context/ToastContext';
+import AssistantWidget from '../../components/farmer/AssistantWidget';
 
 // Simple Donut Chart Component
 const DonutChart = ({ data, title, colors }) => {
@@ -531,6 +532,9 @@ const FarmerDashboard = () => {
           }}
           onConfirm={confirmSuspend}
         />
+        
+        {/* AgriChain Assistant */}
+        <AssistantWidget onActionComplete={fetchDashboardData} />
       </div>
     </MainLayout>
   );

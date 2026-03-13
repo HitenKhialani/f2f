@@ -157,6 +157,7 @@ export const dashboardAPI = {
 // Farmer APIs
 export const farmerAPI = {
   getCrops: () => api.get('/farmer/crops/'),
+  getAllCrops: () => api.get('/farmer/all-crops/'),
   getBatchRecommendations: () => api.get('/farmer/batch-recommendations/'),
   setCropPreferences: (crops) => api.post('/farmer/crop-preferences/', { crops }),
 };

@@ -45,6 +45,7 @@ from supplychain.blockchain_views import (
     BatchAnchorsListView,
     RetryAnchorView
 )
+from supplychain.batch_edit_views import EditBatchView, BatchEditLogView
 
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet, basename="user")
@@ -110,5 +111,8 @@ urlpatterns = [
     path("api/batch/<str:batch_id>/verify/", VerifyBatchView.as_view(), name="batch-verify"),
     path("api/batch/<str:batch_id>/anchors/", BatchAnchorsListView.as_view(), name="batch-anchors-list"),
     path("api/events/<int:event_id>/retry-anchor/", RetryAnchorView.as_view(), name="event-retry-anchor"),
+    # Batch edit endpoints
+    path("api/batch/<str:batch_id>/edit/", EditBatchView.as_view(), name="batch-edit"),
+    path("api/batch/<str:batch_id>/edit-logs/", BatchEditLogView.as_view(), name="batch-edit-logs"),
 ]
 

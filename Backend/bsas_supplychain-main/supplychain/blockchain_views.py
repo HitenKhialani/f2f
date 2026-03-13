@@ -19,6 +19,7 @@ from django.db.models import Q
 from .models import CropBatch, BatchEvent
 from .hash_generator import generate_batch_hash
 from .blockchain_service import get_blockchain_service
+from .batch_edit_views import get_tampered_fields
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -170,6 +171,10 @@ class VerifyBatchView(APIView):
             
             # Check if service is healthy
             if not blockchain.is_healthy():
+                # Still check for tampered fields from edit logs even if blockchain is unavailable
+                tampered_fields = get_tampered_fields(batch)
+                has_tampered_data = len(tampered_fields) > 0
+                
                 return Response({
                     "success": True,
                     "batch_id": batch.product_batch_id,
@@ -177,7 +182,9 @@ class VerifyBatchView(APIView):
                     "status": "not_anchored",
                     "current_hash": None,
                     "stored_hash": None,
-                    "message": "Blockchain service is not available. Verification pending.",
+                    "tampered": has_tampered_data,
+                    "tampered_fields": tampered_fields if has_tampered_data else [],
+                    "message": "Data integrity check failed. Tampering detected." if has_tampered_data else "Blockchain service is not available. Verification pending.",
                     "blockchain_record": None,
                     "batch_status": {
                         "last_anchored_at": batch.last_anchored_at.isoformat() if batch.last_anchored_at else None,
@@ -197,11 +204,15 @@ class VerifyBatchView(APIView):
             raw_status = verification_result.get('status', 'error')
             api_status = status_map.get(raw_status, "ERROR")
             
-            # Build response
+            # Build response with tamper explanation
             response_data = {
                 "success": True,
                 "batch_id": batch.product_batch_id,
                 "status": verification_result.get('status', 'ERROR'),
+                "verified": verification_result.get('verified', False),
+                "current_hash": None,  # Will be populated from verification_results
+                "stored_hash": None,  # Will be populated from verification_results
+                "tampered": not verification_result.get('verified', False) and verification_result.get('status') == 'INTEGRITY_FAILED',
                 "verification_results": verification_result.get('verification_results', []),
                 "batch_status": {
                     "integrity_status": batch.integrity_status,
@@ -209,6 +220,40 @@ class VerifyBatchView(APIView):
                     "last_anchored_at": verification_result.get('last_anchored_at')
                 }
             }
+            
+            # Extract hash values from verification results if available
+            verification_results = verification_result.get('verification_results', [])
+            if verification_results:
+                # Get the most recent verification result
+                latest_result = verification_results[-1]
+                response_data["current_hash"] = latest_result.get('current_hash')
+                response_data["stored_hash"] = latest_result.get('stored_hash')
+            
+            # Add tampered_fields if verification failed
+            if response_data["tampered"]:
+                tampered_fields = get_tampered_fields(batch)
+                response_data["tampered_fields"] = tampered_fields
+                
+                # If no edit logs exist but verification failed, add a note about why
+                if not tampered_fields:
+                    # Check verification_results to see which events failed
+                    failed_events = []
+                    for result in verification_results:
+                        if not result.get('verified', True):
+                            failed_events.append({
+                                'field': f"event_{result.get('event_type', 'unknown')}",
+                                'old_value': f"Hash: {result.get('stored_hash', 'N/A')[:20]}...",
+                                'new_value': f"Hash: {result.get('current_hash', 'N/A')[:20]}...",
+                                'modified_by': 'Unknown (no edit log)',
+                                'modified_role': 'N/A',
+                                'note': 'Data was modified outside the edit workflow'
+                            })
+                    if failed_events:
+                        response_data["tampered_fields"] = failed_events
+                
+                response_data["message"] = "Data integrity check failed. Tampering detected." if response_data["tampered_fields"] else "Data integrity check failed. No edit history available to identify specific changes."
+            else:
+                response_data["message"] = "Blockchain data verified successfully" if response_data["verified"] else verification_result.get('message', 'Verification pending')
             
             # Always return 200 - verification result indicates success/failure, not HTTP status
             return Response(response_data, status=status.HTTP_200_OK)

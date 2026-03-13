@@ -170,4 +170,15 @@ export const paymentAPI = {
   settle: (paymentId) => api.post(`/payment/${paymentId}/settle/`),
 };
 
+// Blockchain APIs
+export const blockchainAPI = {
+  getStatus: () => api.get('/blockchain/status/'),
+  anchorBatch: (batchId) => api.post(`/batch/${batchId}/anchor/`),
+  verifyBatch: (batchId) => api.get(`/batch/${batchId}/verify/`),
+  getAnchors: (batchId) => api.get(`/batch/${batchId}/anchors/`),
+  retryAnchor: (eventId) => api.post(`/events/${eventId}/retry-anchor/`),
+  editBatch: (batchId, fields, reason) => api.post(`/batch/${batchId}/edit/`, { fields, reason }),
+  getEditLogs: (batchId) => api.get(`/batch/${batchId}/edit-logs/`),
+};
+
 export default api;

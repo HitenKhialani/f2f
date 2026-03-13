@@ -13,14 +13,15 @@ import {
   Calendar,
   Package,
   ChevronRight,
-  Ban
+  Ban,
+  Pencil
 } from 'lucide-react';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI, farmerAPI } from '../../services/api';
 import { InspectionForm, InspectionTimeline } from '../../components/inspection';
 import ProductDescriptionForm from '../../components/inspection/ProductDescriptionForm';
 import SuspendModal from '../../components/common/SuspendModal';
-import VerificationBadge from '../../components/blockchain/VerificationBadge';
+import { ClickableVerificationBadge } from '../../components/blockchain';
 import { useToast } from '../../context/ToastContext';
 
 const FarmerBatches = () => {
@@ -52,6 +53,14 @@ const FarmerBatches = () => {
     harvest_date: '',
     farmer_base_price_per_unit: '',
   });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingBatch, setEditingBatch] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    quantity: '',
+    farmer_base_price_per_unit: '',
+    harvest_date: '',
+  });
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     fetchBatches();
@@ -199,6 +208,53 @@ const FarmerBatches = () => {
       toast.error(error.response?.data?.message || 'Failed to suspend batch');
     } finally {
       setSuspending(false);
+    }
+  };
+
+  const handleEditClick = (batch) => {
+    setEditingBatch(batch);
+    setEditFormData({
+      quantity: batch.quantity || '',
+      farmer_base_price_per_unit: batch.farmer_base_price_per_unit || '',
+      harvest_date: batch.harvest_date || '',
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingBatch) return;
+    
+    try {
+      setSavingEdit(true);
+      const { blockchainAPI } = await import('../../services/api');
+      
+      const fields = {};
+      if (editFormData.quantity !== editingBatch.quantity) {
+        fields.quantity = editFormData.quantity;
+      }
+      if (editFormData.farmer_base_price_per_unit !== editingBatch.farmer_base_price_per_unit) {
+        fields.farmer_base_price_per_unit = editFormData.farmer_base_price_per_unit;
+      }
+      if (editFormData.harvest_date !== editingBatch.harvest_date) {
+        fields.harvest_date = editFormData.harvest_date;
+      }
+      
+      if (Object.keys(fields).length === 0) {
+        toast.info('No changes to save');
+        setShowEditModal(false);
+        return;
+      }
+      
+      await blockchainAPI.editBatch(editingBatch.product_batch_id || editingBatch.id, fields, 'Farmer edit');
+      toast.success('Batch updated successfully');
+      setShowEditModal(false);
+      setEditingBatch(null);
+      fetchBatches();
+    } catch (error) {
+      console.error('Error editing batch:', error);
+      toast.error(error.response?.data?.error || 'Failed to update batch');
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -390,11 +446,26 @@ const FarmerBatches = () => {
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-1">
                           {getStatusBadge(batch.status)}
-                          <VerificationBadge status={batch.integrity_status} />
+                          <ClickableVerificationBadge 
+                            batchId={batch.product_batch_id || batch.id} 
+                            status={batch.integrity_status} 
+                            size="sm"
+                          />
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 flex-wrap">
+                          {/* Edit Button - Available for all editable statuses */}
+                          {['CREATED', 'TRANSPORT_REQUESTED', 'TRANSPORT_REJECTED', 'IN_TRANSIT_TO_DISTRIBUTOR'].includes(batch.status) && (
+                            <button
+                              onClick={() => handleEditClick(batch)}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs rounded-lg hover:bg-amber-100 font-medium border border-amber-200 dark:border-amber-800"
+                              title="Edit batch details"
+                            >
+                              <Pencil className="w-3 h-3" />
+                              Edit
+                            </button>
+                          )}
                           {batch.status === 'CREATED' && !hasFarmerDescription(batch.id) && (
                             <button
                               onClick={() => { setSelectedBatch(batch); setShowDescriptionModal(true); }}
@@ -448,7 +519,11 @@ const FarmerBatches = () => {
                     </span>
                     <div className="flex flex-col items-end gap-1">
                       {getStatusBadge(batch.status)}
-                      <VerificationBadge status={batch.integrity_status} />
+                      <ClickableVerificationBadge 
+                        batchId={batch.product_batch_id || batch.id} 
+                        status={batch.integrity_status} 
+                        size="sm"
+                      />
                     </div>
                   </div>
 
@@ -488,6 +563,17 @@ const FarmerBatches = () => {
                   </div>
 
                   <div className="flex flex-wrap gap-2">
+                    {/* Edit Button - Mobile */}
+                    {['CREATED', 'TRANSPORT_REQUESTED', 'TRANSPORT_REJECTED', 'IN_TRANSIT_TO_DISTRIBUTOR'].includes(batch.status) && (
+                      <button
+                        onClick={() => handleEditClick(batch)}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs rounded-lg hover:bg-amber-100 font-medium border border-amber-200 dark:border-amber-800"
+                        title="Edit batch details"
+                      >
+                        <Pencil className="w-3 h-3" />
+                        Edit
+                      </button>
+                    )}
                     {batch.status === 'CREATED' && !hasFarmerDescription(batch.id) && (
                       <button
                         onClick={() => { setSelectedBatch(batch); setShowDescriptionModal(true); }}
@@ -794,6 +880,91 @@ const FarmerBatches = () => {
             </div>
           )
         }
+        {/* Edit Batch Modal */}
+        {showEditModal && editingBatch && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">Edit Batch</h2>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingBatch(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <span className="text-gray-500">✕</span>
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Batch ID</p>
+                  <p className="font-medium text-gray-900">{editingBatch.product_batch_id}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantity (kg)</label>
+                  <input
+                    type="number"
+                    value={editFormData.quantity}
+                    onChange={(e) => setEditFormData({ ...editFormData, quantity: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    placeholder="Enter quantity"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Base Price per Unit (₹)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editFormData.farmer_base_price_per_unit}
+                    onChange={(e) => setEditFormData({ ...editFormData, farmer_base_price_per_unit: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    placeholder="Enter price per unit"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Harvest Date</label>
+                  <input
+                    type="date"
+                    value={editFormData.harvest_date}
+                    onChange={(e) => setEditFormData({ ...editFormData, harvest_date: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingBatch(null);
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={savingEdit}
+                  className="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {savingEdit ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Suspend Modal */}
         <SuspendModal
           isOpen={showSuspendModal}

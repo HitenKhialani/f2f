@@ -541,3 +541,34 @@ class BatchIntegrityLog(models.Model):
 
     def __str__(self) -> str:
         return f"Integrity Failure: {self.batch.product_batch_id} at {self.detected_at}"
+
+
+class BatchEditLog(models.Model):
+    """
+    Audit log for tracking batch field modifications.
+    Used for blockchain tamper explanation when verification fails.
+    """
+    batch = models.ForeignKey(
+        CropBatch, on_delete=models.CASCADE, related_name="edit_logs"
+    )
+    field_name = models.CharField(max_length=100)
+    old_value = models.TextField(blank=True)
+    new_value = models.TextField(blank=True)
+    modified_by_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="batch_edits_made"
+    )
+    modified_by_role = models.CharField(max_length=32, choices=StakeholderRole.choices)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['batch', '-timestamp']),
+            models.Index(fields=['field_name']),
+        ]
+
+    def __str__(self):
+        return f"Edit {self.batch.product_batch_id} - {self.field_name} by {self.modified_by_role} at {self.timestamp}"

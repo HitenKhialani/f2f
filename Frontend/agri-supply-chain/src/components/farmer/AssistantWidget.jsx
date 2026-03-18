@@ -47,12 +47,17 @@ const AssistantWidget = ({ onActionComplete }) => {
     setFlowData({});
     setBotState(translations.greeting, [
       { label: translations.options_menu.create_batch, value: 'CREATE_BATCH' },
-      { label: translations.options_menu.request_transport, value: 'REQUEST_TRANSPORT' },
       { label: translations.options_menu.view_batches, value: 'VIEW_BATCHES' },
       { label: translations.options_menu.edit_batch, value: 'EDIT_BATCH' },
+      { label: translations.options_menu.product_description, value: 'PRODUCT_DESCRIPTION' },
+      { label: translations.options_menu.request_transport, value: 'REQUEST_TRANSPORT' },
       { label: translations.options_menu.track_batch, value: 'TRACK_BATCH' },
       { label: translations.options_menu.verify_batch, value: 'VERIFY_BATCH' },
-      { label: translations.options_menu.payment_status, value: 'PAYMENT_STATUS' }
+      { label: translations.options_menu.view_inspection, value: 'VIEW_INSPECTION' },
+      { label: translations.options_menu.suspend_batch, value: 'SUSPEND_BATCH' },
+      { label: translations.options_menu.batch_recommendations, value: 'BATCH_RECOMMENDATIONS' },
+      { label: translations.options_menu.payment_status, value: 'PAYMENT_STATUS' },
+      { label: translations.options_menu.crop_preferences, value: 'CROP_PREFERENCES' }
     ]);
   };
 
@@ -86,6 +91,18 @@ const AssistantWidget = ({ onActionComplete }) => {
     }
     if (currentFlow === 'VERIFY_BATCH') {
       await handleVerifyBatchFlow(value, rawLabel);
+      return;
+    }
+    if (currentFlow === 'PRODUCT_DESCRIPTION') {
+      await handleProductDescriptionFlow(value, rawLabel);
+      return;
+    }
+    if (currentFlow === 'VIEW_INSPECTION') {
+      await handleViewInspectionFlow(value, rawLabel);
+      return;
+    }
+    if (currentFlow === 'SUSPEND_BATCH') {
+      await handleSuspendBatchFlow(value, rawLabel);
       return;
     }
     addMessage(translations.common.not_understood, 'bot');
@@ -238,6 +255,123 @@ const AssistantWidget = ({ onActionComplete }) => {
       } catch (e) {
         setBotState("Failed to fetch batches.", []);
         resetConversation();
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+    if (selection === 'PRODUCT_DESCRIPTION') {
+      setCurrentFlow('PRODUCT_DESCRIPTION');
+      setFlowStep('SELECT_BATCH');
+      setIsLoading(true);
+      try {
+        const res = await batchAPI.list();
+        const eligibleBatches = res.data.filter(b => 
+          b.status !== 'SUSPENDED' && b.status !== 'SOLD'
+        );
+        if (eligibleBatches.length === 0) {
+          setBotState("You have no eligible batches for product description.", []);
+          resetConversation();
+          return;
+        }
+        const bOpts = eligibleBatches.map(b => ({
+          label: `${b.product_batch_id} (${b.crop_type})`,
+          value: b.id,
+          batch: b
+        }));
+        setBotState("Select a batch to add product description:", bOpts);
+      } catch (e) {
+        setBotState("Failed to fetch batches.", []);
+        resetConversation();
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+    if (selection === 'VIEW_INSPECTION') {
+      setCurrentFlow('VIEW_INSPECTION');
+      setFlowStep('SELECT_BATCH');
+      setIsLoading(true);
+      try {
+        const res = await batchAPI.list();
+        if (res.data.length === 0) {
+          setBotState("You have no batches to view inspections.", []);
+          resetConversation();
+          return;
+        }
+        const bOpts = res.data.map(b => ({
+          label: `${b.product_batch_id} (${b.crop_type})`,
+          value: b.id,
+          batch: b
+        }));
+        setBotState("Select a batch to view inspection history:", bOpts);
+      } catch (e) {
+        setBotState("Failed to fetch batches.", []);
+        resetConversation();
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+    if (selection === 'SUSPEND_BATCH') {
+      setCurrentFlow('SUSPEND_BATCH');
+      setFlowStep('SELECT_BATCH');
+      setIsLoading(true);
+      try {
+        const res = await batchAPI.list();
+        const suspendableBatches = res.data.filter(b => 
+          ['CREATED', 'TRANSPORT_REQUESTED', 'TRANSPORT_REJECTED'].includes(b.status)
+        );
+        if (suspendableBatches.length === 0) {
+          setBotState("You have no batches that can be suspended.", []);
+          resetConversation();
+          return;
+        }
+        const bOpts = suspendableBatches.map(b => ({
+          label: `${b.product_batch_id} (${b.crop_type}) - ${b.status}`,
+          value: b.id,
+          batch: b
+        }));
+        setBotState("Select a batch to suspend:", bOpts);
+      } catch (e) {
+        setBotState("Failed to fetch batches.", []);
+        resetConversation();
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+    if (selection === 'BATCH_RECOMMENDATIONS') {
+      setIsLoading(true);
+      try {
+        const res = await farmerAPI.getBatchRecommendations();
+        if (res.data.length === 0) {
+          setBotState("No batch recommendations available at the moment.", []);
+        } else {
+          const recText = res.data.map((rec, i) => 
+            `${i+1}. ${rec.crop_type} - ${rec.quantity || 'N/A'}kg - ₹${rec.farmer_base_price_per_unit || 'N/A'}/kg`
+          ).join('\n');
+          setBotState(`Here are your batch recommendations:\n\n${recText}`, []);
+        }
+      } catch (e) {
+        setBotState("Failed to fetch recommendations.", []);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+    if (selection === 'CROP_PREFERENCES') {
+      setIsLoading(true);
+      try {
+        const res = await farmerAPI.getCrops();
+        if (res.data.length === 0) {
+          setBotState("You have no crop preferences set. Select crops during registration to set preferences.", []);
+        } else {
+          const cropText = res.data.join(', ');
+          setBotState(`Your crop preferences: ${cropText}`, []);
+        }
+      } catch (e) {
+        setBotState("Failed to fetch crop preferences.", []);
       } finally {
         setIsLoading(false);
       }
@@ -529,6 +663,96 @@ const AssistantWidget = ({ onActionComplete }) => {
     }
   }
 
+  const handleProductDescriptionFlow = async (value, rawLabel) => {
+    const batchId = value;
+    const batch = rawLabel.batch;
+    
+    setIsLoading(true);
+    try {
+      const { inspectionAPI } = await import('../../services/api');
+      const res = await inspectionAPI.getBatchTimeline(batchId);
+      const inspections = res.data;
+      const hasDescription = inspections.some(i => i.stage === 'farmer');
+      
+      let msg = '';
+      if (hasDescription) {
+        msg = `✅ Product description already exists for batch ${batch.product_batch_id}.\n\n`;
+        msg += `Crop: ${batch.crop_type}\n`;
+        msg += `Quantity: ${batch.quantity}kg\n`;
+        msg += `Status: ${batch.status}`;
+      } else {
+        msg = `📝 Product Description Needed\n\n`;
+        msg += `Batch: ${batch.product_batch_id}\n`;
+        msg += `Crop: ${batch.crop_type}\n`;
+        msg += `Quantity: ${batch.quantity}kg\n\n`;
+        msg += 'Please add product description and photos from the batch management page.';
+      }
+      
+      setBotState(msg, []);
+    } catch (e) {
+      setBotState("Failed to check product description status.", []);
+    } finally {
+      setIsLoading(false);
+      setTimeout(resetConversation, 5000);
+    }
+  }
+
+  const handleViewInspectionFlow = async (value, rawLabel) => {
+    const batchId = value;
+    const batch = rawLabel.batch;
+    
+    setIsLoading(true);
+    try {
+      const { inspectionAPI } = await import('../../services/api');
+      const res = await inspectionAPI.getBatchTimeline(batchId);
+      const inspections = res.data;
+      
+      let msg = `🔍 Inspection History for ${batch.product_batch_id}\n\n`;
+      
+      if (inspections.length === 0) {
+        msg += 'No inspections recorded yet.';
+      } else {
+        inspections.forEach((inspection, i) => {
+          msg += `${i+1}. ${inspection.stage.toUpperCase()}\n`;
+          msg += `   Status: ${inspection.result}\n`;
+          msg += `   By: ${inspection.created_by}\n`;
+          msg += `   Date: ${new Date(inspection.created_at).toLocaleDateString()}\n`;
+          if (inspection.inspection_notes) {
+            msg += `   Notes: ${inspection.inspection_notes}\n`;
+          }
+          msg += '\n';
+        });
+      }
+      
+      setBotState(msg, []);
+    } catch (e) {
+      setBotState("Failed to fetch inspection history.", []);
+    } finally {
+      setIsLoading(false);
+      setTimeout(resetConversation, 5000);
+    }
+  }
+
+  const handleSuspendBatchFlow = async (value, rawLabel) => {
+    const batchId = value;
+    const batch = rawLabel.batch;
+    
+    setIsLoading(true);
+    try {
+      // For suspension, we need to provide a reason
+      setBotState(`⚠️ Suspend Batch: ${batch.product_batch_id}\n\n` +
+        `Crop: ${batch.crop_type}\n` +
+        `Quantity: ${batch.quantity}kg\n` +
+        `Current Status: ${batch.status}\n\n` +
+        `Please go to the batch management page to suspend this batch with a reason.`, []);
+    } catch (e) {
+      setBotState("Failed to prepare suspension.", []);
+    } finally {
+      setIsLoading(false);
+      setTimeout(resetConversation, 5000);
+    }
+  }
+
   // --------------------------------------------------------------------------
   // RENDER
   // --------------------------------------------------------------------------
@@ -606,17 +830,24 @@ const AssistantWidget = ({ onActionComplete }) => {
 
       {/* Options Area - Always Visible When Available */}
       {options.length > 0 && (
-        <div className="p-3 bg-white dark:bg-cosmos-800 border-t border-gray-100 dark:border-cosmos-700 flex flex-wrap gap-2 max-h-40 sm:max-h-48 overflow-y-auto shrink-0">
-          {options.map((opt, i) => (
-            <button
-              key={i}
-              onClick={() => handleOptionSelect(opt)}
-              disabled={isLoading}
-              className="px-3 py-2 text-sm bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded-xl transition-colors whitespace-nowrap disabled:opacity-50"
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="p-3 sm:p-4 bg-white dark:bg-cosmos-800 border-t border-gray-100 dark:border-cosmos-700 shrink-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 sm:max-h-56 overflow-y-auto">
+            {options.map((opt, i) => (
+              <button
+                key={i}
+                onClick={() => handleOptionSelect(opt)}
+                disabled={isLoading}
+                className="px-3 py-2.5 text-sm font-medium bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 dark:hover:from-green-900/50 dark:hover:to-emerald-900/50 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md transform hover:-translate-y-0.5 min-h-[44px] flex items-center justify-center text-center"
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          {options.length > 4 && (
+            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
+              Scroll for more options ↑
+            </div>
+          )}
         </div>
       )}
 

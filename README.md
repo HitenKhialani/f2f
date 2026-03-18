@@ -48,14 +48,44 @@ The backend is built with Django REST Framework and exposes a JWT-secured REST A
 - **Financial State Machine** – UPI-based payment tracking between stakeholders.
 - **Batch Locking** – Batches are automatically locked for further progression if payments are pending.
 - **Farmer Portal** – Create crop batches, view batch list/status, request transport, and manage payments.
+- **Enhanced Farmer Experience** – Harvest date constraints (15-day window), crop filtering based on preferences, comprehensive assistant bot with complete farmer actions.
 - **Transporter Portal** – Tabbed dashboard for Farmer→Distributor and Distributor→Retailer shipments; earnings tracking.
 - **Distributor Portal** – Incoming / Inventory / Outgoing views; Store batch, request onward transport, and split batches.
 - **Retailer Portal** – Received / Listed / Sold views; Create retail listing (triggers QR generation).
-- **Consumer Portal** – QR/Batch ID search; full transparency report including price breakdown and origin.
+- **Consumer Portal** – QR/Batch ID search with direct camera access; full transparency report including price breakdown and origin.
+- **Enhanced Consumer Experience** – Direct camera QR scanning, filtered stakeholder view (no N/A entries), improved multilingual support.
 - **Public Trace API** – Open endpoint for batch history and transparency.
 - **Advanced Analytics** – Interactive charts for earnings, volumes, and status distributions using Recharts.
 - **Admin Portal** – System-wide stats, user management, and KYC oversight.
 - **Blockchain Integration** – Tamper-proof audit trail with automatic anchoring of critical events to Polygon Amoy testnet.
+- **AI-Powered Assistant** – Multilingual conversational bot for farmers with complete action support and improved UI.
+- **Multilingual Support** – Comprehensive translation support for English, Hindi, Marathi, Punjabi, and Gujarati.
+
+---
+
+## Recent UI & UX Improvements
+
+### Enhanced Farmer Experience
+- **Harvest Date Validation**: Restricted harvest date selection to last 15 days only for data accuracy
+- **Smart Crop Filtering**: Crop dropdown now filters based on user's selected preferences during registration
+- **Comprehensive Assistant Bot**: Added complete farmer action support including:
+  - Product description management
+  - Batch suspension capabilities  
+  - Inspection history viewing
+  - Batch recommendations
+  - Enhanced UI with responsive function cards
+- **Improved Form UX**: Removed wallet address field from registration/profile for streamlined onboarding
+
+### Enhanced Consumer Experience  
+- **Direct Camera QR Scanning**: One-click camera access for QR code scanning (no file upload required)
+- **Cleaner Trace View**: Filtered out 'N/A' stakeholders from consumer trace for better readability
+- **Enhanced Multilingual Support**: Fixed translation keys and ensured consistent language rendering
+
+### Bot & Translation Improvements
+- **Complete Farmer Actions**: Bot now supports all 12 farmer operations with proper flow handling
+- **Fixed Translation System**: Resolved incorrect translations and added missing keys for all supported languages
+- **Improved UI Layout**: Enhanced function cards with better spacing, hover effects, and responsive design
+- **Language Consistency**: Audited and fixed hardcoded text across all components
 
 ---
 

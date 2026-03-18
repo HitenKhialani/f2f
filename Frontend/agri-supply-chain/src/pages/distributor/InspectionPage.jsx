@@ -140,6 +140,7 @@ const InspectionPage = () => {
                 <InspectionTimeline
                     batchId={id}
                     inspections={inspections}
+                    batch={batch}
                 />
 
                 {/* New Inspection Form - only show if not already inspected */}

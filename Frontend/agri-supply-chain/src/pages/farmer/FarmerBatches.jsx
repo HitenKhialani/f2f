@@ -24,11 +24,13 @@ import SuspendModal from '../../components/common/SuspendModal';
 import { ClickableVerificationBadge } from '../../components/blockchain';
 import { useToast } from '../../context/ToastContext';
 import AssistantWidget from '../../components/farmer/AssistantWidget';
+import { useAuth } from '../../context/AuthContext';
 
 const FarmerBatches = () => {
   const toast = useToast();
   const { t } = useTranslation();
   const { formatNumber, formatCurrency, locale } = useLocalizedNumber();
+  const { user } = useAuth();
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,6 +48,8 @@ const FarmerBatches = () => {
   const [selectedDistributor, setSelectedDistributor] = useState('');
   const [batchInspections, setBatchInspections] = useState({});
   const [availableCrops, setAvailableCrops] = useState([]);
+  const [userCropPreferences, setUserCropPreferences] = useState([]);
+  const [filteredCrops, setFilteredCrops] = useState([]);
   const [batchRecommendations, setBatchRecommendations] = useState([]);
   const [showRecommendations, setShowRecommendations] = useState(true);
   const [formData, setFormData] = useState({
@@ -68,7 +72,23 @@ const FarmerBatches = () => {
     fetchDistributors();
     fetchAvailableCrops();
     fetchBatchRecommendations();
+    fetchUserCropPreferences();
   }, []);
+
+  const fetchUserCropPreferences = async () => {
+    try {
+      const response = await farmerAPI.getCrops();
+      if (response.data && response.data.length > 0) {
+        setUserCropPreferences(response.data);
+      } else {
+        // If no preferences, set empty to show all crops
+        setUserCropPreferences([]);
+      }
+    } catch (error) {
+      console.error('Error fetching user crop preferences:', error);
+      setUserCropPreferences([]);
+    }
+  };
 
   const fetchAvailableCrops = async () => {
     try {
@@ -92,6 +112,15 @@ const FarmerBatches = () => {
       ]);
     }
   };
+
+  // Filter crops based on user preferences
+  useEffect(() => {
+    if (userCropPreferences.length > 0) {
+      setFilteredCrops(userCropPreferences);
+    } else {
+      setFilteredCrops(availableCrops);
+    }
+  }, [userCropPreferences, availableCrops]);
 
   const fetchBatchRecommendations = async () => {
     try {
@@ -493,7 +522,14 @@ const FarmerBatches = () => {
                             </button>
                           )}
                           <button
-                            onClick={() => { setSelectedBatch(batch); setShowInspectionTimeline(true); }}
+                            onClick={() => {
+  setSelectedBatch(batch);
+  // Ensure inspections are available for this batch
+  if (!batchInspections[batch.id]) {
+    fetchBatchInspections(batch.id);
+  }
+  setShowInspectionTimeline(true);
+}}
                             className="flex items-center gap-1 px-3 py-1.5 text-gray-500 dark:text-cosmos-400 text-xs rounded-lg hover:bg-gray-100 dark:hover:bg-cosmos-700 border border-gray-200 dark:border-cosmos-600"
                           >
                             <Eye className="w-3 h-3" />
@@ -607,7 +643,14 @@ const FarmerBatches = () => {
                       </button>
                     )}
                     <button
-                      onClick={() => { setSelectedBatch(batch); setShowInspectionTimeline(true); }}
+                      onClick={() => {
+  setSelectedBatch(batch);
+  // Ensure inspections are available for this batch
+  if (!batchInspections[batch.id]) {
+    fetchBatchInspections(batch.id);
+  }
+  setShowInspectionTimeline(true);
+}}
                       className="ml-auto flex items-center gap-1 px-3 py-1.5 text-gray-500 dark:text-cosmos-400 text-xs rounded-lg hover:bg-gray-100 dark:hover:bg-cosmos-700 border border-gray-200 dark:border-cosmos-600"
                       title="View Inspection Timeline"
                     >
@@ -649,8 +692,8 @@ const FarmerBatches = () => {
                           onChange={(e) => setFormData({ ...formData, crop_type: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         >
-                          <option value="">Select a crop...</option>
-                          {availableCrops.map((crop) => (
+                          <option value="">{t('farmerBatches.selectCrop')}</option>
+                          {filteredCrops.map((crop) => (
                             <option key={crop} value={crop}>
                               {crop}
                             </option>
@@ -676,13 +719,13 @@ const FarmerBatches = () => {
                         <input
                           type="date"
                           required
-                          min={new Date(Date.now() - 86400000).toISOString().split('T')[0]}
+                          min={new Date(Date.now() - 15 * 86400000).toISOString().split('T')[0]}
                           max={new Date().toISOString().split('T')[0]}
                           value={formData.harvest_date}
                           onChange={(e) => setFormData({ ...formData, harvest_date: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Select yesterday or today only</p>
+                        <p className="text-xs text-gray-500 mt-1">{t('farmerBatches.selectDateWithin15Days')}</p>
                       </div>
                     </div>
                     <div>
@@ -879,6 +922,7 @@ const FarmerBatches = () => {
                 <InspectionTimeline
                   batchId={selectedBatch.id}
                   inspections={batchInspections[selectedBatch.id]}
+                  batch={selectedBatch}
                 />
               </div>
             </div>
@@ -934,13 +978,13 @@ const FarmerBatches = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Harvest Date</label>
                   <input
                     type="date"
-                    min={new Date(Date.now() - 86400000).toISOString().split('T')[0]}
+                    min={new Date(Date.now() - 15 * 86400000).toISOString().split('T')[0]}
                     max={new Date().toISOString().split('T')[0]}
                     value={editFormData.harvest_date}
                     onChange={(e) => setEditFormData({ ...editFormData, harvest_date: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Select yesterday or today only</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('farmerBatches.selectDateWithin15Days')}</p>
                 </div>
               </div>
               

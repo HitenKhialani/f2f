@@ -5,9 +5,17 @@ export const assistantTranslations = {
     greeting: "Namaste 👨‍🌾\nI am your AgriChain Assistant. How can I help you today?",
     options_menu: {
       create_batch: "Create Batch",
-      request_transport: "Request Transport",
       view_batches: "View My Batches",
-      payment_status: "Payment Status"
+      edit_batch: "Edit Batch",
+      product_description: "Add Product Description",
+      request_transport: "Request Transport",
+      track_batch: "Track Batch",
+      verify_batch: "Verify Batch",
+      view_inspection: "View Inspection History",
+      suspend_batch: "Suspend Batch",
+      batch_recommendations: "Batch Recommendations",
+      payment_status: "Payment Status",
+      crop_preferences: "Crop Preferences"
     },
     create_batch: {
       ask_crop: "Which crop do you want to add?",
@@ -37,10 +45,18 @@ export const assistantTranslations = {
   hi: {
     greeting: "नमस्ते 👨‍🌾\nमैं आपका एग्रीचेन सहायक हूँ। आज मैं आपकी कैसे मदद कर सकता हूँ?",
     options_menu: {
-      create_batch: "नया बैच बनाएं (Create Batch)",
-      request_transport: "ट्रांसपोर्ट बुक करें",
+      create_batch: "नया बैच बनाएं",
       view_batches: "मेरे बैच देखें",
-      payment_status: "पेमेंट स्थिति (Payment Status)"
+      edit_batch: "बैच संपादित करें",
+      product_description: "उत्पाद विवरण जोड़ें",
+      request_transport: "ट्रांसपोर्ट बुक करें",
+      track_batch: "बैच ट्रैक करें",
+      verify_batch: "बैच सत्यापित करें",
+      view_inspection: "निरीक्षण इतिहास देखें",
+      suspend_batch: "बैच निलंबित करें",
+      batch_recommendations: "बैच अनुशंसाएं",
+      payment_status: "पेमेंट स्थिति",
+      crop_preferences: "फसल प्राथमिकताएं"
     },
     create_batch: {
       ask_crop: "आप कौन सी फसल जोड़ना चाहते हैं?",
@@ -71,9 +87,17 @@ export const assistantTranslations = {
     greeting: "नमस्कार 👨‍🌾\nमी तुमचा अ‍ॅग्रीचेन सहाय्यक आहे. मी आज तुमची कशी मदत करू शकतो?",
     options_menu: {
       create_batch: "नवीन बॅच तयार करा",
-      request_transport: "वाहतूक विनंती करा",
       view_batches: "माझ्या बॅचेस पहा",
-      payment_status: "पेमेंट स्थिती"
+      edit_batch: "बॅच संपादित करा",
+      product_description: "उत्पादन वर्णन जोडा",
+      request_transport: "वाहतूक विनंती करा",
+      track_batch: "बॅच ट्रॅक करा",
+      verify_batch: "बॅच सत्यापित करा",
+      view_inspection: "तपासणी इतिहास पहा",
+      suspend_batch: "बॅच निलंबित करा",
+      batch_recommendations: "बॅच शिफारसी",
+      payment_status: "पेमेंट स्थिती",
+      crop_preferences: "पीक प्राधान्यता"
     },
     create_batch: {
       ask_crop: "तुम्हाला कोणते पीक जोडायचे आहे?",

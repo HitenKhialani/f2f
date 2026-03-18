@@ -195,6 +195,12 @@ const InspectionTimeline = ({ batchId, inspections: propInspections, batch }) =>
                 {batch.total_transport_fees ? `₹${batch.total_transport_fees}/kg` : '-'}
               </p>
             </div>
+            <div>
+              <p className="text-xs text-gray-500">Retailer Margin</p>
+              <p className="text-sm font-medium text-gray-900">
+                {batch.retailer_margin_per_unit ? `₹${batch.retailer_margin_per_unit}/kg` : '-'}
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -249,6 +255,41 @@ const InspectionTimeline = ({ batchId, inspections: propInspections, batch }) =>
                             {formatDate(inspection.created_at)}
                           </span>
                         </div>
+
+                        {/* Price Information for Each Stakeholder */}
+                        {inspection.stage === 'retailer' && (batch?.retailer_margin_per_unit || batch?.batch_details?.retailer_margin_per_unit) && (
+                          <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-lg">
+                            <div className="flex items-center gap-1 text-xs font-medium text-orange-700 mb-1">
+                              <span className="w-4 h-4 rounded-full bg-orange-200 text-orange-600 flex items-center justify-center text-xs">₹</span>
+                              Retailer Pricing
+                            </div>
+                            <div className="text-sm text-gray-700">
+                              Selling Price: <span className="font-semibold">₹{batch.retailer_margin_per_unit || batch.batch_details?.retailer_margin_per_unit}/kg</span>
+                            </div>
+                          </div>
+                        )}
+                        {inspection.stage === 'distributor' && (batch?.distributor_margin_per_unit || batch?.batch_details?.distributor_margin_per_unit) && (
+                          <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded-lg">
+                            <div className="flex items-center gap-1 text-xs font-medium text-purple-700 mb-1">
+                              <span className="w-4 h-4 rounded-full bg-purple-200 text-purple-600 flex items-center justify-center text-xs">₹</span>
+                              Distributor Pricing
+                            </div>
+                            <div className="text-sm text-gray-700">
+                              Margin: <span className="font-semibold">₹{batch.distributor_margin_per_unit || batch.batch_details?.distributor_margin_per_unit}/kg</span>
+                            </div>
+                          </div>
+                        )}
+                        {inspection.stage === 'farmer' && (batch?.farmer_base_price_per_unit || batch?.batch_details?.farmer_base_price_per_unit) && (
+                          <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center gap-1 text-xs font-medium text-green-700 mb-1">
+                              <span className="w-4 h-4 rounded-full bg-green-200 text-green-600 flex items-center justify-center text-xs">₹</span>
+                              Farmer Base Price
+                            </div>
+                            <div className="text-sm text-gray-700">
+                              Base Price: <span className="font-semibold">₹{batch.farmer_base_price_per_unit || batch.batch_details?.farmer_base_price_per_unit}/kg</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <button className="p-1 hover:bg-gray-200 rounded transition-colors">
                         {isExpanded ? (

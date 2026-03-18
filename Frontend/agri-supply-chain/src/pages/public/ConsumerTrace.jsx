@@ -10,6 +10,7 @@ import {
   AlertCircle,
   MapPin,
   User,
+  Users,
   ArrowRight,
   Warehouse,
   Store,
@@ -322,120 +323,142 @@ const ConsumerTrace = () => {
           </div>
         </section>
 
-        {/* C. STAKEHOLDER JOURNEY - Always show all cards */}
+        {/* C. STAKEHOLDER JOURNEY - Filter out N/A stakeholders */}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 p-10">
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8 tracking-tight">Origin & Stakeholders</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Farmer Card */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg">
-                  <Sprout className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Farmer</div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">{searchResult.origin?.farmer_name || 'N/A'}</div>
-                </div>
-              </div>
-              <div className="space-y-3 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Farm Location</span>
-                  <span className="text-slate-900 dark:text-white font-medium truncate ml-2 max-w-[100px]">{searchResult.origin?.farm_location || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Harvest Date</span>
-                  <span className="text-slate-900 dark:text-white font-medium">{searchResult.origin?.harvest_date ? new Date(searchResult.origin.harvest_date).toLocaleDateString('en-IN') : 'N/A'}</span>
-                </div>
-                {searchResult.inspections?.farmer?.status === 'PASSED' && (
-                  <div className="flex items-center gap-1 text-emerald-600 font-bold mt-2">
-                    <CheckCircle className="w-3 h-3" />
-                    <span>Passed</span>
+            {/* Farmer Card - Show if has valid data */}
+            {searchResult.origin?.farmer_name && searchResult.origin.farmer_name !== 'N/A' && (
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <Sprout className="w-5 h-5" />
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Transporter Card */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-white shadow-lg">
-                  <Truck className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">Transporter</div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">{searchResult.transporter?.name || searchResult.transporter?.company_name || 'N/A'}</div>
-                </div>
-              </div>
-              <div className="space-y-3 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Pickup Date</span>
-                  <span className="text-slate-900 dark:text-white font-medium">{searchResult.transporter?.pickup_date ? new Date(searchResult.transporter.pickup_date).toLocaleDateString('en-IN') : 'N/A'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Delivery Date</span>
-                  <span className="text-slate-900 dark:text-white font-medium">{searchResult.transporter?.delivery_date ? new Date(searchResult.transporter.delivery_date).toLocaleDateString('en-IN') : 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Distributor Card */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center text-white shadow-lg">
-                  <Building className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-purple-600 uppercase tracking-wider">Distributor</div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">{searchResult.distributor?.name || searchResult.distributor?.company_name || 'N/A'}</div>
-                </div>
-              </div>
-              <div className="space-y-3 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Distribution Center</span>
-                  <span className="text-slate-900 dark:text-white font-medium truncate ml-2 max-w-[100px]">{searchResult.distributor?.location || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Arrival Date</span>
-                  <span className="text-slate-900 dark:text-white font-medium">{searchResult.distributor?.arrival_date ? new Date(searchResult.distributor.arrival_date).toLocaleDateString('en-IN') : 'N/A'}</span>
-                </div>
-                {searchResult.inspections?.distributor?.status === 'PASSED' && (
-                  <div className="flex items-center gap-1 text-emerald-600 font-bold mt-2">
-                    <CheckCircle className="w-3 h-3" />
-                    <span>Passed</span>
+                  <div>
+                    <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Farmer</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white">{searchResult.origin.farmer_name}</div>
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Retailer Card */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-lg">
-                  <Store className="w-5 h-5" />
                 </div>
-                <div>
-                  <div className="text-xs font-bold text-amber-600 uppercase tracking-wider">Retailer</div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-white">{searchResult.retailer?.name || searchResult.retailer?.shop_name || 'N/A'}</div>
-                </div>
-              </div>
-              <div className="space-y-3 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Retailer Name</span>
-                  <span className="text-slate-900 dark:text-white font-medium truncate ml-2 max-w-[100px]">{searchResult.retailer?.name || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Listed Date</span>
-                  <span className="text-slate-900 dark:text-white font-medium">{searchResult.retailer?.listed_date ? new Date(searchResult.retailer.listed_date).toLocaleDateString('en-IN') : 'N/A'}</span>
-                </div>
-                {searchResult.inspections?.retailer?.status === 'PASSED' && (
-                  <div className="flex items-center gap-1 text-emerald-600 font-bold mt-2">
-                    <CheckCircle className="w-3 h-3" />
-                    <span>Passed</span>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Farm Location</span>
+                    <span className="text-slate-900 dark:text-white font-medium truncate ml-2 max-w-[100px]">{searchResult.origin.farm_location || 'Unknown'}</span>
                   </div>
-                )}
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Harvest Date</span>
+                    <span className="text-slate-900 dark:text-white font-medium">{searchResult.origin.harvest_date ? new Date(searchResult.origin.harvest_date).toLocaleDateString('en-IN') : 'Unknown'}</span>
+                  </div>
+                  {searchResult.inspections?.farmer?.status === 'PASSED' && (
+                    <div className="flex items-center gap-1 text-emerald-600 font-bold mt-2">
+                      <CheckCircle className="w-3 h-3" />
+                      <span>Passed</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Transporter Card - Show if has valid data */}
+            {searchResult.transporter?.name && searchResult.transporter.name !== 'N/A' && (
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <Truck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">Transporter</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white">{searchResult.transporter.name || searchResult.transporter.company_name}</div>
+                  </div>
+                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Pickup Date</span>
+                    <span className="text-slate-900 dark:text-white font-medium">{searchResult.transporter.pickup_date ? new Date(searchResult.transporter.pickup_date).toLocaleDateString('en-IN') : 'Unknown'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Delivery Date</span>
+                    <span className="text-slate-900 dark:text-white font-medium">{searchResult.transporter.delivery_date ? new Date(searchResult.transporter.delivery_date).toLocaleDateString('en-IN') : 'Unknown'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Distributor Card - Show if has valid data */}
+            {searchResult.distributor?.name && searchResult.distributor.name !== 'N/A' && (
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <Building className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-purple-600 uppercase tracking-wider">Distributor</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white">{searchResult.distributor.name || searchResult.distributor.company_name}</div>
+                  </div>
+                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Distribution Center</span>
+                    <span className="text-slate-900 dark:text-white font-medium truncate ml-2 max-w-[100px]">{searchResult.distributor.location || 'Unknown'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Arrival Date</span>
+                    <span className="text-slate-900 dark:text-white font-medium">{searchResult.distributor.arrival_date ? new Date(searchResult.distributor.arrival_date).toLocaleDateString('en-IN') : 'Unknown'}</span>
+                  </div>
+                  {searchResult.inspections?.distributor?.status === 'PASSED' && (
+                    <div className="flex items-center gap-1 text-emerald-600 font-bold mt-2">
+                      <CheckCircle className="w-3 h-3" />
+                      <span>Passed</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Retailer Card - Show if has valid data */}
+            {searchResult.retailer?.name && searchResult.retailer.name !== 'N/A' && (
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <Store className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-amber-600 uppercase tracking-wider">Retailer</div>
+                    <div className="text-sm font-bold text-slate-900 dark:text-white">{searchResult.retailer.name || searchResult.retailer.shop_name}</div>
+                  </div>
+                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Retailer Name</span>
+                    <span className="text-slate-900 dark:text-white font-medium truncate ml-2 max-w-[100px]">{searchResult.retailer.name || 'Unknown'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Listed Date</span>
+                    <span className="text-slate-900 dark:text-white font-medium">{searchResult.retailer.listed_date ? new Date(searchResult.retailer.listed_date).toLocaleDateString('en-IN') : 'Unknown'}</span>
+                  </div>
+                  {searchResult.inspections?.retailer?.status === 'PASSED' && (
+                    <div className="flex items-center gap-1 text-emerald-600 font-bold mt-2">
+                      <CheckCircle className="w-3 h-3" />
+                      <span>Passed</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
+          
+          {/* Show message if no valid stakeholders */}
+          {(!searchResult.origin?.farmer_name || searchResult.origin.farmer_name === 'N/A') && 
+           (!searchResult.transporter?.name || searchResult.transporter.name === 'N/A') && 
+           (!searchResult.distributor?.name || searchResult.distributor.name === 'N/A') && 
+           (!searchResult.retailer?.name || searchResult.retailer.name === 'N/A') && (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Users className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-500">No stakeholder information available</p>
+              <p className="text-sm text-gray-400 mt-1">Stakeholder details will appear here once available</p>
+            </div>
+          )}
         </section>
 
         {/* D. BATCH STATUS TIMELINE - Updated Layout */}
@@ -848,6 +871,7 @@ const ConsumerTrace = () => {
             <InspectionTimeline
               batchId={searchResult.batch_id}
               inspections={inspections}
+              batch={searchResult}
             />
           ) : (
             <div className="text-center py-12 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">

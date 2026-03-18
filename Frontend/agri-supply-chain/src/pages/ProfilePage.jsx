@@ -178,15 +178,6 @@ const ProfilePage = () => {
                                 {profile.profile?.phone || 'N/A'}
                             </div>
                         </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Wallet ID
-                            </label>
-                            <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 font-mono text-xs">
-                                {profile.profile?.wallet_id || 'Not connected'}
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

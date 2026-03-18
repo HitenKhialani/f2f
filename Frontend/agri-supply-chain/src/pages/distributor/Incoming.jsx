@@ -499,6 +499,7 @@ const Incoming = () => {
               <InspectionTimeline
                 batchId={selectedBatch.batch || selectedBatch.batch_details?.id || selectedBatch.id}
                 inspections={batchInspections[selectedBatch.batch || selectedBatch.batch_details?.id || selectedBatch.id]}
+                batch={selectedBatch}
               />
             </div>
           </div>

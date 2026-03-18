@@ -463,7 +463,21 @@
     "pricePerKg": "Price/kg",
     "harvestDate": "Harvest Date",
     "status": "Status",
-    "actions": "Actions"
+    "actions": "Actions",
+    "selectCrop": "Select a crop...",
+    "selectDateWithin15Days": "Select date within last 15 days only",
+    "basePricePerUnit": "Base Price per Unit (₹)",
+    "createNewBatch": "Create New Batch",
+    "editBatch": "Edit Batch",
+    "suspend": "Suspend",
+    "viewHistory": "History",
+    "requestTransport": "Request Transport",
+    "addProductDescription": "Add Product Description",
+    "viewInspectionTimeline": "View Inspection Timeline",
+    "suspendBatch": "Suspend Batch",
+    "recommendations": "Recommendations",
+    "useTemplate": "Use Template",
+    "createBatch": "Create Batch"
   },
   "suspend": {
     "title": "Suspend Batch",
@@ -797,7 +811,13 @@
     "enterBatchId": "Enter Batch ID",
     "traceBatch": "Trace Batch",
     "scanInstruction": "Enter the Batch ID from the QR code to trace the product journey.",
-    "perKg": "/ kg"
+    "perKg": "/ kg",
+    "openCameraScanner": "Open Camera Scanner",
+    "chooseTraceMethod": "Choose how you want to trace the product:",
+    "orEnterManually": "Or enter manually",
+    "pointCameraAtQR": "Point camera at QR code to scan",
+    "cameraError": "Unable to access camera. Please check permissions.",
+    "simulateScan": "Simulate Scan"
   },
 
   "retailerDashboard": {

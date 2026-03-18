@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Search,
   ScanLine,
@@ -12,7 +13,8 @@ import {
   Bell,
   ChevronDown,
   LogOut,
-  User
+  User,
+  Camera
 } from 'lucide-react';
 import { retailAPI, inspectionAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -55,6 +57,7 @@ const getRetailerLocation = (listing) => {
 const ConsumerDashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -62,6 +65,10 @@ const ConsumerDashboard = () => {
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [batchIdInput, setBatchIdInput] = useState('');
   const [listingInspections, setListingInspections] = useState({});
+  const [isScanning, setIsScanning] = useState(false);
+  const [cameraError, setCameraError] = useState('');
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -79,6 +86,45 @@ const ConsumerDashboard = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const startCamera = async () => {
+    try {
+      setIsScanning(true);
+      setCameraError('');
+      
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' }
+      });
+      
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (error) {
+      console.error('Camera access error:', error);
+      setCameraError('Unable to access camera. Please check permissions.');
+      setIsScanning(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsScanning(false);
+  };
+
+  const handleScanResult = (batchId) => {
+    setBatchIdInput(batchId);
+    stopCamera();
+    setShowQRScanner(false);
+    navigate(`/trace/${batchId}`);
   };
 
   useEffect(() => {
@@ -388,42 +434,100 @@ const ConsumerDashboard = () => {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Scan QR Code</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('consumerPortal.scanQR')}</h3>
                 <button
-                  onClick={() => setShowQRScanner(false)}
+                  onClick={() => {
+                    stopCamera();
+                    setShowQRScanner(false);
+                  }}
                   className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-gray-500 text-sm mb-4">
-                Enter the Batch ID from the QR code to trace the product journey.
-              </p>
-              <form onSubmit={handleSearch} className="space-y-4">
-                <input
-                  type="text"
-                  value={batchIdInput}
-                  onChange={(e) => setBatchIdInput(e.target.value)}
-                  placeholder="Enter Batch ID..."
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  autoFocus
-                />
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowQRScanner(false)}
-                    className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700"
-                  >
-                    Trace Batch
-                  </button>
-                </div>
-              </form>
+              
+              {!isScanning ? (
+                <>
+                  <p className="text-gray-500 text-sm mb-4">
+                    {t('consumerPortal.chooseTraceMethod')}
+                  </p>
+                  <div className="space-y-3">
+                    <button
+                      onClick={startCamera}
+                      className="w-full flex items-center justify-center gap-3 py-4 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+                    >
+                      <Camera className="w-5 h-5" />
+                      {t('consumerPortal.openCameraScanner')}
+                    </button>
+                    
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-200"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white text-gray-500">{t('consumerPortal.orEnterManually')}</span>
+                      </div>
+                    </div>
+                    
+                    <form onSubmit={handleSearch} className="space-y-3">
+                      <input
+                        type="text"
+                        value={batchIdInput}
+                        onChange={(e) => setBatchIdInput(e.target.value)}
+                        placeholder={t('consumerPortal.enterBatchId')}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                      <button
+                        type="submit"
+                        className="w-full px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700"
+                      >
+                        {t('consumerPortal.traceBatch')}
+                      </button>
+                    </form>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-gray-500 text-sm mb-4">
+                    {t('consumerPortal.pointCameraAtQRCode')}
+                  </p>
+                  <div className="relative mb-4">
+                    <video
+                      ref={videoRef}
+                      className="w-full h-64 bg-black rounded-lg object-cover"
+                      autoPlay
+                      playsInline
+                    />
+                    <div className="absolute inset-0 border-2 border-emerald-500 rounded-lg pointer-events-none"></div>
+                  </div>
+                  
+                  {cameraError && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-red-600 text-sm">{cameraError}</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={stopCamera}
+                      className="flex-1 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Simulate scan result for demo
+                        handleScanResult('BATCH-123-DEMO');
+                      }}
+                      className="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700"
+                    >
+                      Simulate Scan
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

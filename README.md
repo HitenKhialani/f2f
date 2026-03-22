@@ -6,19 +6,17 @@ If you just cloned this repo, follow these steps to get it running in 5 minutes:
 
 ### 1. Backend Setup
 ```powershell
-cd Backend\bsas_supplychain-main
-python -m venv .venv
-.venv\Scripts\activate  # Windows
+cd Backend
+..\venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 pip install web3 eth-account eth-abi python-dotenv
 python manage.py migrate
-python manage.py seed_data
 python manage.py runserver 0.0.0.0:8001
 ```
 
 ### 2. Frontend Setup
 ```powershell
-cd ../../Frontend/agri-supply-chain
+cd Frontend
 npm install
 npm run dev
 ```
@@ -92,14 +90,14 @@ The backend is built with Django REST Framework and exposes a JWT-secured REST A
 ## System Architecture
 
 ### Backend (Django REST Framework)
-- **Location**: `Backend/bsas_supplychain-main/`
+- **Location**: `Backend/`
 - **Pattern**: Monolithic Django project with a single `supplychain` app.
 - **Financial Logic**: Strict payment validation in `payment_views.py` and `batch_validators.py`.
 - **View Organization**: Role-specific modules (e.g., `farmer_dashboard_views.py`, `distributor_views.py`).
 - **Media Files**: QR codes and documents stored in `media/`.
 
 ### Frontend (React + Vite)
-- **Location**: `Frontend/agri-supply-chain/`
+- **Location**: `Frontend/`
 - **State Management**: React Context (`AuthContext`) for auth and user state.
 - **Localization**: `react-i18next` with local JSON translations.
 - **Routing**: React Router v6 with granular role-based protection.
@@ -118,7 +116,7 @@ The backend is built with Django REST Framework and exposes a JWT-secured REST A
 | Backend Framework | Django 5.x |
 | Backend API | Django REST Framework 3.14+ |
 | Authentication | djangorestframework-simplejwt |
-| Database | SQLite (dev) / PostgreSQL (prod) |
+| Database | PostgreSQL (Neon) |
 | **Blockchain Layer** | **Web3.py + HashAnchor Smart Contract** |
 | **Blockchain Network** | **Polygon Amoy Testnet** |
 | **Hash Algorithm** | **SHA256 (deterministic)** |
@@ -141,23 +139,32 @@ This guide assumes you are setting up the project for the first time on a local 
 
 #### 1. Navigate to Backend Directory
 ```powershell
-cd Backend\bsas_supplychain-main
+cd Backend
 ```
 
-#### 2. Create Virtual Environment
-Isolate the project's Python dependencies:
-```powershell
-python -m venv .venv
-```
-
-#### 3. Activate Virtual Environment
+#### 2. Activate Virtual Environment
 **Windows:**
 ```powershell
-.venv\Scripts\activate
+..\venv\Scripts\activate
 ```
 **Linux/macOS:**
 ```bash
-source .venv/bin/activate
+source ../venv/bin/activate
+```
+
+#### 3. Database Setup (PostgreSQL Neon)
+Configure your PostgreSQL Neon database connection:
+
+1. Create a `.env` file in `Backend/`:
+```env
+DATABASE_URL=postgresql://username:password@hostname:port/database_name
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+```
+
+2. Install required packages:
+```powershell
+pip install psycopg2-binary python-dotenv
 ```
 
 #### 4. Install Dependencies
@@ -173,19 +180,13 @@ Create the local database schema:
 python manage.py migrate
 ```
 
-#### 6. Seed Initial Data (CRITICAL)
-The project requires initial roles and crop categories to function. Run this command to populate the database:
-```powershell
-python manage.py seed_data
-```
-
-#### 7. Create Admin Superuser
+#### 6. Create Admin Superuser
 Create a user to access the Admin dashboard:
 ```powershell
 python manage.py createsuperuser
 ```
 
-#### 8. Start Development Server
+#### 7. Start Development Server
 ```powershell
 python manage.py runserver 0.0.0.0:8001
 ```
@@ -196,7 +197,7 @@ python manage.py runserver 0.0.0.0:8001
 
 #### 1. Navigate to Frontend Directory
 ```powershell
-cd ..\..\Frontend\agri-supply-chain
+cd Frontend
 ```
 
 #### 2. Install Packages
@@ -216,7 +217,7 @@ npm run dev
 The blockchain integration provides tamper-proof audit trails for critical events.
 
 #### 1. Configure Environment Variables
-Create `.env` file in `Backend/bsas_supplychain-main/`:
+Create `.env` file in `Backend/`:
 ```bash
 # Blockchain Configuration
 POLYGON_AMOY_RPC_URL=https://rpc-amoy.polygon.technology
@@ -335,32 +336,38 @@ The system now features a **Hybrid Web2/Web3** architecture with tamper-proof au
 
 ```
 f2f/
-├── Backend/
-│   └── bsas_supplychain-main/       # Django project
-│       ├── supplychain/             # Core app
-│       │   ├── payment_views.py     # Payment/Financial logic
-│       │   ├── models.py            # DB Schema
-│       │   ├── serializers.py       # API serializing
-│       │   ├── hash_generator.py    # Blockchain hash generation
-│       │   ├── blockchain_service.py # Web3 integration service
-│       │   ├── blockchain_views.py  # Blockchain API endpoints
-│       │   ├── event_logger.py      # Event logging with blockchain anchoring
-│       │   └── management/          # Custom management commands (seed_data)
-│       └── manage.py                # Django manager
+├── README.md                          # Project documentation
+├── venv/                              # Python virtual environment (gitignored)
+├── Backend/                           # Django backend
+│   ├── .env                          # Environment variables
+│   ├── manage.py                     # Django management script
+│   ├── requirements.txt              # Python dependencies
+│   ├── supplychain/                  # Core Django app
+│   │   ├── models.py                 # Database models
+│   │   ├── views.py                  # API views
+│   │   ├── serializers.py            # API serializers
+│   │   ├── blockchain_service.py     # Web3 integration
+│   │   ├── payment_views.py          # Payment logic
+│   │   └── management/               # Custom commands
+│   └── bsas_supplychain/             # Django project config
+│       ├── settings.py               # Django settings
+│       └── urls.py                   # URL routing
 │
-├── Frontend/
-│   └── agri-supply-chain/           # Vite project
-│       ├── src/
-│       │   ├── components/          # Reusable UI components
-│       │   ├── context/             # Auth & Global state
-│       │   ├── pages/               # UI Layers (Farmer, Retailer, etc.)
-│       │   └── services/            # API integration (api.js)
-│       └── package.json             # Frontend dependencies
+├── Frontend/                         # React frontend
+│   ├── node_modules/                 # npm packages (gitignored)
+│   ├── package.json                  # npm dependencies
+│   ├── vite.config.js                # Vite configuration
+│   ├── index.html                    # Entry point
+│   └── src/                          # Source code
+│       ├── components/               # Reusable UI components
+│       ├── pages/                    # Page components
+│       ├── context/                  # React context
+│       └── services/                 # API services
 │
-└── blockchain/                       # Smart contract development
+└── blockchain/                       # Smart contracts
     ├── contracts/                    # Solidity contracts
-    │   └── HashAnchor.sol           # Batch data anchoring contract
-    ├── scripts/                     # Deployment scripts
-    ├── hardhat.config.ts           # Development framework config
-    └── typechain-types/             # Generated TypeScript types
+    │   └── HashAnchor.sol           # Data anchoring contract
+    ├── scripts/                      # Deployment scripts
+    ├── hardhat.config.ts           # Hardhat configuration
+    └── typechain-types/             # TypeScript types
 ```

@@ -67,11 +67,9 @@ const PublicTopNav = () => {
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-2 group">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center group-hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 group-hover:scale-105">
-                            <Sprout className="w-6 h-6 text-white" />
-                        </div>
+                        <img src="/logo.png" alt="AgriChain Logo" className="w-10 h-10 object-contain group-hover:scale-105 transition-all" />
                         <div className="flex flex-col">
-                            <span className="text-xl font-black text-emerald-900 dark:text-white leading-none">F2F</span>
+                            <span className="text-xl font-black text-emerald-900 dark:text-white leading-none">AgriChain</span>
                             <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tracking-widest uppercase">Farm to Fork</span>
                         </div>
                     </Link>
@@ -98,39 +96,7 @@ const PublicTopNav = () => {
                             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                         </button>
 
-                        {/* Language Dropdown */}
-                        <div className="relative" ref={langDropdownRef}>
-                            <button
-                                onClick={() => setShowLangDropdown(!showLangDropdown)}
-                                className="flex items-center gap-1.5 p-2 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 rounded-xl transition-colors"
-                            >
-                                <Globe className="w-5 h-5" />
-                                <span className="text-xs font-semibold hidden lg:block">{currentLang.flag} {currentLang.code.toUpperCase()}</span>
-                                <ChevronDown className="w-3 h-3 hidden lg:block" />
-                            </button>
 
-                            {showLangDropdown && (
-                                <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-emerald-100 dark:border-slate-800 py-1 z-50">
-                                    {LANGUAGES.map(lang => (
-                                        <button
-                                            key={lang.code}
-                                            onClick={() => {
-                                                i18n.changeLanguage(lang.code);
-                                                localStorage.setItem('language', lang.code);
-                                                setShowLangDropdown(false);
-                                            }}
-                                            className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${i18n.language === lang.code
-                                                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-semibold'
-                                                : 'text-gray-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-slate-700'
-                                                }`}
-                                        >
-                                            <span className="text-lg">{lang.flag}</span>
-                                            <span>{lang.label}</span>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
 
                         {isAuthenticated ? (
                             <Link

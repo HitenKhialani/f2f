@@ -55,7 +55,7 @@ const LoginPage = () => {
           <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-center">
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-4">
-                <Sprout className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                <img src="/logo.png" alt="AgriChain Logo" className="w-10 h-10 object-contain" />
                 <span className="font-bold text-2xl tracking-tight text-emerald-600 dark:text-emerald-400">{t('common.appName')}</span>
               </div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('login.welcomeBack')}</h1>

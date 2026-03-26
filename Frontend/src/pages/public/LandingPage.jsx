@@ -303,7 +303,7 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-8 group">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white font-black text-xl group-hover:scale-110 transition-transform shadow-xl shadow-emerald-600/20">F2F</div>
+              <img src="/logo.png" alt="AgriChain Logo" className="w-12 h-12 object-contain group-hover:scale-110 transition-transform shadow-xl" />
               <span className="text-3xl font-black text-white tracking-tighter">{t('common.appName')}</span>
             </Link>
             <p className="text-slate-400 font-medium mb-10 leading-relaxed">

@@ -86,24 +86,7 @@ const AdminLayout = () => {
           <span className="text-xl font-bold text-gray-900 dark:text-white">Admin Portal</span>
         </div>
         <div className="flex items-center gap-2">
-          {/* Language dropdown mobile */}
-          <div className="relative" ref={langDropdownRef}>
-            <button onClick={() => setShowLangDropdown(!showLangDropdown)}
-              className="flex items-center gap-1 p-2 rounded-lg bg-gray-100 dark:bg-cosmos-700 text-gray-700 dark:text-cosmos-300">
-              <Globe className="w-4 h-4" />
-              <span className="text-xs font-semibold">{currentLang.flag}</span>
-            </button>
-            {showLangDropdown && (
-              <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-cosmos-800 rounded-xl shadow-lg border border-gray-100 dark:border-cosmos-700 py-1 z-50">
-                {LANGUAGES.map(lang => (
-                  <button key={lang.code} onClick={() => handleLanguageChange(lang.code)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${i18n.language === lang.code ? 'bg-green-50 text-green-700 font-semibold' : 'text-gray-700 dark:text-cosmos-300 hover:bg-gray-50'}`}>
-                    <span>{lang.flag}</span><span>{lang.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+
           {/* Dark mode mobile */}
           <button onClick={() => setIsDark(!isDark)} className="p-2 rounded-lg bg-gray-100 dark:bg-cosmos-700 text-gray-700 dark:text-cosmos-300">
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -128,25 +111,7 @@ const AdminLayout = () => {
                 <span className="text-xl font-bold text-gray-900 dark:text-white">Admin Portal</span>
               </div>
               <div className="flex items-center gap-1">
-                {/* Language dropdown desktop */}
-                <div className="relative" ref={langDropdownRef}>
-                  <button onClick={() => setShowLangDropdown(!showLangDropdown)}
-                    className="flex items-center gap-1 p-1.5 rounded-lg bg-gray-100 dark:bg-cosmos-700 text-gray-600 dark:text-cosmos-300 text-xs">
-                    <Globe className="w-4 h-4" />
-                    <span>{currentLang.flag}</span>
-                    <ChevronDown className="w-3 h-3" />
-                  </button>
-                  {showLangDropdown && (
-                    <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-cosmos-800 rounded-xl shadow-lg border border-gray-100 dark:border-cosmos-700 py-1 z-50">
-                      {LANGUAGES.map(lang => (
-                        <button key={lang.code} onClick={() => handleLanguageChange(lang.code)}
-                          className={`w-full flex items-center gap-2 px-3 py-2 text-sm ${i18n.language === lang.code ? 'bg-green-50 dark:bg-green-900/20 text-green-700 font-semibold' : 'text-gray-700 dark:text-cosmos-300 hover:bg-gray-50 dark:hover:bg-cosmos-700'}`}>
-                          <span>{lang.flag}</span><span>{lang.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+
                 {/* Dark mode desktop */}
                 <button onClick={() => setIsDark(!isDark)} className="p-1.5 rounded-lg bg-gray-100 dark:bg-cosmos-700 text-gray-600 dark:text-cosmos-300">
                   {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}

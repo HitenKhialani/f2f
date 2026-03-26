@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "appName": "AgriChain",
     "loading": "Loading...",
@@ -226,7 +226,7 @@
     "certifiedSecure": "Certified Secure",
     "securityAudit": "Security Audit",
     "nodeStatus": "Node Status",
-    "copyright": "\u00a9 2024 F2F \u2014 Handcrafted for Bharat",
+    "copyright": "\u00a9 2026 AgriChain \u2014 Handcrafted for Bharat",
     "features": {
       "blockchain": {
         "title": "Blockchain Verified",

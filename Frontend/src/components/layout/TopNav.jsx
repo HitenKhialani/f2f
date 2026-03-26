@@ -79,40 +79,7 @@ const TopNav = () => {
           {/* Right - Actions */}
           <div className="flex items-center gap-2 md:gap-3">
 
-            {/* Language Dropdown */}
-            <div className="relative" ref={langDropdownRef}>
-              <button
-                onClick={() => setShowLangDropdown(!showLangDropdown)}
-                className="flex items-center gap-1.5 p-2 text-emerald-700 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
-                title={t('navbar.language')}
-              >
-                <Globe className="w-5 h-5" />
-                <span className="text-xs font-semibold hidden md:block">{currentLang.flag} {currentLang.code.toUpperCase()}</span>
-                <ChevronDown className="w-3 h-3 hidden md:block" />
-              </button>
 
-              {showLangDropdown && (
-                <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-cosmos-800 rounded-xl shadow-lg border border-emerald-100 dark:border-cosmos-700 py-1 z-50">
-                  <div className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-cosmos-400 uppercase tracking-wider border-b border-emerald-50 dark:border-cosmos-700">
-                    {t('navbar.language')}
-                  </div>
-                  {LANGUAGES.map(lang => (
-                    <button
-                      key={lang.code}
-                      onClick={() => handleLanguageChange(lang.code)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${i18n.language === lang.code
-                        ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-semibold'
-                        : 'text-gray-700 dark:text-cosmos-300 hover:bg-emerald-50 dark:hover:bg-cosmos-700/50'
-                        }`}
-                    >
-                      <span className="text-lg">{lang.flag}</span>
-                      <span>{lang.label}</span>
-                      {i18n.language === lang.code && <span className="ml-auto text-emerald-500">✓</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
 
             {/* Dark Mode Toggle */}
             <button

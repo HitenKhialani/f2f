@@ -4,7 +4,7 @@
 
 export const generateUPILink = (payment) => {
   const payeeUPI = payment.payee_upi_id || '';
-  const payeeName = payment.payee_details?.user_details?.username || 'F2F_Participant';
+  const payeeName = payment.payee_details?.user_details?.username || 'AgriChain_Participant';
   const amount = parseFloat(payment.amount).toFixed(2);
   const batchId = payment.batch_details?.product_batch_id || payment.batch;
   const paymentId = payment.id;

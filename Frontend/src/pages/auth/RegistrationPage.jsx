@@ -202,9 +202,7 @@ const RegistrationPage = () => {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center gap-2">
-              <div className="bg-primary p-1.5 rounded-lg">
-                <Sprout className="w-5 h-5 text-white" />
-              </div>
+              <img src="/logo.png" alt="AgriChain Logo" className="w-8 h-8 object-contain" />
               <span className="text-xl font-bold text-primary">AgriChain</span>
             </Link>
             <Link to="/role-selection" className="flex items-center gap-1 text-gray-600 hover:text-primary">

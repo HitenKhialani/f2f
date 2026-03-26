@@ -3,7 +3,8 @@ import {
   MessageSquare,
   X,
   RefreshCcw,
-  Globe
+  Globe,
+  Plus
 } from 'lucide-react';
 import { farmerAPI, batchAPI, stakeholderAPI, transportAPI, paymentAPI } from '../../services/api';
 import { assistantTranslations } from './AssistantTranslations';
@@ -17,6 +18,8 @@ const AssistantWidget = ({ onActionComplete }) => {
   const [flowStep, setFlowStep] = useState('INIT');
   const [flowData, setFlowData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const [customInputValue, setCustomInputValue] = useState('');
 
   const messagesEndRef = useRef(null);
   const translations = assistantTranslations[lang];
@@ -107,6 +110,17 @@ const AssistantWidget = ({ onActionComplete }) => {
     }
     addMessage(translations.common.not_understood, 'bot');
     resetConversation();
+  };
+
+  const handleCustomSubmit = (e) => {
+    e.preventDefault();
+    if (!customInputValue.trim()) return;
+    const val = customInputValue.trim();
+    addMessage(val, 'user');
+    setShowCustomInput(false);
+    setCustomInputValue('');
+    setOptions([]);
+    processUserInput(val, val);
   };
 
   const handleMenuSelection = async (selection) => {
@@ -851,15 +865,59 @@ const AssistantWidget = ({ onActionComplete }) => {
         </div>
       )}
 
-      {/* Status Bar - Shows when no options */}
-      {options.length === 0 && !isLoading && (
-        <div className="p-2 bg-gray-50 dark:bg-cosmos-800 border-t border-gray-100 dark:border-cosmos-700 text-center shrink-0">
+      {/* Status Bar - Always show Plus button, conditionally show restart */}
+      {!isLoading && (
+        <div className="p-2 flex items-center gap-2 bg-gray-50 dark:bg-cosmos-800 border-t border-gray-100 dark:border-cosmos-700 shrink-0">
           <button 
-            onClick={resetConversation}
-            className="text-xs text-green-600 hover:text-green-700 font-medium"
+            onClick={() => setShowCustomInput(true)}
+            className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full hover:bg-emerald-200 transition-colors"
+            title="Custom Input"
           >
-            Tap to restart conversation
+            <Plus className="w-5 h-5" />
           </button>
+          
+          {options.length === 0 && (
+            <div className="flex-1 text-center">
+              <button 
+                onClick={resetConversation}
+                className="text-xs text-green-600 hover:text-green-700 font-medium"
+              >
+                Tap to restart conversation
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Custom Input Modal */}
+      {showCustomInput && (
+        <div className="absolute inset-x-0 bottom-0 bg-white dark:bg-cosmos-800 border-t border-gray-200 dark:border-cosmos-700 p-4 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-b-2xl animate-slide-up">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Custom Input</h4>
+            <button 
+              onClick={() => setShowCustomInput(false)}
+              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-lg"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <form onSubmit={handleCustomSubmit} className="flex gap-2">
+            <input
+              type="text"
+              value={customInputValue}
+              onChange={(e) => setCustomInputValue(e.target.value)}
+              placeholder="Type your message..."
+              autoFocus
+              className="flex-1 px-4 py-2 border border-gray-200 dark:border-cosmos-700 rounded-xl bg-gray-50 dark:bg-cosmos-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-900 dark:text-white"
+            />
+            <button
+              type="submit"
+              disabled={!customInputValue.trim()}
+              className="px-4 py-2 bg-emerald-600 text-white font-medium text-sm rounded-xl hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Send
+            </button>
+          </form>
         </div>
       )}
 

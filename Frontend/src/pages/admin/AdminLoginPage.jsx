@@ -56,9 +56,7 @@ const AdminLoginPage = () => {
         <div className="max-w-md w-full">
           {/* Logo and Title */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-full mb-4">
-              <Shield className="w-8 h-8 text-white" />
-            </div>
+            <img src="/logo.png" alt="AgriChain Logo" className="w-16 h-16 object-contain mb-4 mx-auto" />
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Portal</h1>
             <p className="text-gray-600">Enter your admin credentials</p>
           </div>

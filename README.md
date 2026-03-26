@@ -56,8 +56,8 @@ The backend is built with Django REST Framework and exposes a JWT-secured REST A
 - **Advanced Analytics** – Interactive charts for earnings, volumes, and status distributions using Recharts.
 - **Admin Portal** – System-wide stats, user management, and KYC oversight.
 - **Blockchain Integration** – Tamper-proof audit trail with automatic anchoring of critical events to Polygon Amoy testnet.
-- **AI-Powered Assistant** – Multilingual conversational bot for farmers with complete action support and improved UI.
-- **Multilingual Support** – Comprehensive translation support for English, Hindi, Marathi, Punjabi, and Gujarati.
+- **AI-Powered Assistant** – Conversational bot for farmers with complete action support, improved UI, and a generic custom input flow.
+- **Unified Branding Strategy** – Strict English-only interface enforcing global consistency under the "AgriChain - Farm to Fork" identity.
 
 ---
 
@@ -72,18 +72,19 @@ The backend is built with Django REST Framework and exposes a JWT-secured REST A
   - Inspection history viewing
   - Batch recommendations
   - Enhanced UI with responsive function cards
+  - Custom user input feature integrated into the chatbot framework
 - **Improved Form UX**: Removed wallet address field from registration/profile for streamlined onboarding
 
 ### Enhanced Consumer Experience  
 - **Direct Camera QR Scanning**: One-click camera access for QR code scanning (no file upload required)
 - **Cleaner Trace View**: Filtered out 'N/A' stakeholders from consumer trace for better readability
-- **Enhanced Multilingual Support**: Fixed translation keys and ensured consistent language rendering
+- **Standardized Identity**: Complete branding overhaul to unify the UI under the "AgriChain - Farm to Fork" globally deployed logo and name.
 
-### Bot & Translation Improvements
-- **Complete Farmer Actions**: Bot now supports all 12 farmer operations with proper flow handling
-- **Fixed Translation System**: Resolved incorrect translations and added missing keys for all supported languages
+### Bot & Branding Improvements
+- **Complete Farmer Actions**: Bot now supports all 12 farmer operations with proper flow handling, plus a generic custom input message flow.
+- **Strict Brand Implementation**: Removed confusing multilingual texts and dropdowns, enforcing an English-only unified layout.
 - **Improved UI Layout**: Enhanced function cards with better spacing, hover effects, and responsive design
-- **Language Consistency**: Audited and fixed hardcoded text across all components
+- **Brand Consistency**: Audited and fixed hardcoded legacy references to 'F2F' ensuring a single "AgriChain" namespace.
 
 ---
 

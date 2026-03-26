@@ -85,7 +85,7 @@ export default function MainLayout({ children }) {
           <div className="flex flex-col h-full bg-emerald-50 dark:bg-surface-dark">
             <div className="flex items-center justify-between p-4 border-b border-emerald-200 dark:border-emerald-900">
               <div className="flex items-center gap-2">
-                <Sprout className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                <img src="/logo.png" alt="AgriChain Logo" className="w-8 h-8 object-contain" />
                 <span className="text-lg font-bold text-emerald-900 dark:text-emerald-100">AgriChain</span>
               </div>
               <button
@@ -112,42 +112,12 @@ export default function MainLayout({ children }) {
             <Menu className="w-6 h-6 text-emerald-700 dark:text-emerald-300" />
           </button>
           <div className="flex items-center gap-2">
-            <Sprout className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <img src="/logo.png" alt="AgriChain Logo" className="w-6 h-6 object-contain" />
             <span className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">AgriChain</span>
           </div>
           <div className="flex items-center gap-1">
 
-            {/* Language Dropdown */}
-            <div className="relative" ref={langDropdownRef}>
-              <button
-                onClick={() => setShowMobileLangDropdown(!showMobileLangDropdown)}
-                className="p-2 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 rounded-lg transition-colors text-emerald-600 dark:text-emerald-400"
-                title={t('navbar.language')}
-              >
-                <Globe className="w-5 h-5" />
-              </button>
-              {showMobileLangDropdown && (
-                <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-emerald-100 dark:border-emerald-900 py-2 z-50">
-                  <div className="px-3 py-2 text-xs font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider border-b border-emerald-100 dark:border-emerald-900">
-                    {t('navbar.language')}
-                  </div>
-                  {LANGUAGES.map(lang => (
-                    <button
-                      key={lang.code}
-                      onClick={() => handleLanguageChange(lang.code)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${i18n.language === lang.code
-                        ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-semibold'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
-                        }`}
-                    >
-                      <span className="text-lg">{lang.flag}</span>
-                      <span>{lang.label}</span>
-                      {i18n.language === lang.code && <span className="ml-auto text-emerald-500">✓</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+
 
             {/* Dark Mode Toggle */}
             <button

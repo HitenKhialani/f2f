@@ -88,9 +88,7 @@ const Sidebar = () => {
       {/* Logo */}
       <div className="p-6 border-b border-emerald-200 dark:border-cosmos-700">
         <Link to="/" className="flex items-center gap-2">
-          <div className="bg-emerald-600 dark:bg-emerald-700 p-1.5 rounded-lg">
-            <Sprout className="w-5 h-5 text-white" />
-          </div>
+          <img src="/logo.png" alt="AgriChain Logo" className="w-8 h-8 object-contain" />
           <span className="text-xl font-bold text-emerald-900 dark:text-cosmos-300">AgriChain</span>
         </Link>
       </div>

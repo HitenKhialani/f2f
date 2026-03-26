@@ -69,7 +69,17 @@ class AnchorBatchView(APIView):
             
             # Step 1: Generate batch hash
             logger.info(f"Manual anchor requested for batch {batch_id}")
-            snapshot_hash = generate_batch_hash(batch)
+            
+            # Determine next sequence number
+            current_event_count = BatchEvent.objects.filter(batch=batch).count()
+            next_sequence = current_event_count + 1
+            
+            snapshot_hash = generate_batch_hash(
+                batch=batch, 
+                event_type='BLOCKCHAIN_ANCHOR', 
+                event_sequence=next_sequence,
+                actor_id=user.id
+            )
             
             # Step 2: Get blockchain service
             blockchain = get_blockchain_service()

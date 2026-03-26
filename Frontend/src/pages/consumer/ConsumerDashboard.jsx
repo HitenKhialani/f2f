@@ -193,11 +193,8 @@ const ConsumerDashboard = () => {
         <header className="bg-white border-b border-gray-100 sticky top-0 z-50 -mx-6 px-6 mb-8">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between h-16">
-              {/* Logo */}
               <Link to="/consumer/dashboard" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-                  <Leaf className="w-5 h-5 text-white" />
-                </div>
+                <img src="/logo.png" alt="AgriChain Logo" className="w-8 h-8 object-contain" />
                 <span className="text-xl font-bold text-gray-900">AgriChain</span>
               </Link>
 

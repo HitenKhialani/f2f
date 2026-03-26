@@ -137,25 +137,12 @@ const FarmerBatches = () => {
       setLoading(true);
       setError(null);
 
-      // Try dashboard API first
-      try {
-        const response = await dashboardAPI.getFarmerDashboard();
-        const data = response.data.data;
-        if (data && data.recent_batches) {
-          setBatches(data.recent_batches);
-          // Fetch inspections for each batch
-          data.recent_batches.forEach(batch => fetchBatchInspections(batch.id));
-        } else {
-          throw new Error('No batches data');
-        }
-      } catch (dashboardErr) {
-        // Fallback to batch list API
-        const response = await batchAPI.list();
-        const originalBatches = (response.data || []).filter(batch => !batch.is_child_batch);
-        setBatches(originalBatches);
-        // Fetch inspections for each batch
-        originalBatches.forEach(batch => fetchBatchInspections(batch.id));
-      }
+      // Always use batch list API to get ALL batches
+      const response = await batchAPI.list();
+      const originalBatches = (response.data || []).filter(batch => !batch.is_child_batch);
+      setBatches(originalBatches);
+      // Fetch inspections for each batch
+      originalBatches.forEach(batch => fetchBatchInspections(batch.id));
     } catch (error) {
       console.error('Error fetching batches:', error);
       setError(error.response?.data?.message || 'Failed to load batches');
@@ -450,7 +437,7 @@ const FarmerBatches = () => {
                     <tr key={batch.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <span className="text-sm font-medium text-gray-900">
-                          #{batch.public_batch_id || batch.id}
+                          #{batch.id}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -552,7 +539,7 @@ const FarmerBatches = () => {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-mono text-xs text-gray-400 dark:text-cosmos-400 bg-gray-50 dark:bg-cosmos-900 px-2 py-0.5 rounded">
-                      #{batch.public_batch_id || batch.id}
+                      #{batch.id}
                     </span>
                     <div className="flex flex-col items-end gap-1">
                       {getStatusBadge(batch.status)}

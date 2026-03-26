@@ -260,10 +260,11 @@ const FarmerDashboard = () => {
         });
       }
 
-      // Use recent batches from dashboard data
-      if (data && data.recent_batches) {
-        setBatches(data.recent_batches);
-      }
+      // Fetch all batches, not just recent ones
+      const batchResponse = await batchAPI.list();
+      const allBatches = batchResponse.data || [];
+      const originalBatches = allBatches.filter(batch => !batch.is_child_batch);
+      setBatches(originalBatches);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       setError(error.response?.data?.message || 'Failed to load dashboard data');
@@ -469,6 +470,68 @@ const FarmerDashboard = () => {
                 data={dashboardData?.crop_distribution || []}
                 title={t('dashboard.farmer.batchDistribution')}
               />
+            </div>
+
+            {/* My Batches Section */}
+            <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm border border-gray-100 dark:border-cosmos-700">
+              <div className="p-6 border-b border-gray-100 dark:border-cosmos-700">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">My Batches</h2>
+                  <Link 
+                    to="/farmer/batches" 
+                    className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
+                  >
+                    View All
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+              <div className="max-h-96 overflow-y-auto">
+                {batches.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p>No batches found</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100 dark:divide-cosmos-700">
+                    {batches.map((batch) => (
+                      <div key={batch.id} className="p-4 hover:bg-gray-50 dark:hover:bg-cosmos-700 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="font-mono text-sm text-gray-500">
+                                #{batch.id}
+                              </span>
+                              {getStatusBadge(batch.status)}
+                            </div>
+                            <div className="flex items-center gap-4 text-sm">
+                              <span className="font-medium text-gray-900 dark:text-white capitalize">
+                                {batch.crop_type}
+                              </span>
+                              <span className="text-gray-500">
+                                {formatNumber(batch.quantity || 0)} kg
+                              </span>
+                              {batch.farmer_base_price_per_unit && (
+                                <span className="text-gray-500">
+                                  {formatCurrency(batch.farmer_base_price_per_unit)}/kg
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setSelectedBatch(batch)}
+                              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </>
         )}

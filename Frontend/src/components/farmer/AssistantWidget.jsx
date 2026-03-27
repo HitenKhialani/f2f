@@ -795,7 +795,7 @@ const AssistantWidget = ({ onActionComplete }) => {
         <div className="flex items-center gap-2 sm:gap-3">
           <button 
             onClick={() => {
-              const langs = ['en', 'hi', 'mr'];
+              const langs = ['en', 'hi', 'mr', 'gu', 'pa'];
               setLang(langs[(langs.indexOf(lang) + 1) % langs.length]);
             }}
             className="text-white/80 hover:text-white flex items-center gap-1 text-xs"

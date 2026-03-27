@@ -682,7 +682,7 @@ const FarmerBatches = () => {
                           <option value="">{t('farmerBatches.selectCrop')}</option>
                           {filteredCrops.map((crop) => (
                             <option key={crop} value={crop}>
-                              {crop}
+                              {t(`crops.${crop.toLowerCase()}`, { defaultValue: crop })}
                             </option>
                           ))}
                         </select>

@@ -19,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { useLocalizedNumber } from '../../hooks/useLocalizedNumber';
 import MainLayout from '../../components/layout/MainLayout';
 import { batchAPI, transportAPI, stakeholderAPI, dashboardAPI, farmerAPI } from '../../services/api';
-import SuspendModal from '../../components/common/SuspendModal';
 import { useToast } from '../../context/ToastContext';
 import AssistantWidget from '../../components/farmer/AssistantWidget';
 
@@ -146,39 +145,11 @@ const EmptyState = () => {
       <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
         <Sprout className="w-8 h-8 text-green-600" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Batches Yet</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Data Yet</h3>
       <p className="text-gray-600 mb-6 max-w-md mx-auto">
-        You haven't created any crop batches yet. Start by creating your first batch to track your produce.
+        Start by creating your first crop batch using the Assistant.
       </p>
     </div>
-  );
-};
-
-const getStatusBadge = (batchStatus) => {
-  const statusColors = {
-    CREATED: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    TRANSPORT_REQUESTED: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-    TRANSPORT_REJECTED: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-    IN_TRANSIT_TO_DISTRIBUTOR: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    ARRIVED_AT_DISTRIBUTOR: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-    ARRIVAL_CONFIRMED_BY_DISTRIBUTOR: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
-    DELIVERED_TO_DISTRIBUTOR: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    STORED: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
-    TRANSPORT_REQUESTED_TO_RETAILER: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-    IN_TRANSIT_TO_RETAILER: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    ARRIVED_AT_RETAILER: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-    ARRIVAL_CONFIRMED_BY_RETAILER: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
-    DELIVERED_TO_RETAILER: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    LISTED: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
-    SOLD: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    SUSPENDED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    FULLY_SPLIT: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-  };
-  const colorClass = statusColors[batchStatus] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
-  return (
-    <span className={`px-2 py-1 text-[10px] font-bold rounded-full border border-current opacity-80 ${colorClass}`}>
-      {batchStatus?.replace(/_/g, ' ') || 'CREATED'}
-    </span>
   );
 };
 
@@ -186,7 +157,6 @@ const FarmerDashboard = () => {
   const toast = useToast();
   const { t } = useTranslation();
   const { formatNumber, formatCurrency } = useLocalizedNumber();
-  const [batches, setBatches] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
   const [stats, setStats] = useState({
     total: 0,
@@ -196,48 +166,10 @@ const FarmerDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [showTransportModal, setShowTransportModal] = useState(false);
-  const [showSuspendModal, setShowSuspendModal] = useState(false);
-  const [selectedBatch, setSelectedBatch] = useState(null);
-  const [batchToSuspend, setBatchToSuspend] = useState(null);
-  const [suspending, setSuspending] = useState(false);
-  const [distributors, setDistributors] = useState([]);
-  const [selectedDistributor, setSelectedDistributor] = useState('');
-  const [availableCrops, setAvailableCrops] = useState([]);
-  const [formData, setFormData] = useState({
-    crop_type: '',
-    quantity: '',
-    harvest_date: '',
-    farmer_base_price_per_unit: '',
-  });
 
   useEffect(() => {
     fetchDashboardData();
-    fetchDistributors();
-    fetchCrops();
   }, []);
-
-  const fetchCrops = async () => {
-    try {
-      const response = await farmerAPI.getCrops();
-      if (response.data && response.data.length > 0) {
-        setAvailableCrops(response.data);
-      } else {
-        console.log('No preferences found, using default crops');
-        setAvailableCrops([
-          'Wheat', 'Rice', 'Corn', 'Soybean', 'Cotton',
-          'Sugarcane', 'Bajra', 'Millet', 'Vegetables', 'Fruits'
-        ]);
-      }
-    } catch (error) {
-      console.error('Failed to fetch crops:', error);
-      setAvailableCrops([
-        'Wheat', 'Rice', 'Corn', 'Soybean', 'Cotton',
-        'Sugarcane', 'Bajra', 'Millet', 'Vegetables', 'Fruits'
-      ]);
-    }
-  };
 
   const fetchDashboardData = async () => {
     try {
@@ -259,21 +191,14 @@ const FarmerDashboard = () => {
           revenue: data.metrics.total_revenue,
         });
       }
-
-      // Fetch all batches, not just recent ones
-      const batchResponse = await batchAPI.list();
-      const allBatches = batchResponse.data || [];
-      const originalBatches = allBatches.filter(batch => !batch.is_child_batch);
-      setBatches(originalBatches);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       setError(error.response?.data?.message || 'Failed to load dashboard data');
 
-      // Fallback to legacy batch list API if dashboard endpoint fails
+      // Fallback
       try {
         const response = await batchAPI.list();
         const originalBatches = (response.data || []).filter(batch => !batch.is_child_batch);
-        setBatches(originalBatches);
 
         const total = originalBatches.length;
         const active = originalBatches.filter(b => b.status !== 'SUSPENDED' && b.status !== 'SOLD').length;
@@ -288,92 +213,6 @@ const FarmerDashboard = () => {
     }
   };
 
-  const fetchDistributors = async () => {
-    try {
-      const response = await stakeholderAPI.listProfiles();
-      const distributorList = response.data.filter(profile => profile.role === 'distributor');
-      setDistributors(distributorList);
-    } catch (error) {
-      console.error('Error fetching distributors:', error);
-    }
-  };
-
-  const handleRequestTransport = async () => {
-    if (selectedBatch?.is_locked) {
-      toast.warning('Please complete all pending payments before proceeding.');
-      return;
-    }
-
-    if (!selectedDistributor) {
-      toast.warning('Please select a distributor');
-      return;
-    }
-
-    try {
-      await transportAPI.createRequest({
-        batch_id: selectedBatch.id,
-        distributor_id: selectedDistributor
-      });
-      setShowTransportModal(false);
-      setSelectedBatch(null);
-      setSelectedDistributor('');
-      fetchDashboardData(); // Refresh to show updated status
-      toast.success('Transport request created successfully!');
-    } catch (error) {
-      console.error('Error creating transport request:', error);
-      toast.error(error.response?.data?.message || 'Failed to create transport request');
-    }
-  };
-
-  const handleSuspendBatch = (batchId) => {
-    setBatchToSuspend(batchId);
-    setShowSuspendModal(true);
-  };
-
-  const confirmSuspend = async (batchId, reason) => {
-    try {
-      setSuspending(true);
-      await batchAPI.suspend(batchId, reason);
-      toast.success('Batch suspended successfully.');
-      setShowSuspendModal(false);
-      setBatchToSuspend(null);
-      fetchDashboardData();
-    } catch (error) {
-      console.error('Error suspending batch:', error);
-      toast.error(error.response?.data?.message || 'Failed to suspend batch');
-    } finally {
-      setSuspending(false);
-    }
-  };
-
-  const handleCreateBatch = async (e) => {
-    e.preventDefault();
-    try {
-      // Create payload matching the serializer fields
-      const payload = {
-        crop_type: formData.crop_type,
-        quantity: formData.quantity,
-        harvest_date: formData.harvest_date,
-        farmer_base_price_per_unit: formData.farmer_base_price_per_unit
-      };
-
-      await batchAPI.create(payload);
-      setShowCreateForm(false);
-      setFormData({
-        crop_type: '',
-        quantity: '',
-        harvest_date: '',
-        farmer_base_price_per_unit: '',
-      });
-
-      fetchDashboardData();
-      toast.success('Batch created successfully');
-    } catch (error) {
-      console.error('Error creating batch:', error);
-      toast.error('Error creating batch. Please try again.');
-    }
-  };
-
   if (loading) {
     return (
       <MainLayout>
@@ -385,7 +224,7 @@ const FarmerDashboard = () => {
   }
 
   // Check if farmer has no batches
-  const hasNoBatches = !dashboardData?.has_batches && batches.length === 0;
+  const hasNoBatches = !dashboardData?.has_batches && stats.total === 0;
 
   return (
     <MainLayout>
@@ -472,130 +311,9 @@ const FarmerDashboard = () => {
               />
             </div>
 
-            {/* My Batches Section */}
-            <div className="bg-white dark:bg-cosmos-800 rounded-xl shadow-sm border border-gray-100 dark:border-cosmos-700">
-              <div className="p-6 border-b border-gray-100 dark:border-cosmos-700">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">My Batches</h2>
-                  <Link 
-                    to="/farmer/batches" 
-                    className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
-                  >
-                    View All
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-              <div className="max-h-96 overflow-y-auto">
-                {batches.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
-                    <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p>No batches found</p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-gray-100 dark:divide-cosmos-700">
-                    {batches.map((batch) => (
-                      <div key={batch.id} className="p-4 hover:bg-gray-50 dark:hover:bg-cosmos-700 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <span className="font-mono text-sm text-gray-500">
-                                #{batch.id}
-                              </span>
-                              {getStatusBadge(batch.status)}
-                            </div>
-                            <div className="flex items-center gap-4 text-sm">
-                              <span className="font-medium text-gray-900 dark:text-white capitalize">
-                                {batch.crop_type}
-                              </span>
-                              <span className="text-gray-500">
-                                {formatNumber(batch.quantity || 0)} kg
-                              </span>
-                              {batch.farmer_base_price_per_unit && (
-                                <span className="text-gray-500">
-                                  {formatCurrency(batch.farmer_base_price_per_unit)}/kg
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => setSelectedBatch(batch)}
-                              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
           </>
         )}
 
-
-        {/* Transport Request Modal */}
-        {showTransportModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Request Transport</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Batch</label>
-                  <p className="text-sm text-gray-600">{selectedBatch?.product_batch_id} - {selectedBatch?.crop_type}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Select Distributor</label>
-                  <select
-                    value={selectedDistributor}
-                    onChange={(e) => setSelectedDistributor(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="">Choose a distributor...</option>
-                    {distributors.map(dist => (
-                      <option key={dist.id} value={dist.id}>
-                        {dist.user_details?.username || dist.organization || `Distributor ${dist.id}`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => {
-                    setShowTransportModal(false);
-                    setSelectedBatch(null);
-                    setSelectedDistributor('');
-                  }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleRequestTransport}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                >
-                  Request Transport
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        {/* Suspend Modal */}
-        <SuspendModal
-          isOpen={showSuspendModal}
-          loading={suspending}
-          batchId={batchToSuspend}
-          onClose={() => {
-            setShowSuspendModal(false);
-            setBatchToSuspend(null);
-          }}
-          onConfirm={confirmSuspend}
-        />
-        
         {/* AgriChain Assistant */}
         <AssistantWidget onActionComplete={fetchDashboardData} />
       </div>

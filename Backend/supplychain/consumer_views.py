@@ -45,8 +45,10 @@ class BatchTraceView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        # Fetch Listing for price breakdown
-        listing = models.RetailListing.objects.filter(batch=batch).last()
+        # Fetch Listing for price breakdown and retailer info
+        listing = models.RetailListing.objects.select_related(
+            'retailer__user'
+        ).filter(batch=batch).last()
         
         # Calculate parent batch quantity if split
         parent_qty = batch.quantity
@@ -63,6 +65,43 @@ class BatchTraceView(APIView):
                 "actor": event.performed_by.username if event.performed_by else "System",
                 "timestamp": event.timestamp.isoformat()
             })
+
+        # Fetch stakeholder info from TransportRequests
+        transport_requests = models.TransportRequest.objects.select_related(
+            'transporter__user',
+            'to_party__user',
+            'from_party__user',
+        ).filter(batch=batch).order_by('created_at')
+
+        # First transport request (farmer → distributor leg)
+        transporter_data = None
+        distributor_data = None
+        for tr in transport_requests:
+            if tr.transporter and transporter_data is None:
+                transporter_data = {
+                    "name": tr.transporter.user.username,
+                    "company_name": tr.transporter.organization or tr.transporter.user.username,
+                    "pickup_date": tr.pickup_at.isoformat() if tr.pickup_at else None,
+                    "delivery_date": tr.delivered_at.isoformat() if tr.delivered_at else None,
+                    "vehicle_details": tr.vehicle_details or None,
+                }
+            # The distributor is the to_party of the first transport request to a distributor
+            if tr.to_party and tr.to_party.role == 'distributor' and distributor_data is None:
+                distributor_data = {
+                    "name": tr.to_party.user.username,
+                    "company_name": tr.to_party.organization or tr.to_party.user.username,
+                    "location": tr.to_party.address or None,
+                }
+
+        # Retailer info from listing
+        retailer_data = None
+        if listing and listing.retailer:
+            retailer_data = {
+                "name": listing.retailer.user.username,
+                "shop_name": listing.retailer.organization or listing.retailer.user.username,
+                "location": listing.retailer.address or None,
+                "listed_date": listing.created_at.isoformat() if listing.created_at else None,
+            }
         
         # Build response according to SPEC
         response_data = {
@@ -77,6 +116,9 @@ class BatchTraceView(APIView):
                 "harvest_date": batch.harvest_date.isoformat(),
                 "parent_batch_quantity": f"{parent_qty} kg"
             },
+            "transporter": transporter_data,
+            "distributor": distributor_data,
+            "retailer": retailer_data,
             "price_breakdown": {
                 "farmer_price": float(listing.farmer_base_price) if listing else 0,
                 "transport_cost": float(listing.transport_fees) if listing else 0,

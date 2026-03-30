@@ -972,6 +972,7 @@ const ConsumerTrace = () => {
               batchId={searchResult.batch_id}
               inspections={inspections}
               batch={searchResult}
+              hidePricing={true}
             />
           ) : (
             <div className="text-center py-8 lg:py-12 bg-slate-50 dark:bg-slate-800/30 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700">

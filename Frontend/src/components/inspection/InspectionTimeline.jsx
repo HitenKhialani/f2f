@@ -65,7 +65,7 @@ const RESULT_CONFIG = {
   },
 };
 
-const InspectionTimeline = ({ batchId, inspections: propInspections, batch }) => {
+const InspectionTimeline = ({ batchId, inspections: propInspections, batch, hidePricing = false }) => {
   const [inspections, setInspections] = useState(propInspections || []);
   const [loading, setLoading] = useState(!propInspections);
   const [error, setError] = useState(null);
@@ -170,7 +170,7 @@ const InspectionTimeline = ({ batchId, inspections: propInspections, batch }) =>
         </span>
       </div>
 
-      {batch && (
+      {batch && !hidePricing && (
         <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
           <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
             <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs">₹</span>

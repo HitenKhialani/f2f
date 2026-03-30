@@ -709,6 +709,7 @@ const Inventory = () => {
               <InspectionTimeline
                 batchId={selectedBatch.id}
                 inspections={batchInspections[selectedBatch.id]}
+                batch={selectedBatch}
               />
             </div>
           </div>
